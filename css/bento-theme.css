@@ -1513,8 +1513,59 @@ body[data-theme-style="bento"] #bento-layout-root {
 
 :root[data-theme-mode="light"] .bento-live-shape-svg path,
 body[data-theme-mode="light"] .bento-live-shape-svg path {
-  fill: #ffffff;
-  stroke: var(--green);
+  fill: #ffffff !important;
+  stroke: var(--green, #10b981) !important;
+  filter: drop-shadow(0 2px 10px rgba(16, 185, 129, 0.22)) !important;
+}
+
+:root[data-theme-mode="light"] .bento-single-card.live:hover .bento-live-shape-svg path,
+body[data-theme-mode="light"] .bento-single-card.live:hover .bento-live-shape-svg path {
+  fill: #f6fcf8 !important;
+  stroke: var(--green, #10b981) !important;
+  filter: drop-shadow(0 4px 18px rgba(16, 185, 129, 0.38)) !important;
+}
+
+:root[data-theme-mode="light"] .bento-single-card.live .card-body-text,
+body[data-theme-mode="light"] .bento-single-card.live .card-body-text,
+:root[data-theme-mode="light"] .bento-single-card.live .card-body-text *,
+body[data-theme-mode="light"] .bento-single-card.live .card-body-text *,
+:root[data-theme-mode="light"] .bento-single-card.live:hover .card-body-text,
+body[data-theme-mode="light"] .bento-single-card.live:hover .card-body-text,
+:root[data-theme-mode="light"] .bento-single-card.live:hover .card-body-text *,
+body[data-theme-mode="light"] .bento-single-card.live:hover .card-body-text * {
+  color: #14131c !important;
+  font-weight: 500 !important;
+}
+
+:root[data-theme-mode="light"] .bento-single-card:hover .card-body-text,
+body[data-theme-mode="light"] .bento-single-card:hover .card-body-text {
+  color: #14131c;
+}
+
+:root[data-theme-mode="light"] .bento-slide-card.live,
+body[data-theme-mode="light"] .bento-slide-card.live {
+  background: #ffffff !important;
+  border: 1.5px solid var(--green, #10b981) !important;
+  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.2) !important;
+}
+
+:root[data-theme-mode="light"] .bento-slide-card.live:hover,
+body[data-theme-mode="light"] .bento-slide-card.live:hover {
+  background: #f6fcf8 !important;
+  border-color: var(--green, #10b981) !important;
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.32) !important;
+}
+
+:root[data-theme-mode="light"] .bento-slide-card.live .ln,
+body[data-theme-mode="light"] .bento-slide-card.live .ln,
+:root[data-theme-mode="light"] .bento-slide-card.live .ln *,
+body[data-theme-mode="light"] .bento-slide-card.live .ln *,
+:root[data-theme-mode="light"] .bento-slide-card.live:hover .ln,
+body[data-theme-mode="light"] .bento-slide-card.live:hover .ln,
+:root[data-theme-mode="light"] .bento-slide-card.live:hover .ln *,
+body[data-theme-mode="light"] .bento-slide-card.live:hover .ln * {
+  color: #14131c !important;
+  font-weight: 500 !important;
 }
 
 :root[data-theme-mode="light"] .bento-corner-dock .play-circle-btn,
@@ -1522,6 +1573,7 @@ body[data-theme-mode="light"] .bento-corner-dock .play-circle-btn {
   background: #ffffff;
   border-color: var(--green);
   color: var(--green);
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
 }
 
 :root[data-theme-mode="light"] .bento-single-card.live:hover .bento-corner-dock .play-circle-btn,
@@ -1530,6 +1582,7 @@ body[data-theme-mode="light"] .bento-single-card.live:hover .bento-corner-dock .
 body[data-theme-mode="light"] .bento-corner-dock .play-circle-btn:hover {
   background: var(--green);
   color: #ffffff;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.55);
 }
 
 /* ============ RIGHT COLUMN: PREVIEW & AI FEED ============ */
@@ -6468,7 +6521,7 @@ body[data-theme-style="bento"][data-theme-mode="light"] .sf-strong-tag {
 
 .session-name {
   font-weight: 600;
-  color: #ffffff;
+  color: var(--text, #f3f2f7);
   max-width: 140px;
   white-space: nowrap;
   overflow: hidden;
@@ -6666,6 +6719,95 @@ body[data-theme-style="bento"][data-theme-mode="light"] .sf-strong-tag {
   background: rgba(138, 109, 255, 0.16);
   border-color: rgba(138, 109, 255, 0.3);
   color: #ffffff;
+}
+
+/* ─── Bento Session Engine Light Theme Contrast Overrides ─── */
+:root[data-theme-mode="light"] .bento-session-pill,
+body[data-theme-mode="light"] .bento-session-pill {
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+  color: #14131c !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+
+:root[data-theme-mode="light"] .bento-session-pill:hover,
+body[data-theme-mode="light"] .bento-session-pill:hover {
+  background: #f7f6fc !important;
+  border-color: rgba(0, 0, 0, 0.18) !important;
+}
+
+:root[data-theme-mode="light"] .session-name,
+body[data-theme-mode="light"] .session-name {
+  color: #14131c !important;
+}
+
+:root[data-theme-mode="light"] .session-label,
+body[data-theme-mode="light"] .session-label {
+  color: #5a5769 !important;
+}
+
+:root[data-theme-mode="light"] .session-count,
+body[data-theme-mode="light"] .session-count {
+  background: rgba(120, 82, 255, 0.12) !important;
+  color: #6037e6 !important;
+}
+
+:root[data-theme-mode="light"] .bento-session-dropdown,
+body[data-theme-mode="light"] .bento-session-dropdown {
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(120, 82, 255, 0.08) !important;
+}
+
+:root[data-theme-mode="light"] .session-dropdown-header,
+body[data-theme-mode="light"] .session-dropdown-header {
+  color: #5a5769 !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+:root[data-theme-mode="light"] .session-menu-item:hover,
+body[data-theme-mode="light"] .session-menu-item:hover {
+  background: rgba(0, 0, 0, 0.04) !important;
+}
+
+:root[data-theme-mode="light"] .session-menu-item.active,
+body[data-theme-mode="light"] .session-menu-item.active {
+  background: rgba(120, 82, 255, 0.10) !important;
+}
+
+:root[data-theme-mode="light"] .session-menu-item .s-name,
+body[data-theme-mode="light"] .session-menu-item .s-name {
+  color: #14131c !important;
+}
+
+:root[data-theme-mode="light"] .session-action-btn,
+body[data-theme-mode="light"] .session-action-btn {
+  color: #14131c !important;
+}
+
+:root[data-theme-mode="light"] .session-action-btn:hover,
+body[data-theme-mode="light"] .session-action-btn:hover {
+  background: rgba(0, 0, 0, 0.04) !important;
+}
+
+:root[data-theme-mode="light"] .session-action-btn kbd,
+body[data-theme-mode="light"] .session-action-btn kbd {
+  color: #5a5769 !important;
+  background: rgba(0, 0, 0, 0.06) !important;
+}
+
+:root[data-theme-mode="light"] .bento-agenda-session-btn,
+body[data-theme-mode="light"] .bento-agenda-session-btn {
+  background: #ffffff !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+  color: #5a5769 !important;
+}
+
+:root[data-theme-mode="light"] .bento-agenda-session-btn:hover,
+body[data-theme-mode="light"] .bento-agenda-session-btn:hover {
+  background: rgba(120, 82, 255, 0.12) !important;
+  border-color: rgba(120, 82, 255, 0.3) !important;
+  color: #6037e6 !important;
 }
 
 /* ─── Session Manager Modal & Overlay ─────────────────────────────────────── */
@@ -6893,6 +7035,82 @@ body[data-theme-style="bento"][data-theme-mode="light"] .sf-strong-tag {
   border-radius: 3px;
   font-size: 11px;
   color: #ffffff;
+}
+
+/* Light Theme Overrides for Session Manager Dialog */
+:root[data-theme-mode="light"] .session-manager-dialog,
+body[data-theme-mode="light"] .session-manager-dialog {
+  background: #ffffff !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.20) !important;
+}
+
+:root[data-theme-mode="light"] .sf-modal-head,
+body[data-theme-mode="light"] .sf-modal-head {
+  background: #f8f7fc !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+:root[data-theme-mode="light"] .sf-modal-title,
+body[data-theme-mode="light"] .sf-modal-title {
+  color: #14131c !important;
+}
+
+:root[data-theme-mode="light"] .sf-modal-sub,
+body[data-theme-mode="light"] .sf-modal-sub {
+  color: #5a5769 !important;
+}
+
+:root[data-theme-mode="light"] .sf-modal-close,
+body[data-theme-mode="light"] .sf-modal-close {
+  border-color: rgba(0, 0, 0, 0.10) !important;
+  color: #5a5769 !important;
+}
+
+:root[data-theme-mode="light"] .sf-modal-close:hover,
+body[data-theme-mode="light"] .sf-modal-close:hover {
+  background: rgba(0, 0, 0, 0.06) !important;
+  color: #14131c !important;
+}
+
+:root[data-theme-mode="light"] .session-row-item,
+body[data-theme-mode="light"] .session-row-item {
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+:root[data-theme-mode="light"] .session-row-item:hover,
+body[data-theme-mode="light"] .session-row-item:hover {
+  background: #f8f7fc !important;
+  border-color: rgba(0, 0, 0, 0.16) !important;
+}
+
+:root[data-theme-mode="light"] .session-row-item.active-session,
+body[data-theme-mode="light"] .session-row-item.active-session {
+  border-color: rgba(120, 82, 255, 0.4) !important;
+  background: rgba(120, 82, 255, 0.06) !important;
+  border-left: 3px solid #7852ff !important;
+}
+
+:root[data-theme-mode="light"] .session-row-title,
+body[data-theme-mode="light"] .session-row-title {
+  color: #14131c !important;
+}
+
+:root[data-theme-mode="light"] .session-row-date,
+body[data-theme-mode="light"] .session-row-date {
+  color: #5a5769 !important;
+}
+
+:root[data-theme-mode="light"] .session-empty-state .t,
+body[data-theme-mode="light"] .session-empty-state .t {
+  color: #14131c !important;
+}
+
+:root[data-theme-mode="light"] .session-foot-hint code,
+body[data-theme-mode="light"] .session-foot-hint code {
+  background: rgba(0, 0, 0, 0.06) !important;
+  color: #14131c !important;
 }
 
 /* ─── Global Drag & Drop Overlay ─────────────────────────────────────────── */
