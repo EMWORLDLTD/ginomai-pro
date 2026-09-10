@@ -4164,13 +4164,20 @@ body[data-theme-style="bento"][data-theme-mode="light"] .custom-select-option.se
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.85);
   width: 290px;
   max-width: 90vw;
+  max-height: calc(100vh - 24px);
+  box-sizing: border-box;
   display: none;
+  flex-direction: column;
 }
 
 .bento-verse-popover {
   z-index: 10000;
   border-color: rgba(138, 109, 255, 0.45);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.9), 0 0 16px rgba(138, 109, 255, 0.18);
+  max-height: calc(100vh - 24px);
+  box-sizing: border-box;
+  display: none;
+  flex-direction: column;
 }
 
 .bento-verse-popover.flyout-left-arrow::before {
@@ -4199,9 +4206,42 @@ body[data-theme-style="bento"][data-theme-mode="light"] .custom-select-option.se
   z-index: 1;
 }
 
+.bento-verse-popover.flyout-right-arrow::before {
+  content: '';
+  position: absolute;
+  right: -7px;
+  top: var(--arrow-top, 24px);
+  width: 0;
+  height: 0;
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+  border-left: 7px solid #15141c;
+  z-index: 2;
+}
+
+.bento-verse-popover.flyout-right-arrow::after {
+  content: '';
+  position: absolute;
+  right: -8px;
+  top: var(--arrow-top, 24px);
+  width: 0;
+  height: 0;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-left: 8px solid rgba(138, 109, 255, 0.6);
+  z-index: 1;
+}
+
 .bento-chapter-popover.open {
-  display: block;
+  display: flex;
   animation: bentoPopIn 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.bento-drawer-btn.picking-active {
+  border-color: var(--purple, #8A6DFF) !important;
+  color: #fff !important;
+  background: rgba(138, 109, 255, 0.25) !important;
+  box-shadow: 0 0 8px rgba(138, 109, 255, 0.35) !important;
 }
 
 @keyframes bentoPopIn {
@@ -4240,7 +4280,9 @@ body[data-theme-style="bento"][data-theme-mode="light"] .custom-select-option.se
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   gap: 4px;
-  max-height: 200px;
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: min(280px, calc(100vh - 120px));
   overflow-y: auto;
   padding-right: 2px;
 }

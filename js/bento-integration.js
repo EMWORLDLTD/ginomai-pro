@@ -1645,11 +1645,10 @@
   // ─────────────────────────────────────────────────────────────────────────────
   window.selectBentoBibleChapter = function(book, chNum, openVerseNext = true, triggerEl = null) {
     if (!window.state) window.state = {};
-    window.state.activeBibleBook = book;
-    window.state.activeBibleChapter = parseInt(chNum, 10);
+    const parsedCh = parseInt(chNum, 10) || 1;
     closeBentoChapterPopover();
 
-    // Capture button geometry immediately before re-rendering library
+    // Capture button geometry immediately before any DOM updates
     let savedRect = null;
     let isDrawer = false;
     const rawEl = triggerEl && (triggerEl.currentTarget || triggerEl.target || triggerEl);
@@ -1661,14 +1660,23 @@
       }
     }
 
-    if (typeof window.renderLibrary === 'function') window.renderLibrary();
-    if (typeof window.renderDeck === 'function') window.renderDeck(true);
-    if (typeof window.syncDashboardWorkspace === 'function') window.syncDashboardWorkspace();
-
     if (openVerseNext) {
+      // User clicked a chapter to pick a verse: DO NOT change the main deck yet!
+      window.state.pendingVerseSelection = { book: book, chapter: parsedCh };
+
+      // Highlight the chapter button being browsed in the drawer
+      document.querySelectorAll('.bento-drawer-btn.picking-active').forEach(el => {
+        el.classList.remove('picking-active');
+      });
+      if (rawEl && rawEl.classList && rawEl.classList.contains('bento-drawer-btn')) {
+        rawEl.classList.add('picking-active');
+      }
+
       setTimeout(() => {
         if (typeof window.toggleBentoVersePopover === 'function') {
           window.toggleBentoVersePopover({
+            book: book,
+            chapter: parsedCh,
             savedRect: savedRect,
             isDrawerBtn: isDrawer,
             currentTarget: rawEl || document.getElementById('bento-active-verse-badge'),
@@ -1676,7 +1684,17 @@
           });
         }
       }, 10);
+      return;
     }
+
+    // Direct chapter selection (e.g. keyboard navigation without verse picker)
+    window.state.activeBibleBook = book;
+    window.state.activeBibleChapter = parsedCh;
+    window.state.expandedBibleBook = book;
+    window.state.pendingVerseSelection = null;
+    if (typeof window.renderLibrary === 'function') window.renderLibrary();
+    if (typeof window.renderDeck === 'function') window.renderDeck(true);
+    if (typeof window.syncDashboardWorkspace === 'function') window.syncDashboardWorkspace();
   };
 
   window.bentoPrevBibleChapter = function(e) {
@@ -1829,11 +1847,12 @@
 
   function renderBentoVersePopoverGrid(filterQ = '') {
     const list = document.getElementById('bento-verse-popover-grid');
+    const popover = document.getElementById('bento-verse-popover');
     if (!list) return;
     list.innerHTML = '';
 
-    const book = (window.state && window.state.activeBibleBook) ? window.state.activeBibleBook : 'Genesis';
-    const ch = parseInt(window.state && window.state.activeBibleChapter, 10) || 1;
+    const book = (popover && popover._targetBook) || (window.state && (window.state.pendingVerseSelection?.book || window.state.activeBibleBook)) || 'Genesis';
+    const ch = parseInt((popover && popover._targetChapter) || (window.state && (window.state.pendingVerseSelection?.chapter || window.state.activeBibleChapter)), 10) || 1;
     const ver = (window.state && window.state.bibleVersion) ? window.state.bibleVersion : 'KJV';
     const verses = typeof window.getBibleVerses === 'function' ? window.getBibleVerses(book, ch, ver) : [];
     const titleEl = document.getElementById('bento-verse-popover-title');
@@ -1859,16 +1878,30 @@
       btn.textContent = vNum;
       btn.onclick = (e) => {
         e.stopPropagation();
-        window.selectBentoBibleVerse(vNum);
+        window.selectBentoBibleVerse(vNum, book, ch);
       };
       list.appendChild(btn);
     });
   }
 
-  window.selectBentoBibleVerse = function(verseNum) {
+  window.selectBentoBibleVerse = function(verseNum, targetBook = null, targetChapter = null) {
+    const popover = document.getElementById('bento-verse-popover');
+    const book = targetBook || (popover && popover._targetBook) || (window.state && (window.state.pendingVerseSelection?.book || window.state.activeBibleBook)) || 'Genesis';
+    const ch = parseInt(targetChapter || (popover && popover._targetChapter) || (window.state && (window.state.pendingVerseSelection?.chapter || window.state.activeBibleChapter)), 10) || 1;
+
     closeBentoVersePopover();
-    const book = (window.state && window.state.activeBibleBook) ? window.state.activeBibleBook : 'Genesis';
-    const ch = parseInt(window.state && window.state.activeBibleChapter, 10) || 1;
+
+    if (!window.state) window.state = {};
+    window.state.activeBibleBook = book;
+    window.state.activeBibleChapter = ch;
+    window.state.expandedBibleBook = book;
+    window.state.pendingVerseSelection = null;
+
+    // Transition the main deck and library synchronously to the newly selected passage
+    if (typeof window.renderLibrary === 'function') window.renderLibrary();
+    if (typeof window.renderDeck === 'function') window.renderDeck(true);
+    if (typeof window.syncDashboardWorkspace === 'function') window.syncDashboardWorkspace();
+
     const badge = document.getElementById('bento-active-verse-badge');
     if (badge) {
       if (badge.classList.contains('bento-unified-ref-btn')) {
@@ -1919,7 +1952,7 @@
           if (e.key === 'Enter') {
             const val = parseInt(e.target.value.trim(), 10);
             if (!isNaN(val)) {
-              window.selectBentoBibleVerse(val);
+              window.selectBentoBibleVerse(val, popover._targetBook, popover._targetChapter);
             }
           } else if (e.key === 'Escape') {
             closeBentoVersePopover();
@@ -1928,54 +1961,85 @@
       }
     }
 
+    const targetBook = (event && event.book) || (window.state && window.state.pendingVerseSelection?.book) || (window.state && window.state.activeBibleBook) || 'Genesis';
+    const targetChapter = parseInt((event && event.chapter) || (window.state && window.state.pendingVerseSelection?.chapter) || (window.state && window.state.activeBibleChapter), 10) || 1;
+
     const isOpen = popover.classList.contains('open');
-    if (isOpen) {
+    if (isOpen && popover._targetBook === targetBook && popover._targetChapter === targetChapter && !event?.savedRect) {
       closeBentoVersePopover();
       return;
     }
+
+    popover._targetBook = targetBook;
+    popover._targetChapter = targetChapter;
+
+    // Render contents first so popover has actual rendered elements to measure
+    const searchInp = popover.querySelector('#bento-verse-popover-search-input');
+    if (searchInp) searchInp.value = '';
+    renderBentoVersePopoverGrid('');
+
+    // Open so real rendered height and width can be accurately calculated
+    popover.classList.add('open');
 
     const targetEl = (event && (event.currentTarget || event.target)) || document.getElementById('bento-active-verse-badge');
     const isDrawerBtn = (event && event.isDrawerBtn) || (targetEl && targetEl.classList && targetEl.classList.contains('bento-drawer-btn'));
     const rect = (event && event.savedRect) || (targetEl && typeof targetEl.getBoundingClientRect === 'function' ? targetEl.getBoundingClientRect() : null);
 
+    // Measure actual rendered dimensions dynamically
+    const popoverHeight = popover.offsetHeight || 300;
+    const popoverWidth = popover.offsetWidth || 290;
+
     if (rect) {
       popover.style.position = 'fixed';
       if (isDrawerBtn) {
-        // Flyout horizontally to the right of the chapter button
-        const popoverWidth = 290;
-        const popoverHeight = 240;
         let left = rect.right + 12;
         let top = rect.top - 12;
-        
-        // Prevent bottom screen overflow
-        if (top + popoverHeight > window.innerHeight - 20) {
-          top = window.innerHeight - popoverHeight - 20;
+
+        // Check horizontal screen overflow (flip arrow if near right edge)
+        if (left + popoverWidth > window.innerWidth - 12) {
+          left = Math.max(12, rect.left - popoverWidth - 12);
+          popover.classList.remove('flyout-left-arrow');
+          popover.classList.add('flyout-right-arrow');
+        } else {
+          popover.classList.remove('flyout-right-arrow');
+          popover.classList.add('flyout-left-arrow');
         }
-        if (top < 10) top = 10;
+
+        // Strict vertical clamping: NEVER go outside the screen
+        const maxTop = window.innerHeight - popoverHeight - 16;
+        if (top > maxTop) {
+          top = maxTop;
+        }
+        if (top < 12) {
+          top = 12;
+        }
 
         popover.style.left = `${left}px`;
         popover.style.top = `${top}px`;
-        popover.classList.add('flyout-left-arrow');
-        
-        // Calculate arrow vertical alignment relative to clicked chapter button center
-        const arrowTop = Math.max(16, Math.min(popoverHeight - 24, (rect.top + rect.height / 2) - top - 7));
+
+        // Arrow vertical alignment directly to clicked chapter button center
+        const btnCenterY = rect.top + (rect.height / 2);
+        const arrowTop = Math.max(16, Math.min(popoverHeight - 24, btnCenterY - top - 7));
         popover.style.setProperty('--arrow-top', `${arrowTop}px`);
       } else {
-        popover.classList.remove('flyout-left-arrow');
-        popover.style.top = `${rect.bottom + 8}px`;
-        popover.style.left = `${Math.max(10, Math.min(window.innerWidth - 300, rect.left))}px`;
+        popover.classList.remove('flyout-left-arrow', 'flyout-right-arrow');
+        let top = rect.bottom + 8;
+        let left = Math.max(10, Math.min(window.innerWidth - popoverWidth - 12, rect.left));
+        const maxTop = window.innerHeight - popoverHeight - 16;
+        if (top > maxTop) {
+          const topAbove = rect.top - popoverHeight - 8;
+          top = topAbove >= 12 ? topAbove : Math.max(12, maxTop);
+        }
+        popover.style.top = `${top}px`;
+        popover.style.left = `${left}px`;
       }
     } else {
-      popover.classList.remove('flyout-left-arrow');
+      popover.classList.remove('flyout-left-arrow', 'flyout-right-arrow');
       popover.style.position = 'fixed';
       popover.style.top = '100px';
       popover.style.left = '320px';
     }
 
-    const searchInp = popover.querySelector('#bento-verse-popover-search-input');
-    if (searchInp) searchInp.value = '';
-    renderBentoVersePopoverGrid('');
-    popover.classList.add('open');
     if (searchInp && typeof searchInp.focus === 'function') {
       setTimeout(() => {
         if (typeof searchInp.focus === 'function') searchInp.focus();
@@ -1987,8 +2051,14 @@
     const popover = document.getElementById('bento-verse-popover');
     if (popover) {
       popover.classList.remove('open');
-      popover.classList.remove('flyout-left-arrow');
+      popover.classList.remove('flyout-left-arrow', 'flyout-right-arrow');
     }
+    if (window.state) {
+      window.state.pendingVerseSelection = null;
+    }
+    document.querySelectorAll('.bento-drawer-btn.picking-active').forEach(el => {
+      el.classList.remove('picking-active');
+    });
   }
   window.closeBentoVersePopover = closeBentoVersePopover;
 
