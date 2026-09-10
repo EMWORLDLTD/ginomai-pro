@@ -3335,13 +3335,27 @@ body[data-theme-style="bento"] .hub-action-btn.status-paused {
 }
 
 /* 13. Hotkeys & Shortcuts Panel */
-body[data-theme-style="bento"] #tab-shortcuts .settings-card-group > div {
+body[data-theme-style="bento"] #tab-shortcuts .settings-card-group > div,
+body[data-theme-style="bento"] .shortcut-card {
   background: #131218 !important;
   border: 1px solid rgba(255, 255, 255, 0.07) !important;
   border-radius: 10px !important;
 }
 
-body[data-theme-style="bento"] #tab-shortcuts kbd {
+.shortcut-action-name {
+  color: var(--text, #f3f2f7);
+}
+
+.settings-version-title {
+  color: var(--text-starlight, #ffffff);
+}
+
+.danger-label {
+  color: #fca5a5;
+}
+
+body[data-theme-style="bento"] #tab-shortcuts kbd,
+body[data-theme-style="bento"] .shortcut-kbd {
   font-family: 'JetBrains Mono', monospace !important;
   font-size: 11px !important;
   font-weight: 600 !important;
@@ -3350,6 +3364,27 @@ body[data-theme-style="bento"] #tab-shortcuts kbd {
   border: 1px solid rgba(138, 109, 255, 0.35) !important;
   padding: 3px 8px !important;
   border-radius: 6px !important;
+}
+
+body[data-theme-style="bento"] #tab-shortcuts kbd.kbd-pink,
+body[data-theme-style="bento"] .shortcut-kbd.kbd-pink {
+  background: rgba(236, 72, 153, 0.18) !important;
+  color: var(--accent-pink-light, #f472b6) !important;
+  border: 1px solid rgba(236, 72, 153, 0.4) !important;
+}
+
+body[data-theme-style="bento"] #tab-shortcuts kbd.kbd-blue,
+body[data-theme-style="bento"] .shortcut-kbd.kbd-blue {
+  background: rgba(59, 130, 246, 0.2) !important;
+  color: #93c5fd !important;
+  border: 1px solid rgba(59, 130, 246, 0.45) !important;
+}
+
+body[data-theme-style="bento"] #tab-shortcuts kbd.kbd-red,
+body[data-theme-style="bento"] .shortcut-kbd.kbd-red {
+  background: rgba(239, 68, 68, 0.2) !important;
+  color: #fca5a5 !important;
+  border: 1px solid rgba(239, 68, 68, 0.45) !important;
 }
 
 /* 13b. Settings Help & Support Tab */
@@ -3611,9 +3646,60 @@ body[data-theme-style="bento"][data-theme-mode="light"] .repo-item-card:hover {
   border-color: rgba(0, 0, 0, 0.10) !important;
 }
 
-body[data-theme-style="bento"][data-theme-mode="light"] #tab-shortcuts .settings-card-group > div {
+body[data-theme-style="bento"][data-theme-mode="light"] #tab-shortcuts .settings-card-group > div,
+body[data-theme-style="bento"][data-theme-mode="light"] .shortcut-card {
   background: #ffffff !important;
-  border-color: rgba(0, 0, 0, 0.06) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .shortcut-action-name,
+:root[data-theme-mode="light"] .shortcut-action-name,
+body[data-theme-mode="light"] .shortcut-action-name {
+  color: #14131c !important;
+  font-weight: 600 !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] #tab-shortcuts kbd,
+body[data-theme-style="bento"][data-theme-mode="light"] .shortcut-kbd {
+  background: #edeaf5 !important;
+  border: 1px solid rgba(0, 0, 0, 0.10) !important;
+  color: #4a4759 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] #tab-shortcuts kbd.kbd-pink,
+body[data-theme-style="bento"][data-theme-mode="light"] .shortcut-kbd.kbd-pink {
+  background: rgba(236, 72, 153, 0.12) !important;
+  border-color: rgba(236, 72, 153, 0.35) !important;
+  color: #be185d !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] #tab-shortcuts kbd.kbd-blue,
+body[data-theme-style="bento"][data-theme-mode="light"] .shortcut-kbd.kbd-blue {
+  background: rgba(59, 130, 246, 0.12) !important;
+  border-color: rgba(59, 130, 246, 0.35) !important;
+  color: #1d4ed8 !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] #tab-shortcuts kbd.kbd-red,
+body[data-theme-style="bento"][data-theme-mode="light"] .shortcut-kbd.kbd-red {
+  background: rgba(239, 68, 68, 0.12) !important;
+  border-color: rgba(239, 68, 68, 0.35) !important;
+  color: #b91c1c !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .settings-version-tag {
+  border-top-color: rgba(0, 0, 0, 0.08) !important;
+  color: #5a5769 !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .settings-version-title {
+  color: #14131c !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .danger-label {
+  color: #dc2626 !important;
 }
 
 body[data-theme-style="bento"][data-theme-mode="light"] .settings-help-btn,
@@ -3776,14 +3862,16 @@ body[data-theme-mode="light"] .song-editor-save-btn:hover {
 
 /* Close button universal light mode override */
 :root[data-theme-mode="light"] .settings-close-btn,
-body[data-theme-mode="light"] .settings-close-btn {
+body[data-theme-mode="light"] .settings-close-btn,
+body[data-theme-style="bento"][data-theme-mode="light"] .settings-close-btn {
   background: #edeaf5 !important;
   border: 1px solid rgba(0, 0, 0, 0.10) !important;
   color: #5a5769 !important;
 }
 
 :root[data-theme-mode="light"] .settings-close-btn:hover,
-body[data-theme-mode="light"] .settings-close-btn:hover {
+body[data-theme-mode="light"] .settings-close-btn:hover,
+body[data-theme-style="bento"][data-theme-mode="light"] .settings-close-btn:hover {
   background: rgba(220, 38, 38, 0.12) !important;
   border-color: rgba(220, 38, 38, 0.35) !important;
   color: #dc2626 !important;

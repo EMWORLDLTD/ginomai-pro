@@ -1177,7 +1177,7 @@ My chains are gone, I've been set free..."></textarea>
           </div>
 
           <div class="settings-version-tag">
-            <div style="color:var(--text-starlight); font-weight:600;">GINOMAI PRO</div>
+            <div class="settings-version-title" style="font-weight:600;">GINOMAI PRO</div>
             <div style="display:flex; align-items:center; justify-content:space-between; gap:6px; margin-top:2px;">
               <span>Build 2.4.0-PRO</span>
               <button type="button" onclick="checkForUpdates()" title="Check for software updates" style="background:none; border:none; color:var(--purple, #8a6dff); font-size:10px; font-weight:600; cursor:pointer; padding:0; text-decoration:underline;">Check</button>
@@ -1775,7 +1775,7 @@ My chains are gone, I've been set free..."></textarea>
             <div class="settings-card-group" style="border-color: rgba(239,68,68,0.25); background: rgba(239,68,68,0.03);">
               <div class="settings-field-row">
                 <div class="settings-field-info">
-                  <div class="settings-field-label" style="color:#FCA5A5;">System Reset & Format</div>
+                  <div class="settings-field-label danger-label">System Reset & Format</div>
                   <div class="settings-field-sub">Reset all loaded songs, Bible passages, Service Agenda, and workspace state to blank defaults. UI theme styling is preserved.</div>
                 </div>
                 <button type="button" class="mode-toggle-btn" style="background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.4); color:#FCA5A5; font-weight:700; padding:6px 14px;" onclick="openSystemResetModal();">
@@ -1793,39 +1793,39 @@ My chains are gone, I've been set free..."></textarea>
             </div>
 
             <div class="settings-card-group" style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
-              <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:#0E131F; border-radius:8px; border:1px solid rgba(255,255,255,0.08);">
-                <span style="font-size:12.5px; font-weight:500; color:var(--text-starlight);">Quick Command Palette</span>
-                <kbd style="font-family:var(--font-mono); font-size:11px; font-weight:600; background:rgba(236,72,153,0.18); color:var(--accent-pink-light); border:1px solid rgba(236,72,153,0.4); padding:3px 8px; border-radius:6px;">Ctrl + K</kbd>
+              <div class="shortcut-card" style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; border-radius:8px;">
+                <span class="shortcut-action-name" style="font-size:12.5px; font-weight:500;">Quick Command Palette</span>
+                <kbd class="shortcut-kbd kbd-pink" style="font-family:var(--font-mono); font-size:11px; font-weight:600;">Ctrl + K</kbd>
               </div>
 
-              <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:#0E131F; border-radius:8px; border:1px solid rgba(255,255,255,0.08);">
-                <span style="font-size:12.5px; font-weight:500; color:var(--text-starlight);">Focus Library Search</span>
-                <kbd style="font-family:var(--font-mono); font-size:11px; font-weight:600; background:rgba(59,130,246,0.2); color:#93C5FD; border:1px solid rgba(59,130,246,0.45); padding:3px 8px; border-radius:6px;">Ctrl + L</kbd>
+              <div class="shortcut-card" style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; border-radius:8px;">
+                <span class="shortcut-action-name" style="font-size:12.5px; font-weight:500;">Focus Library Search</span>
+                <kbd class="shortcut-kbd kbd-blue" style="font-family:var(--font-mono); font-size:11px; font-weight:600;">Ctrl + L</kbd>
               </div>
 
-              <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:#0E131F; border-radius:8px; border:1px solid rgba(255,255,255,0.08);">
-                <span style="font-size:12.5px; font-weight:500; color:var(--text-starlight);">Clear Output Screen</span>
-                <kbd style="font-family:var(--font-mono); font-size:11px; font-weight:600; background:rgba(255,255,255,0.08); color:var(--text-starlight); border:1px solid rgba(255,255,255,0.15); padding:3px 8px; border-radius:6px;">Space / Esc</kbd>
+              <div class="shortcut-card" style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; border-radius:8px;">
+                <span class="shortcut-action-name" style="font-size:12.5px; font-weight:500;">Clear Output Screen</span>
+                <kbd class="shortcut-kbd" style="font-family:var(--font-mono); font-size:11px; font-weight:600;">Space / Esc</kbd>
               </div>
 
-              <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:#0E131F; border-radius:8px; border:1px solid rgba(255,255,255,0.08);">
-                <span style="font-size:12.5px; font-weight:500; color:var(--text-starlight);">Next / Previous Slide</span>
-                <kbd style="font-family:var(--font-mono); font-size:11px; font-weight:600; background:rgba(255,255,255,0.08); color:var(--text-starlight); border:1px solid rgba(255,255,255,0.15); padding:3px 8px; border-radius:6px;">← / →</kbd>
+              <div class="shortcut-card" style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; border-radius:8px;">
+                <span class="shortcut-action-name" style="font-size:12.5px; font-weight:500;">Next / Previous Slide</span>
+                <kbd class="shortcut-kbd" style="font-family:var(--font-mono); font-size:11px; font-weight:600;">← / →</kbd>
               </div>
 
-              <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:#0E131F; border-radius:8px; border:1px solid rgba(255,255,255,0.08);">
-                <span style="font-size:12.5px; font-weight:500; color:var(--text-starlight);">Blackout Panic Toggle</span>
-                <kbd style="font-family:var(--font-mono); font-size:11px; font-weight:600; background:rgba(239,68,68,0.2); color:#FCA5A5; border:1px solid rgba(239,68,68,0.45); padding:3px 8px; border-radius:6px;">B</kbd>
+              <div class="shortcut-card" style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; border-radius:8px;">
+                <span class="shortcut-action-name" style="font-size:12.5px; font-weight:500;">Blackout Panic Toggle</span>
+                <kbd class="shortcut-kbd kbd-red" style="font-family:var(--font-mono); font-size:11px; font-weight:600;">B</kbd>
               </div>
 
-              <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:#0E131F; border-radius:8px; border:1px solid rgba(255,255,255,0.08);">
-                <span style="font-size:12.5px; font-weight:500; color:var(--text-starlight);">Switch Bible / Songs Tab</span>
-                <kbd style="font-family:var(--font-mono); font-size:11px; font-weight:600; background:rgba(255,255,255,0.08); color:var(--text-starlight); border:1px solid rgba(255,255,255,0.15); padding:3px 8px; border-radius:6px;">Tab</kbd>
+              <div class="shortcut-card" style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; border-radius:8px;">
+                <span class="shortcut-action-name" style="font-size:12.5px; font-weight:500;">Switch Bible / Songs Tab</span>
+                <kbd class="shortcut-kbd" style="font-family:var(--font-mono); font-size:11px; font-weight:600;">Tab</kbd>
               </div>
 
-              <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:#0E131F; border-radius:8px; border:1px solid rgba(255,255,255,0.08);">
-                <span style="font-size:12.5px; font-weight:500; color:var(--text-starlight);">Toggle Medley Deck View</span>
-                <kbd style="font-family:var(--font-mono); font-size:11px; font-weight:600; background:rgba(255,255,255,0.08); color:var(--text-starlight); border:1px solid rgba(255,255,255,0.15); padding:3px 8px; border-radius:6px;">Ctrl + M</kbd>
+              <div class="shortcut-card" style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; border-radius:8px;">
+                <span class="shortcut-action-name" style="font-size:12.5px; font-weight:500;">Toggle Medley Deck View</span>
+                <kbd class="shortcut-kbd" style="font-family:var(--font-mono); font-size:11px; font-weight:600;">Ctrl + M</kbd>
               </div>
             </div>
           </div>
