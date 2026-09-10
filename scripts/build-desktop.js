@@ -87,8 +87,4 @@ builder.on('close', (code) => {
     process.exit(1);
   }
 });
-  } catch (err) {
-    console.error('⨯ Error copying output files:', err);
-    process.exit(1);
-  }
-});
+
