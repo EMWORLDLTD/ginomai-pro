@@ -2634,6 +2634,89 @@ body[data-theme-style="bento"] .reset-confirm-btn {
   box-shadow: none !important;
 }
 
+/* Song Editor Modal Styles (Dark Mode Base) */
+.song-editor-modal-title,
+.modal-main-title {
+  color: #ffffff;
+}
+
+.song-editor-modal-sub,
+.modal-sub-title {
+  color: var(--dim, #a3a1ae);
+}
+
+.song-editor-field-label {
+  color: var(--dim, #a3a1ae);
+}
+
+.song-editor-stanza-hint {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.song-editor-preview-box {
+  background: rgba(7, 9, 14, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.song-editor-empty-hint {
+  color: var(--dim, #a3a1ae);
+}
+
+.editor-prev-meta {
+  color: var(--purple-text, #c3b6ff);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.editor-prev-author {
+  color: var(--dim, #a3a1ae);
+}
+
+.editor-prev-stanza {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.editor-prev-tag {
+  color: #38bdf8;
+}
+
+.editor-prev-text {
+  color: var(--text, #f3f2f7);
+}
+
+.song-editor-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(10, 12, 18, 0.6);
+}
+
+.song-editor-del-btn {
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.song-editor-del-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
+.song-editor-cancel-btn {
+  color: var(--text, #f3f2f7);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.song-editor-cancel-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.song-editor-save-btn {
+  background: var(--purple, #8a6dff);
+  color: #ffffff;
+  border: none;
+}
+
 /* 2. Modal Header & Close Controls */
 body[data-theme-style="bento"] .settings-header {
   background: #131218 !important;
@@ -3449,6 +3532,181 @@ body[data-theme-style="bento"][data-theme-mode="light"] .settings-social-card:ho
   background: #e2def0 !important;
   border-color: var(--purple, #8a6dff) !important;
   color: #000000 !important;
+}
+
+/* ─── Song Editor Modal & Modal Headers Light Mode Overrides ─── */
+:root[data-theme-mode="light"] .song-editor-modal-card,
+body[data-theme-mode="light"] .song-editor-modal-card {
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(120, 82, 255, 0.14) !important;
+  color: #14131c !important;
+}
+
+:root[data-theme-mode="light"] .song-editor-modal-title,
+body[data-theme-mode="light"] .song-editor-modal-title,
+:root[data-theme-mode="light"] .modal-main-title,
+body[data-theme-mode="light"] .modal-main-title {
+  color: #14131c !important;
+}
+
+:root[data-theme-mode="light"] .song-editor-modal-sub,
+body[data-theme-mode="light"] .song-editor-modal-sub,
+:root[data-theme-mode="light"] .modal-sub-title,
+body[data-theme-mode="light"] .modal-sub-title {
+  color: #5a5769 !important;
+}
+
+:root[data-theme-mode="light"] .song-editor-field-label,
+body[data-theme-mode="light"] .song-editor-field-label {
+  color: #4a4759 !important;
+}
+
+:root[data-theme-mode="light"] .song-editor-stanza-hint,
+body[data-theme-mode="light"] .song-editor-stanza-hint {
+  color: #878496 !important;
+}
+
+:root[data-theme-mode="light"] .song-editor-modal-card .import-text-field,
+:root[data-theme-mode="light"] .song-editor-modal-card .import-textarea,
+body[data-theme-mode="light"] .song-editor-modal-card .import-text-field,
+body[data-theme-mode="light"] .song-editor-modal-card .import-textarea {
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.14) !important;
+  color: #14131c !important;
+}
+
+:root[data-theme-mode="light"] .song-editor-modal-card .import-text-field:focus,
+:root[data-theme-mode="light"] .song-editor-modal-card .import-textarea:focus,
+body[data-theme-mode="light"] .song-editor-modal-card .import-text-field:focus,
+body[data-theme-mode="light"] .song-editor-modal-card .import-textarea:focus {
+  border-color: var(--purple, #7852ff) !important;
+  box-shadow: 0 0 0 2px rgba(120, 82, 255, 0.18) !important;
+}
+
+:root[data-theme-mode="light"] .song-editor-preview-box,
+body[data-theme-mode="light"] .song-editor-preview-box {
+  background: #edeaf5 !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+:root[data-theme-mode="light"] .song-editor-empty-hint,
+body[data-theme-mode="light"] .song-editor-empty-hint {
+  color: #5a5769 !important;
+}
+
+:root[data-theme-mode="light"] .editor-prev-meta,
+body[data-theme-mode="light"] .editor-prev-meta {
+  color: #6037e6 !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+:root[data-theme-mode="light"] .editor-prev-author,
+body[data-theme-mode="light"] .editor-prev-author {
+  color: #5a5769 !important;
+}
+
+:root[data-theme-mode="light"] .editor-prev-stanza,
+body[data-theme-mode="light"] .editor-prev-stanza {
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+}
+
+:root[data-theme-mode="light"] .editor-prev-tag,
+body[data-theme-mode="light"] .editor-prev-tag {
+  color: #2563eb !important;
+}
+
+:root[data-theme-mode="light"] .editor-prev-text,
+body[data-theme-mode="light"] .editor-prev-text {
+  color: #14131c !important;
+}
+
+:root[data-theme-mode="light"] .song-editor-footer,
+body[data-theme-mode="light"] .song-editor-footer {
+  background: #edeaf5 !important;
+  border-top: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+:root[data-theme-mode="light"] .song-editor-del-btn,
+body[data-theme-mode="light"] .song-editor-del-btn {
+  color: #dc2626 !important;
+  background: rgba(220, 38, 38, 0.08) !important;
+  border: 1px solid rgba(220, 38, 38, 0.3) !important;
+}
+
+:root[data-theme-mode="light"] .song-editor-del-btn:hover,
+body[data-theme-mode="light"] .song-editor-del-btn:hover {
+  background: rgba(220, 38, 38, 0.16) !important;
+}
+
+:root[data-theme-mode="light"] .song-editor-cancel-btn,
+body[data-theme-mode="light"] .song-editor-cancel-btn {
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+  color: #14131c !important;
+}
+
+:root[data-theme-mode="light"] .song-editor-cancel-btn:hover,
+body[data-theme-mode="light"] .song-editor-cancel-btn:hover {
+  background: #f7f6fc !important;
+  border-color: rgba(0, 0, 0, 0.2) !important;
+}
+
+:root[data-theme-mode="light"] .song-editor-save-btn,
+body[data-theme-mode="light"] .song-editor-save-btn {
+  background: var(--purple, #7852ff) !important;
+  color: #ffffff !important;
+  border: none !important;
+}
+
+:root[data-theme-mode="light"] .song-editor-save-btn:hover,
+body[data-theme-mode="light"] .song-editor-save-btn:hover {
+  background: #6a42f5 !important;
+}
+
+/* Close button universal light mode override */
+:root[data-theme-mode="light"] .settings-close-btn,
+body[data-theme-mode="light"] .settings-close-btn {
+  background: #edeaf5 !important;
+  border: 1px solid rgba(0, 0, 0, 0.10) !important;
+  color: #5a5769 !important;
+}
+
+:root[data-theme-mode="light"] .settings-close-btn:hover,
+body[data-theme-mode="light"] .settings-close-btn:hover {
+  background: rgba(220, 38, 38, 0.12) !important;
+  border-color: rgba(220, 38, 38, 0.35) !important;
+  color: #dc2626 !important;
+}
+
+:root[data-theme-mode="light"] .reset-prompt-p,
+body[data-theme-mode="light"] .reset-prompt-p {
+  color: #14131c !important;
+}
+
+:root[data-theme-mode="light"] .ai-provider-title,
+body[data-theme-mode="light"] .ai-provider-title {
+  color: #14131c !important;
+}
+
+:root[data-theme-mode="light"] .ai-provider-footer,
+body[data-theme-mode="light"] .ai-provider-footer {
+  background: #edeaf5 !important;
+  border-top: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+:root[data-theme-mode="light"] .ai-provider-card-deepgram,
+body[data-theme-mode="light"] .ai-provider-card-deepgram {
+  background: #ffffff !important;
+  border: 1.5px solid var(--purple, #7852ff) !important;
+}
+
+:root[data-theme-mode="light"] .ai-provider-card-native,
+body[data-theme-mode="light"] .ai-provider-card-native {
+  background: #ffffff !important;
+  border: 1.5px solid rgba(0, 0, 0, 0.12) !important;
 }
 
 /* ==========================================================================

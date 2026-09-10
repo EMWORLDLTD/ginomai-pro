@@ -8654,20 +8654,20 @@ function updateSongEditorLivePreview() {
   if (!previewBox) return;
 
   if (!text.trim()) {
-    previewBox.innerHTML = `<span style="color:var(--text-muted); font-size:11px;">Type lyrics on the left to see auto-parsed slides preview here...</span>`;
+    previewBox.innerHTML = `<span class="song-editor-empty-hint" style="font-size:11px;">Type lyrics on the left to see auto-parsed slides preview here...</span>`;
     return;
   }
 
   const parsed = window.libraryImporter.parseSongText(text, title, author);
 
   previewBox.innerHTML = `
-    <div style="font-weight:700; font-size:12px; color:var(--accent-pink-light); margin-bottom:4px; padding-bottom:4px; border-bottom:1px solid rgba(255,255,255,0.08);">
-      ${parsed.title} <span style="font-weight:400; color:var(--text-muted);">by ${parsed.author}</span>
+    <div class="editor-prev-meta" style="font-weight:700; font-size:12px; margin-bottom:4px; padding-bottom:4px;">
+      ${parsed.title} <span class="editor-prev-author" style="font-weight:400;">by ${parsed.author}</span>
     </div>
     ${parsed.stanzas.map(s => `
-      <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:6px; padding:6px 8px; margin-bottom:4px;">
-        <span style="font-size:10px; font-weight:700; color:#3B82F6; text-transform:uppercase;">[${s.type}]</span>
-        <div style="color:var(--text-starlight); white-space:pre-wrap; margin-top:2px; font-family:var(--font-mono); font-size:11px;">${s.text}</div>
+      <div class="editor-prev-stanza" style="border-radius:6px; padding:6px 8px; margin-bottom:4px;">
+        <span class="editor-prev-tag" style="font-size:10px; font-weight:700; text-transform:uppercase;">[${s.type}]</span>
+        <div class="editor-prev-text" style="white-space:pre-wrap; margin-top:2px; font-family:var(--font-mono, monospace); font-size:11px;">${s.text}</div>
       </div>
     `).join('')}
   `;

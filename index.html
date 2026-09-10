@@ -921,14 +921,14 @@
   <!-- Interactive Song & Lyrics Editor Modal -->
   <div id="song-editor-modal-backdrop" class="modal-backdrop">
     <div class="settings-modal-card song-editor-modal-card" style="max-width:880px; width:92vw; border-radius:18px; overflow:hidden;">
-      <div class="settings-header" style="border-bottom:1px solid rgba(255,255,255,0.08); padding:16px 20px;">
+      <div class="settings-header" style="padding:16px 20px;">
         <div class="settings-header-title">
           <div class="settings-header-icon">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
           </div>
           <div>
-            <div style="font-weight:700; font-size:15px; color:#FFFFFF; letter-spacing:-0.01em;">Song Lyrics Editor</div>
-            <div style="font-size:11px; color:var(--text-muted);">Edit song stanzas, verse tags, chorus lines, and live slide preview</div>
+            <div class="song-editor-modal-title modal-main-title" style="font-weight:700; font-size:15px; letter-spacing:-0.01em;">Song Lyrics Editor</div>
+            <div class="song-editor-modal-sub modal-sub-title" style="font-size:11px;">Edit song stanzas, verse tags, chorus lines, and live slide preview</div>
           </div>
         </div>
         <button type="button" class="settings-close-btn" onclick="closeSongEditor()" title="Close Editor">
@@ -941,19 +941,19 @@
         <div style="display:flex; flex-direction:column; gap:12px;">
           <input type="hidden" id="editor-song-id">
           <div>
-            <label style="display:block; font-size:11px; font-weight:600; color:var(--text-muted); margin-bottom:4px; letter-spacing:0.04em;">SONG TITLE</label>
+            <label class="song-editor-field-label" style="display:block; font-size:11px; font-weight:700; margin-bottom:4px; letter-spacing:0.04em;">SONG TITLE</label>
             <input type="text" id="editor-song-title" class="import-text-field search-input" placeholder="e.g. Amazing Grace" style="width:100%; padding:8px 12px; font-size:13px; font-weight:600;" oninput="handleSongEditorInput()">
           </div>
 
           <div>
-            <label style="display:block; font-size:11px; font-weight:600; color:var(--text-muted); margin-bottom:4px; letter-spacing:0.04em;">AUTHOR / ARTIST / SONGBOOK</label>
+            <label class="song-editor-field-label" style="display:block; font-size:11px; font-weight:700; margin-bottom:4px; letter-spacing:0.04em;">AUTHOR / ARTIST / SONGBOOK</label>
             <input type="text" id="editor-song-author" class="import-text-field search-input" placeholder="e.g. John Newton" style="width:100%; padding:8px 12px; font-size:12.5px;" oninput="handleSongEditorInput()">
           </div>
 
           <div style="display:flex; flex-direction:column; flex:1;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-              <label style="font-size:11px; font-weight:600; color:var(--text-muted); letter-spacing:0.04em;">LYRICS & STANZAS ([Verse 1], [Chorus], etc.)</label>
-              <span style="font-size:10px; color:rgba(255,255,255,0.4);">Separate stanzas with empty lines</span>
+              <label class="song-editor-field-label" style="font-size:11px; font-weight:700; letter-spacing:0.04em;">LYRICS & STANZAS ([Verse 1], [Chorus], etc.)</label>
+              <span class="song-editor-stanza-hint" style="font-size:10px;">Separate stanzas with empty lines</span>
             </div>
             <textarea id="editor-song-text" class="import-textarea" style="width:100%; min-height:260px; flex:1; padding:12px; font-family:var(--font-mono, monospace); font-size:12.5px; line-height:1.5; resize:vertical;" oninput="handleSongEditorInput()" placeholder="[Verse 1]
 Amazing grace how sweet the sound
@@ -966,18 +966,18 @@ My chains are gone, I've been set free..."></textarea>
 
         <!-- Right Column: Live Slide Preview Split -->
         <div style="display:flex; flex-direction:column; gap:10px;">
-          <div style="font-size:11px; font-weight:600; color:var(--text-muted); letter-spacing:0.04em;">LIVE SLIDES PREVIEW</div>
-          <div id="editor-preview-box" style="display:flex; flex-direction:column; gap:10px; background:rgba(7,9,14,0.75); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:14px; min-height:340px; max-height:420px; overflow-y:auto;">
-            <div style="color:var(--text-muted); font-size:12px; text-align:center; padding:20px;">Type lyrics to see generated presentation slides.</div>
+          <div class="song-editor-field-label" style="font-size:11px; font-weight:700; letter-spacing:0.04em;">LIVE SLIDES PREVIEW</div>
+          <div id="editor-preview-box" class="song-editor-preview-box" style="display:flex; flex-direction:column; gap:10px; border-radius:10px; padding:14px; min-height:340px; max-height:420px; overflow-y:auto;">
+            <div class="song-editor-empty-hint" style="font-size:12px; text-align:center; padding:20px;">Type lyrics to see generated presentation slides.</div>
           </div>
         </div>
       </div>
 
-      <div style="display:flex; justify-content:space-between; align-items:center; padding:14px 20px; border-top:1px solid rgba(255,255,255,0.08); background:rgba(10,12,18,0.6);">
-        <button type="button" class="mode-toggle-btn" onclick="deleteSongEditor()" style="color:#EF4444; border-color:rgba(239,68,68,0.3); background:rgba(239,68,68,0.1); font-size:12px; font-weight:600;">Delete Song</button>
+      <div class="song-editor-footer" style="display:flex; justify-content:space-between; align-items:center; padding:14px 20px;">
+        <button type="button" class="mode-toggle-btn song-editor-del-btn" onclick="deleteSongEditor()" style="font-size:12px; font-weight:600;">Delete Song</button>
         <div style="display:flex; gap:10px;">
-          <button type="button" class="mode-toggle-btn" onclick="closeSongEditor()" style="font-size:12px;">Cancel</button>
-          <button type="button" class="mode-toggle-btn active repo-action-btn" onclick="saveSongEditor()" style="font-size:12px; font-weight:600; padding:6px 18px;">Save Changes</button>
+          <button type="button" class="mode-toggle-btn song-editor-cancel-btn" onclick="closeSongEditor()" style="font-size:12px;">Cancel</button>
+          <button type="button" class="mode-toggle-btn active repo-action-btn song-editor-save-btn" onclick="saveSongEditor()" style="font-size:12px; font-weight:600; padding:6px 18px;">Save Changes</button>
         </div>
       </div>
     </div>
@@ -986,14 +986,14 @@ My chains are gone, I've been set free..."></textarea>
   <!-- System Reset Confirmation Modal -->
   <div id="system-reset-modal-backdrop" class="modal-backdrop">
     <div class="system-reset-modal-card" style="max-width:480px; width:90vw; border-radius:18px; overflow:hidden;">
-      <div class="settings-header" style="border-bottom:1px solid rgba(255,255,255,0.08); padding:16px 20px;">
+      <div class="settings-header" style="padding:16px 20px;">
         <div class="settings-header-title">
           <div class="settings-header-icon" style="background:rgba(242,85,75,0.15); border:1px solid rgba(242,85,75,0.35);">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F2554B" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
           </div>
           <div>
-            <div style="font-weight:700; font-size:15px; color:#FFFFFF; letter-spacing:-0.01em;">Confirm System Reset</div>
-            <div style="font-size:11px; color:var(--text-muted);">Reset workspace, loaded songs, scriptures, and defaults</div>
+            <div class="modal-main-title" style="font-weight:700; font-size:15px; letter-spacing:-0.01em;">Confirm System Reset</div>
+            <div class="modal-sub-title" style="font-size:11px;">Reset workspace, loaded songs, scriptures, and defaults</div>
           </div>
         </div>
         <button type="button" class="settings-close-btn" onclick="closeSystemResetModal()" title="Cancel">
@@ -1001,8 +1001,8 @@ My chains are gone, I've been set free..."></textarea>
         </button>
       </div>
 
-      <div style="padding:20px; color:var(--text-muted); font-size:12.5px; line-height:1.6; display:flex; flex-direction:column; gap:12px;">
-        <p style="margin-bottom:2px; color:#F8FAFC;">Choose which data you would like to clear from this device:</p>
+      <div style="padding:20px; font-size:12.5px; line-height:1.6; display:flex; flex-direction:column; gap:12px;">
+        <p class="reset-prompt-p" style="margin-bottom:2px;">Choose which data you would like to clear from this device:</p>
         
         <div style="display:flex; flex-direction:column; gap:8px;">
           <!-- Option 1: Factory Reset -->
@@ -1036,7 +1036,7 @@ My chains are gone, I've been set free..."></textarea>
         <div style="font-size:11px; color:#64748B; margin-top:2px; font-style:italic;">Note: Theme and visual styling settings will always be preserved.</div>
       </div>
 
-      <div class="reset-footer" style="display:flex; justify-content:flex-end; gap:10px; padding:12px 20px; border-top:1px solid rgba(255,255,255,0.08); background:rgba(10,12,18,0.6);">
+      <div class="reset-footer" style="display:flex; justify-content:flex-end; gap:10px; padding:12px 20px;">
         <button type="button" class="mode-toggle-btn" onclick="closeSystemResetModal()" style="font-size:12px; border-radius:8px; padding:6px 16px;">Cancel</button>
       </div>
     </div>
@@ -1044,15 +1044,15 @@ My chains are gone, I've been set free..."></textarea>
 
   <!-- AI Provider Selection Modal (First-Use Onboarding) -->
   <div id="ai-provider-modal-backdrop" class="modal-backdrop">
-    <div class="ai-provider-modal-card" style="max-width:520px; width:92vw; border-radius:18px; overflow:hidden; background:var(--card, #131218); border:1px solid var(--border-strong, rgba(255,255,255,0.15)); box-shadow:0 24px 60px rgba(0,0,0,0.85); height:auto !important; max-height:90vh !important;">
-      <div class="settings-header" style="border-bottom:1px solid var(--border, rgba(255,255,255,0.08)); padding:16px 20px;">
+    <div class="ai-provider-modal-card" style="max-width:520px; width:92vw; border-radius:18px; overflow:hidden;">
+      <div class="settings-header" style="padding:16px 20px;">
         <div class="settings-header-title">
           <div class="settings-header-icon" style="background:linear-gradient(135deg, rgba(138,109,255,0.25), rgba(46,207,192,0.2)); border:1px solid rgba(138,109,255,0.4);">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
           </div>
           <div>
-            <div style="font-weight:700; font-size:15px; color:#FFFFFF; letter-spacing:-0.01em;">Choose AI Speech Engine</div>
-            <div style="font-size:11.5px; color:var(--dim, #a3a1ae);">Select speech recognition for live services</div>
+            <div class="modal-main-title" style="font-weight:700; font-size:15px; letter-spacing:-0.01em;">Choose AI Speech Engine</div>
+            <div class="modal-sub-title" style="font-size:11.5px;">Select speech recognition for live services</div>
           </div>
         </div>
         <button type="button" class="settings-close-btn" onclick="closeAiProviderModal()" title="Close">
@@ -1062,11 +1062,11 @@ My chains are gone, I've been set free..."></textarea>
 
       <div style="padding:16px 20px; display:flex; flex-direction:column; gap:10px;">
         <!-- Option 1: Deepgram Live Cloud -->
-        <div class="ai-provider-card" id="provider-card-deepgram" onclick="selectAiProviderChoice('deepgram')" style="background:linear-gradient(135deg, rgba(138,109,255,0.12), rgba(19,18,24,0.9)); border:1.5px solid rgba(138,109,255,0.45); border-radius:14px; padding:14px 16px; cursor:pointer; transition:opacity 0.04s ease, border-color 0.04s ease, background 0.04s ease;">
+        <div class="ai-provider-card ai-provider-card-deepgram" id="provider-card-deepgram" onclick="selectAiProviderChoice('deepgram')" style="border-radius:14px; padding:14px 16px; cursor:pointer; transition:opacity 0.04s ease, border-color 0.04s ease, background 0.04s ease;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
             <div style="display:flex; align-items:center; gap:8px;">
               <div style="width:9px; height:9px; border-radius:50%; background:#8A6DFF;"></div>
-              <span style="font-weight:700; font-size:13.5px; color:#FFFFFF;">Deepgram Cloud (Pro Live)</span>
+              <span class="ai-provider-title" style="font-weight:700; font-size:13.5px;">Deepgram Cloud (Pro Live)</span>
             </div>
             <span style="font-size:9.5px; font-weight:700; background:rgba(138,109,255,0.22); color:#C3B6FF; border:1px solid rgba(138,109,255,0.4); padding:2px 7px; border-radius:20px; letter-spacing:0.3px;">RECOMMENDED</span>
           </div>
@@ -1081,11 +1081,11 @@ My chains are gone, I've been set free..."></textarea>
         </div>
 
         <!-- Option 2: Browser Native -->
-        <div class="ai-provider-card" id="provider-card-native" onclick="selectAiProviderChoice('native')" style="background:rgba(255,255,255,0.03); border:1.5px solid var(--border, rgba(255,255,255,0.1)); border-radius:14px; padding:14px 16px; cursor:pointer; transition:opacity 0.04s ease, border-color 0.04s ease, background 0.04s ease;">
+        <div class="ai-provider-card ai-provider-card-native" id="provider-card-native" onclick="selectAiProviderChoice('native')" style="border-radius:14px; padding:14px 16px; cursor:pointer; transition:opacity 0.04s ease, border-color 0.04s ease, background 0.04s ease;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
             <div style="display:flex; align-items:center; gap:8px;">
               <div style="width:9px; height:9px; border-radius:50%; background:#64748B;"></div>
-              <span style="font-weight:700; font-size:13.5px; color:#FFFFFF;">Browser Native (Offline)</span>
+              <span class="ai-provider-title" style="font-weight:700; font-size:13.5px;">Browser Native (Offline)</span>
             </div>
             <span style="font-size:9.5px; font-weight:700; background:rgba(255,255,255,0.06); color:var(--dim, #a3a1ae); border:1px solid rgba(255,255,255,0.1); padding:2px 7px; border-radius:20px; letter-spacing:0.3px;">FREE</span>
           </div>
@@ -1095,7 +1095,7 @@ My chains are gone, I've been set free..."></textarea>
         </div>
       </div>
 
-      <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 20px; border-top:1px solid var(--border, rgba(255,255,255,0.08)); background:rgba(10,12,18,0.6);">
+      <div class="ai-provider-footer" style="display:flex; justify-content:space-between; align-items:center; padding:12px 20px;">
         <label style="display:flex; align-items:center; gap:8px; font-size:11.5px; color:var(--dim, #a3a1ae); cursor:pointer;">
           <input type="checkbox" id="ai-provider-remember-check" checked style="cursor:pointer;">
           <span>Remember my choice</span>
@@ -1119,8 +1119,8 @@ My chains are gone, I've been set free..."></textarea>
             </svg>
           </div>
           <div>
-            <div style="font-weight:700; font-size:15px; color:#FFFFFF; letter-spacing:-0.01em;">Studio Preferences</div>
-            <div style="font-size:11px; color:var(--text-muted);">Configure broadcast outputs, speech recognition, and typography</div>
+            <div class="modal-main-title" style="font-weight:700; font-size:15px; letter-spacing:-0.01em;">Studio Preferences</div>
+            <div class="modal-sub-title" style="font-size:11px;">Configure broadcast outputs, speech recognition, and typography</div>
           </div>
         </div>
 
