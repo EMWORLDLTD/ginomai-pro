@@ -1,0 +1,1 @@
+const BIBLE_DATABASE = {};

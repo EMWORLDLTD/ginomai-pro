@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ScriptureFlow Studio Pro — simplified concept</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#08080c;
+    --card:#131218;
+    --card-2:#1a1920;
+    --border:rgba(255,255,255,0.07);
+    --border-strong:rgba(255,255,255,0.14);
+    --text:#f3f2f7;
+    --dim:#a3a1ae;
+    --mute:#6d6b77;
+    --purple:#8a6dff;
+    --purple-dim:rgba(138,109,255,0.16);
+    --purple-text:#c3b6ff;
+    --green:#3ecf7e;
+    --green-dim:rgba(62,207,126,0.15);
+    --amber:#f2b93b;
+    --amber-dim:rgba(242,185,59,0.15);
+    --blue:#5fa8f5;
+    --blue-dim:rgba(95,168,245,0.15);
+    --red:#f2554b;
+    --red-dim:rgba(242,85,75,0.15);
+    --orange:#f2954b;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;margin:0;overflow:hidden;}
+  body{
+    background:
+      radial-gradient(circle at 96% 4%, rgba(138,109,255,0.14), transparent 38%),
+      radial-gradient(circle at 100% 100%, rgba(46,207,192,0.08), transparent 34%),
+      var(--bg);
+    font-family:'Inter', -apple-system, sans-serif;
+    color:var(--text);
+  }
+  .app{height:100vh;display:flex;flex-direction:column;padding:22px 26px;gap:18px;}
+  svg{display:block;}
+
+  /* top bar */
+  .topbar{flex:0 0 auto;display:flex;align-items:center;gap:16px;}
+  .brand{display:flex;align-items:center;gap:9px;}
+  .logo{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#8a6dff,#f178b6 55%,#5fa8f5);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff;}
+  .brand-name{font-weight:600;font-size:15px;}
+  .pro-badge{font-size:9.5px;font-weight:700;letter-spacing:.05em;color:var(--dim);background:var(--card-2);border:1px solid var(--border);padding:3px 7px;border-radius:6px;}
+  .search{flex:1;max-width:360px;display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);border-radius:999px;padding:10px 16px;color:var(--mute);font-size:12.5px;margin-left:8px;}
+  .tb-right{display:flex;align-items:center;gap:10px;margin-left:auto;}
+  .mic-toggle{display:flex;align-items:center;gap:6px;background:var(--purple);color:#fff;border-radius:999px;padding:9px 14px;font-size:12px;font-weight:600;}
+  .icon-btn{width:36px;height:36px;border-radius:50%;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--dim);}
+  .avatar{width:34px;height:34px;border-radius:50%;background:var(--orange);border:2px solid var(--border);}
+
+  /* grid */
+  .grid{flex:1;min-height:0;display:grid;grid-template-columns:260px 1fr 300px;gap:18px;}
+  .col{display:flex;flex-direction:column;gap:18px;min-height:0;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:18px;display:flex;flex-direction:column;min-height:0;}
+  .card-head{display:flex;align-items:center;justify-content:space-between;flex:0 0 auto;margin-bottom:12px;}
+  .card-title{font-size:13.5px;font-weight:600;}
+  .card-sub{font-size:11px;color:var(--mute);margin-top:2px;}
+  .count{font-size:10.5px;font-weight:700;color:var(--dim);background:var(--card-2);border:1px solid var(--border-strong);border-radius:999px;padding:3px 9px;}
+  .list{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:8px;}
+  .list::-webkit-scrollbar{width:4px;}
+  .list::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:4px;}
+
+  /* agenda */
+  .row{display:flex;align-items:center;gap:10px;background:var(--card-2);border:1px solid var(--border);border-radius:11px;padding:10px 11px;}
+  .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .dot.scr{background:var(--blue);} .dot.song{background:var(--purple);} .dot.serm{background:var(--amber);}
+  .row .t{font-size:12.5px;font-weight:500;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .row .go{width:22px;height:22px;border-radius:7px;background:var(--card);border:1px solid var(--border-strong);color:var(--dim);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+
+  /* library */
+  .tabs{display:flex;background:var(--card-2);border:1px solid var(--border);border-radius:10px;padding:3px;font-size:11.5px;margin-bottom:12px;flex:0 0 auto;}
+  .tabs span{flex:1;text-align:center;padding:6px;border-radius:8px;color:var(--mute);font-weight:600;}
+  .tabs span.active{background:var(--purple);color:#fff;}
+  .song-row{display:flex;align-items:center;justify-content:space-between;padding:2px;}
+  .song-row .n{font-size:12.5px;font-weight:500;}
+  .song-row .a{font-size:10.5px;color:var(--mute);}
+  .add{width:22px;height:22px;border-radius:50%;background:var(--card-2);border:1px solid var(--border-strong);color:var(--dim);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;}
+
+  /* deck */
+  .deck-card{flex:1;}
+  .deck-toolbar{flex:0 0 auto;display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+  .deck-title{font-size:15px;font-weight:600;margin-right:auto;}
+  .seg{display:flex;background:var(--card-2);border:1px solid var(--border);border-radius:10px;padding:3px;}
+  .seg span{font-size:11px;font-weight:700;color:var(--mute);padding:6px 11px;border-radius:7px;}
+  .seg span.active{background:var(--purple);color:#fff;}
+
+  .medley{flex:1;min-height:0;display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+  .slot-col{background:var(--card-2);border:1px solid var(--border);border-radius:14px;padding:12px;display:flex;flex-direction:column;min-height:0;}
+  .slot-head{flex:0 0 auto;display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+  .slot-badge{font-size:10px;font-weight:800;color:#fff;background:var(--purple);border-radius:6px;padding:3px 6px;}
+  .slot-head .t{font-size:12.5px;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .slides{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:8px;}
+  .slides::-webkit-scrollbar{width:3px;}
+  .slides::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:3px;}
+  .slide{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:10px;}
+  .slide.live{border-color:var(--green);background:var(--green-dim);}
+  .slide .tag{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;}
+  .slide .tag span{font-size:9.5px;font-weight:800;letter-spacing:.03em;color:var(--purple-text);}
+  .slide.live .tag span{color:var(--green);}
+  .live-badge{font-size:8px;font-weight:800;background:var(--green);color:#06210f;border-radius:5px;padding:2px 6px;}
+  .slide .ln{font-size:11px;line-height:1.5;color:var(--dim);}
+  .slide.live .ln{color:var(--text);}
+
+  /* right */
+  .prev-card{flex:0 0 auto;}
+  .live-tag{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:700;color:var(--green);}
+  .live-tag i{width:6px;height:6px;border-radius:50%;background:var(--green);display:block;}
+  .prev-box{aspect-ratio:16/9;border-radius:13px;background:#000;border:1px solid var(--border);position:relative;margin:12px 0 14px;overflow:hidden;}
+  .prev-box .lt{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(0deg,rgba(0,0,0,.85),transparent);padding:18px 14px 10px;}
+  .prev-box .lt .l1{font-size:12px;font-weight:600;color:#fff;}
+  .prev-box .lt .l2{font-size:9.5px;color:#8f8d99;}
+  .actions{display:flex;gap:8px;}
+  .abtn{flex:1;text-align:center;font-size:11px;font-weight:700;border-radius:11px;padding:10px 4px;}
+  .abtn.clear{background:var(--red-dim);color:var(--red);}
+  .abtn.hold{background:var(--amber-dim);color:var(--amber);}
+  .abtn.trans{background:var(--card-2);color:var(--dim);border:1px solid var(--border-strong);}
+
+  .feed-card{flex:1;}
+  .ai-card{background:var(--card-2);border:1px solid var(--border);border-radius:12px;padding:11px 12px;}
+  .ai-card .ref{font-size:12px;font-weight:700;color:var(--purple-text);margin-bottom:4px;}
+  .ai-card .snip{font-size:11px;color:var(--dim);line-height:1.5;margin-bottom:9px;}
+  .ai-card .proj{display:inline-flex;align-items:center;gap:5px;background:var(--purple);color:#fff;font-size:10.5px;font-weight:700;border-radius:8px;padding:6px 11px;}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- top bar -->
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">S</div>
+      <div class="brand-name">ScriptureFlow</div>
+      <div class="pro-badge">STUDIO PRO</div>
+    </div>
+    <div class="search">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      Search or jump to a verse, song
+    </div>
+    <div class="tb-right">
+      <div class="mic-toggle">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
+        AI mic on
+      </div>
+      <div class="icon-btn" title="Broadcast hub">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4.9 19.1a10 10 0 0 1 0-14.2"/><path d="M19.1 4.9a10 10 0 0 1 0 14.2"/><circle cx="12" cy="12" r="2"/></svg>
+      </div>
+      <div class="icon-btn" title="Settings">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </div>
+      <div class="avatar"></div>
+    </div>
+  </div>
+
+  <!-- grid -->
+  <div class="grid">
+
+    <!-- left: agenda + library -->
+    <div class="col">
+      <div class="card" style="flex:1;">
+        <div class="card-head">
+          <div class="card-title">Service agenda</div>
+          <div class="count">4</div>
+        </div>
+        <div class="list">
+          <div class="row"><div class="dot scr"></div><div class="t">Call to worship</div><div class="go"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div></div>
+          <div class="row"><div class="dot song"></div><div class="t">Amazing Grace</div><div class="go"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div></div>
+          <div class="row"><div class="dot serm"></div><div class="t">Sermon: Faith over fear</div><div class="go"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div></div>
+          <div class="row"><div class="dot song"></div><div class="t">How Great Thou Art</div><div class="go"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div></div>
+        </div>
+      </div>
+
+      <div class="card" style="flex:1;">
+        <div class="tabs"><span>Bible</span><span class="active">Songs</span></div>
+        <div class="list">
+          <div class="song-row"><div><div class="n">Amazing Grace</div><div class="a">John Newton</div></div><div class="add">+</div></div>
+          <div class="song-row"><div><div class="n">10,000 Reasons</div><div class="a">Redman · Myrin</div></div><div class="add">+</div></div>
+          <div class="song-row"><div><div class="n">Way Maker</div><div class="a">Sinach</div></div><div class="add">+</div></div>
+          <div class="song-row"><div><div class="n">Goodness of God</div><div class="a">Bethel Music</div></div><div class="add">+</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- center: deck -->
+    <div class="col">
+      <div class="card deck-card">
+        <div class="deck-toolbar">
+          <div class="deck-title">Worship medley</div>
+          <div class="seg"><span>2L</span><span class="active">4L</span><span>Full</span></div>
+          <div class="seg"><span>Single</span><span class="active">Medley</span></div>
+        </div>
+        <div class="medley">
+          <div class="slot-col">
+            <div class="slot-head"><div class="slot-badge">S1</div><div class="t">Amazing Grace</div></div>
+            <div class="slides">
+              <div class="slide live"><div class="tag"><span>VERSE 1</span><span class="live-badge">LIVE</span></div><div class="ln">Amazing grace, how sweet the sound<br>That saved a wretch like me</div></div>
+              <div class="slide"><div class="tag"><span>VERSE 2</span></div><div class="ln">'Twas grace that taught my heart to fear<br>And grace my fears relieved</div></div>
+            </div>
+          </div>
+          <div class="slot-col">
+            <div class="slot-head"><div class="slot-badge">S2</div><div class="t">How Great Thou Art</div></div>
+            <div class="slides">
+              <div class="slide"><div class="tag"><span>VERSE 1</span></div><div class="ln">O Lord my God, when I in awesome wonder<br>Consider all the worlds Thy hands have made</div></div>
+              <div class="slide"><div class="tag"><span>CHORUS</span></div><div class="ln">Then sings my soul, my Savior God, to Thee<br>How great Thou art, how great Thou art</div></div>
+            </div>
+          </div>
+          <div class="slot-col">
+            <div class="slot-head"><div class="slot-badge">S3</div><div class="t">10,000 Reasons</div></div>
+            <div class="slides">
+              <div class="slide"><div class="tag"><span>CHORUS</span></div><div class="ln">Bless the Lord, O my soul<br>O my soul, worship His holy name</div></div>
+              <div class="slide"><div class="tag"><span>VERSE 1</span></div><div class="ln">The sun comes up, it's a new day dawning<br>It's time to sing Your song again</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- right: preview + AI feed -->
+    <div class="col">
+      <div class="card prev-card">
+        <div class="card-head" style="margin-bottom:0;">
+          <div class="card-title">Stage preview</div>
+          <div class="live-tag"><i></i>LIVE</div>
+        </div>
+        <div class="prev-box">
+          <div class="lt"><div class="l1">Amazing grace, how sweet the sound</div><div class="l2">That saved a wretch like me</div></div>
+        </div>
+        <div class="actions">
+          <div class="abtn clear">Clear</div>
+          <div class="abtn hold">Hold</div>
+          <div class="abtn trans">Transparent</div>
+        </div>
+      </div>
+
+      <div class="card feed-card">
+        <div class="card-head">
+          <div>
+            <div class="card-title">AI detection</div>
+            <div class="card-sub">Listening for scripture &amp; songs</div>
+          </div>
+        </div>
+        <div class="list">
+          <div class="ai-card">
+            <div class="ref">John 3:16 · NIV</div>
+            <div class="snip">For God so loved the world that He gave His one and only Son...</div>
+            <div class="proj">Project</div>
+          </div>
+          <div class="ai-card">
+            <div class="ref">Psalm 23:1 · AMP</div>
+            <div class="snip">The Lord is my Shepherd, I shall not want...</div>
+            <div class="proj">Project</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

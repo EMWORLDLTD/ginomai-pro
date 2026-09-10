@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+
+# Production builds & installers
+dist/
+release/
+installers/
+*.tmp
+*.asar
+*.blockmap
+
+# Scratch & development logs
+scratch/
+*.log
+
+# Operating System files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# Environment variables
+.env
+.env.local

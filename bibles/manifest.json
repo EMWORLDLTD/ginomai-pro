@@ -1,0 +1,234 @@
+[
+  {
+    "code": "KJV_STRONGS",
+    "name": "King James Version with Strong's Concordance",
+    "lang": "English",
+    "size": "7.2 MB",
+    "booksCount": 66,
+    "url": "bibles/KJV_STRONGS.json"
+  },
+  {
+    "code": "AMP",
+    "name": "Amplified Bible",
+    "lang": "English",
+    "size": "5.2 MB",
+    "booksCount": 66,
+    "url": "bibles/AMP.json"
+  },
+  {
+    "code": "AMPC",
+    "name": "Amplified Classic Bible",
+    "lang": "English",
+    "size": "5.2 MB",
+    "booksCount": 66,
+    "url": "bibles/AMPC.json"
+  },
+  {
+    "code": "ASV",
+    "name": "American Standard Version",
+    "lang": "English",
+    "size": "4.6 MB",
+    "booksCount": 66,
+    "url": "bibles/ASV.json"
+  },
+  {
+    "code": "BSB",
+    "name": "Berean Standard Bible",
+    "lang": "English",
+    "size": "4.3 MB",
+    "booksCount": 66,
+    "url": "bibles/BSB.json"
+  },
+  {
+    "code": "CSB",
+    "name": "Christian Standard Bible",
+    "lang": "English",
+    "size": "4.4 MB",
+    "booksCount": 66,
+    "url": "bibles/CSB.json"
+  },
+  {
+    "code": "DARBY",
+    "name": "Darby Bible",
+    "lang": "English",
+    "size": "4.6 MB",
+    "booksCount": 66,
+    "url": "bibles/DARBY.json"
+  },
+  {
+    "code": "EASY",
+    "name": "EasyEnglish Bible",
+    "lang": "English",
+    "size": "5.3 MB",
+    "booksCount": 66,
+    "url": "bibles/EASY.json"
+  },
+  {
+    "code": "ERV",
+    "name": "Easy-to-Read Version",
+    "lang": "English",
+    "size": "4.8 MB",
+    "booksCount": 66,
+    "url": "bibles/ERV.json"
+  },
+  {
+    "code": "ESV",
+    "name": "English Standard Version",
+    "lang": "English",
+    "size": "4.4 MB",
+    "booksCount": 66,
+    "url": "bibles/ESV.json"
+  },
+  {
+    "code": "GNT",
+    "name": "Good News Translation",
+    "lang": "English",
+    "size": "4.3 MB",
+    "booksCount": 66,
+    "url": "bibles/GNT.json"
+  },
+  {
+    "code": "GW",
+    "name": "God's Word Translation",
+    "lang": "English",
+    "size": "4.4 MB",
+    "booksCount": 66,
+    "url": "bibles/GW.json"
+  },
+  {
+    "code": "HCSB",
+    "name": "Holman Christian Standard Bible",
+    "lang": "English",
+    "size": "4.3 MB",
+    "booksCount": 66,
+    "url": "bibles/HCSB.json"
+  },
+  {
+    "code": "KJV",
+    "name": "King James Version",
+    "lang": "English",
+    "size": "4.6 MB",
+    "booksCount": 66,
+    "url": "bibles/KJV.json"
+  },
+  {
+    "code": "LSB",
+    "name": "Legacy Standard Bible",
+    "lang": "English",
+    "size": "4.6 MB",
+    "booksCount": 66,
+    "url": "bibles/LSB.json"
+  },
+  {
+    "code": "MEV",
+    "name": "Modern English Version",
+    "lang": "English",
+    "size": "4.5 MB",
+    "booksCount": 66,
+    "url": "bibles/MEV.json"
+  },
+  {
+    "code": "NASB",
+    "name": "New American Standard Bible (1995)",
+    "lang": "English",
+    "size": "4.5 MB",
+    "booksCount": 66,
+    "url": "bibles/NASB.json"
+  },
+  {
+    "code": "NASU",
+    "name": "New American Standard Update",
+    "lang": "English",
+    "size": "4.3 MB",
+    "booksCount": 66,
+    "url": "bibles/NASU.json"
+  },
+  {
+    "code": "NET",
+    "name": "New English Translation",
+    "lang": "English",
+    "size": "4.5 MB",
+    "booksCount": 66,
+    "url": "bibles/NET.json"
+  },
+  {
+    "code": "NIRV",
+    "name": "New International Reader's Version",
+    "lang": "English",
+    "size": "4.9 MB",
+    "booksCount": 66,
+    "url": "bibles/NIRV.json"
+  },
+  {
+    "code": "NIV",
+    "name": "New International Version",
+    "lang": "English",
+    "size": "4.3 MB",
+    "booksCount": 66,
+    "url": "bibles/NIV.json"
+  },
+  {
+    "code": "NKJV",
+    "name": "New King James Version",
+    "lang": "English",
+    "size": "4.5 MB",
+    "booksCount": 66,
+    "url": "bibles/NKJV.json"
+  },
+  {
+    "code": "NLT",
+    "name": "New Living Translation",
+    "lang": "English",
+    "size": "4.4 MB",
+    "booksCount": 66,
+    "url": "bibles/NLT.json"
+  },
+  {
+    "code": "NRSV",
+    "name": "New Revised Standard Version",
+    "lang": "English",
+    "size": "4.4 MB",
+    "booksCount": 66,
+    "url": "bibles/NRSV.json"
+  },
+  {
+    "code": "TPT",
+    "name": "The Passion Translation",
+    "lang": "English",
+    "size": "3.2 MB",
+    "booksCount": 66,
+    "url": "bibles/TPT.json"
+  },
+  {
+    "code": "RSV",
+    "name": "Revised Standard Version",
+    "lang": "English",
+    "size": "4.4 MB",
+    "booksCount": 66,
+    "url": "bibles/RSV.json"
+  },
+  {
+    "code": "TLB",
+    "name": "The Living Bible",
+    "lang": "English",
+    "size": "4.3 MB",
+    "booksCount": 66,
+    "url": "bibles/TLB.json"
+  },
+  {
+    "code": "TYNDALE",
+    "name": "Tyndale 1537",
+    "lang": "English",
+    "size": "4.7 MB",
+    "booksCount": 66,
+    "url": "bibles/TYNDALE.json"
+  },
+  {
+    "code": "YLT",
+    "name": "Young's Literal Translation",
+    "lang": "English",
+    "size": "4.6 MB",
+    "booksCount": 66,
+    "url": "bibles/YLT.json"
+  }
+]

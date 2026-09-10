@@ -1,0 +1,1895 @@
+<!DOCTYPE html>
+<!-- Remote operators use the full studio dashboard. -->
+<script>location.replace('index.html?remote=1');</script>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ScriptureFlow — Remote Operator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <script src="js/bible-db.js"></script>
+  <script src="js/songs-db.js"></script>
+  <script src="js/import-engine.js"></script>
+  <style>
+    /* ── Design Tokens ─────────────────────────────────────────── */
+    :root {
+      --font-main: 'Outfit', system-ui, sans-serif;
+      --bg-void: #06080F;
+      --bg-layer1: #0B0F1C;
+      --bg-layer2: #111827;
+      --bg-layer3: #1a2233;
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-mid: rgba(255, 255, 255, 0.13);
+      --accent-pink: #EC4899;
+      --accent-pink-dim: rgba(236, 72, 153, 0.18);
+      --accent-green: #22C55E;
+      --accent-green-dim: rgba(34, 197, 94, 0.15);
+      --text-primary: #F1F5F9;
+      --text-secondary: #94A3B8;
+      --text-muted: #64748B;
+      --radius-lg: 12px;
+      --radius-md: 8px;
+      --radius-sm: 6px;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-main);
+      background: var(--bg-void);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── JOIN SCREEN ─────────────────────────────────────────────── */
+    #join-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+      background: radial-gradient(ellipse at 50% 0%, rgba(236, 72, 153, 0.08) 0%, transparent 65%);
+    }
+
+    .join-card {
+      width: 100%;
+      max-width: 420px;
+      background: var(--bg-layer1);
+      border: 1px solid var(--border-mid);
+      border-radius: 20px;
+      padding: 40px 36px;
+    }
+
+    .join-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 32px;
+    }
+
+    .join-brand-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #EC4899, #9333EA);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .join-brand-text {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .join-brand-badge {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      color: var(--accent-pink);
+      background: var(--accent-pink-dim);
+      padding: 2px 7px;
+      border-radius: 4px;
+    }
+
+    .join-title {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: var(--text-primary);
+    }
+
+    .join-subtitle {
+      font-size: 13.5px;
+      color: var(--text-secondary);
+      line-height: 1.55;
+      margin-bottom: 28px;
+    }
+
+    .join-field {
+      margin-bottom: 16px;
+    }
+
+    .join-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      letter-spacing: 0.5px;
+      margin-bottom: 7px;
+    }
+
+    .join-input {
+      width: 100%;
+      background: var(--bg-layer2);
+      border: 1px solid var(--border-mid);
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      font-family: var(--font-main);
+      font-size: 14.5px;
+      font-weight: 500;
+      padding: 12px 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .join-input:focus {
+      border-color: var(--accent-pink);
+    }
+
+    .join-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #EC4899, #9333EA);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-md);
+      font-family: var(--font-main);
+      font-size: 14.5px;
+      font-weight: 700;
+      padding: 13px;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+
+    .join-btn:hover {
+      opacity: 0.92;
+    }
+
+    .join-btn:active {
+      transform: scale(0.99);
+    }
+
+    .join-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .join-error {
+      margin-top: 14px;
+      padding: 12px 14px;
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      color: #FCA5A5;
+      display: none;
+    }
+
+    /* ── OPERATOR APP ─────────────────────────────────────────────── */
+    #operator-app {
+      display: none;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    /* Session Status Bar */
+    #session-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      height: 44px;
+      background: var(--bg-layer1);
+      border-bottom: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+      gap: 12px;
+    }
+
+    .session-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .session-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-green);
+      box-shadow: 0 0 6px var(--accent-green);
+      animation: pulse-dot 2s infinite;
+    }
+
+    @keyframes pulse-dot {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.5;
+      }
+    }
+
+    .session-label {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .session-operator-name {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .session-bar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .privilege-badge {
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.6px;
+      padding: 3px 9px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+
+    .privilege-badge.full {
+      background: rgba(34, 197, 94, 0.15);
+      color: #86EFAC;
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .privilege-badge.limited {
+      background: rgba(251, 191, 36, 0.12);
+      color: #FDE68A;
+      border: 1px solid rgba(251, 191, 36, 0.3);
+    }
+
+    .privilege-badge.custom {
+      background: var(--accent-pink-dim);
+      color: #F9A8D4;
+      border: 1px solid rgba(236, 72, 153, 0.3);
+    }
+
+    .session-btn {
+      font-family: var(--font-main);
+      font-size: 11.5px;
+      font-weight: 600;
+      background: var(--bg-layer3);
+      border: 1px solid var(--border-mid);
+      color: var(--text-secondary);
+      border-radius: var(--radius-sm);
+      padding: 4px 10px;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .session-btn:hover {
+      border-color: var(--accent-pink);
+      color: var(--text-primary);
+    }
+
+    /* Import Request Notification Banner */
+    #import-notif {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 20px;
+      background: rgba(236, 72, 153, 0.1);
+      border-bottom: 1px solid rgba(236, 72, 153, 0.25);
+      flex-shrink: 0;
+    }
+
+    .import-notif-text {
+      font-size: 12.5px;
+      color: var(--text-primary);
+    }
+
+    .import-notif-text strong {
+      color: var(--accent-pink);
+    }
+
+    .import-notif-btn {
+      font-family: var(--font-main);
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: var(--radius-sm);
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .import-notif-btn.accept {
+      background: var(--accent-green);
+      color: #fff;
+    }
+
+    .import-notif-btn.waiting {
+      background: var(--bg-layer3);
+      border: 1px solid var(--border-mid);
+      color: var(--text-secondary);
+    }
+
+    /* Main operator workspace — same structure as host */
+    #op-workspace {
+      display: grid;
+      grid-template-columns: 280px 1fr 300px;
+      gap: 0;
+      flex: 1;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    /* Sidebar */
+    #op-sidebar {
+      background: var(--bg-layer1);
+      border-right: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .op-sidebar-section {
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 14px;
+    }
+
+    .op-section-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .op-section-label svg {
+      flex-shrink: 0;
+    }
+
+    /* Tabs */
+    .op-tabs {
+      display: flex;
+      gap: 2px;
+      padding: 10px 14px 0;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .op-tab {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.6px;
+      color: var(--text-muted);
+      padding: 6px 12px;
+      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+      cursor: pointer;
+      transition: color 0.2s;
+      border-bottom: 2px solid transparent;
+    }
+
+    .op-tab.active {
+      color: var(--accent-pink);
+      border-bottom-color: var(--accent-pink);
+    }
+
+    .op-tab-panel {
+      display: none;
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 14px;
+    }
+
+    .op-tab-panel.active {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    /* Main Deck */
+    #op-deck {
+      background: var(--bg-void);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    #op-deck-header {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      background: var(--bg-layer1);
+    }
+
+    .op-deck-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    #op-slides-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* Slide Cards */
+    .op-slide-card {
+      background: var(--bg-layer2);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      position: relative;
+    }
+
+    .op-slide-card:hover {
+      border-color: var(--accent-pink);
+      background: var(--bg-layer3);
+    }
+
+    .op-slide-card.active {
+      border-color: var(--accent-pink);
+      background: rgba(236, 72, 153, 0.08);
+    }
+
+    .op-slide-card.blocked {
+      opacity: 0.4;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .op-slide-type {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.7px;
+      color: var(--accent-pink);
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+
+    .op-slide-text {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+      line-height: 1.5;
+    }
+
+    .op-slide-projected {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--accent-green);
+      background: var(--accent-green-dim);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      padding: 2px 7px;
+      border-radius: 4px;
+    }
+
+    /* Preview Panel */
+    #op-preview {
+      background: var(--bg-layer1);
+      border-left: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    #op-preview-header {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .op-preview-title {
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    #op-live-preview {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 16px;
+      text-align: center;
+    }
+
+    .op-live-text {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.45;
+      margin-bottom: 10px;
+    }
+
+    .op-live-ref {
+      font-size: 12px;
+      color: var(--accent-pink);
+      font-weight: 600;
+    }
+
+    .op-live-empty {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* Quick Action Buttons */
+    .op-quick-actions {
+      padding: 12px 14px;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .op-action-btn {
+      font-family: var(--font-main);
+      font-size: 12.5px;
+      font-weight: 600;
+      padding: 9px 14px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-mid);
+      background: var(--bg-layer2);
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+      text-align: center;
+    }
+
+    .op-action-btn:hover {
+      background: var(--bg-layer3);
+      border-color: var(--accent-pink);
+    }
+
+    .op-action-btn.danger {
+      background: rgba(239, 68, 68, 0.1);
+      border-color: rgba(239, 68, 68, 0.3);
+      color: #FCA5A5;
+    }
+
+    .op-action-btn.danger:hover {
+      background: rgba(239, 68, 68, 0.18);
+      border-color: rgba(239, 68, 68, 0.5);
+    }
+
+    .op-action-btn.blocked {
+      opacity: 0.35;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .op-blocked-tip {
+      font-size: 10.5px;
+      color: var(--text-muted);
+      text-align: center;
+      padding: 4px;
+    }
+
+    /* Library List Items */
+    .op-lib-item {
+      background: var(--bg-layer2);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 10px 12px;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    .op-lib-item:hover {
+      border-color: var(--accent-pink);
+    }
+
+    .op-lib-item.active {
+      border-color: var(--accent-pink);
+      background: rgba(236, 72, 153, 0.07);
+    }
+
+    .op-lib-item-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .op-lib-item-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* Search */
+    .op-search {
+      background: var(--bg-layer2);
+      border: 1px solid var(--border-mid);
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      font-family: var(--font-main);
+      font-size: 13px;
+      padding: 9px 12px;
+      width: 100%;
+      outline: none;
+      margin-bottom: 10px;
+      transition: border-color 0.2s;
+    }
+
+    .op-search:focus {
+      border-color: var(--accent-pink);
+    }
+
+    /* Session Ended Overlay */
+    #session-ended-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(6, 8, 15, 0.92);
+      backdrop-filter: blur(8px);
+      z-index: 9999;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      text-align: center;
+    }
+
+    .session-ended-icon {
+      width: 60px;
+      height: 60px;
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .session-ended-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .session-ended-sub {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .session-ended-rejoin-btn {
+      font-family: var(--font-main);
+      font-size: 14px;
+      font-weight: 600;
+      padding: 11px 24px;
+      background: var(--bg-layer2);
+      border: 1px solid var(--border-mid);
+      color: var(--text-primary);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      margin-top: 8px;
+      transition: border-color 0.2s;
+    }
+
+    .session-ended-rejoin-btn:hover {
+      border-color: var(--accent-pink);
+    }
+
+    /* Agenda Panel */
+    .op-agenda-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      background: var(--bg-layer2);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      font-size: 12.5px;
+      color: var(--text-primary);
+    }
+
+    .op-agenda-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-pink);
+      flex-shrink: 0;
+    }
+
+    /* Import typing modal */
+    #op-import-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(6, 8, 15, 0.85);
+      backdrop-filter: blur(6px);
+      z-index: 500;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    #op-import-modal.open {
+      display: flex;
+    }
+
+    .op-import-card {
+      width: 100%;
+      max-width: 540px;
+      background: var(--bg-layer1);
+      border: 1px solid var(--border-mid);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+    }
+
+    .op-import-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+
+    .op-import-sub {
+      font-size: 12.5px;
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .op-import-field {
+      margin-bottom: 14px;
+    }
+
+    .op-import-label {
+      display: block;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+
+    .op-import-input {
+      width: 100%;
+      background: var(--bg-layer2);
+      border: 1px solid var(--border-mid);
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      font-family: var(--font-main);
+      font-size: 13.5px;
+      padding: 10px 12px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .op-import-input:focus {
+      border-color: var(--accent-pink);
+    }
+
+    textarea.op-import-input {
+      resize: vertical;
+      min-height: 100px;
+      line-height: 1.55;
+    }
+
+    .op-import-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .op-import-btn {
+      flex: 1;
+      font-family: var(--font-main);
+      font-size: 13px;
+      font-weight: 700;
+      padding: 10px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-mid);
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .op-import-btn.primary {
+      background: linear-gradient(135deg, #EC4899, #9333EA);
+      border: none;
+      color: #fff;
+    }
+
+    .op-import-btn.secondary {
+      background: var(--bg-layer2);
+      color: var(--text-secondary);
+    }
+
+    .op-import-btn:hover {
+      opacity: 0.88;
+    }
+
+    /* Privilege update notification */
+    .priv-update-toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--bg-layer2);
+      border: 1px solid var(--border-mid);
+      border-radius: var(--radius-md);
+      padding: 10px 18px;
+      font-size: 12.5px;
+      color: var(--text-secondary);
+      opacity: 0;
+      transition: opacity 0.3s, transform 0.3s;
+      pointer-events: none;
+      z-index: 1000;
+      white-space: nowrap;
+    }
+
+    .priv-update-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ── JOIN SCREEN ──────────────────────────────────────────────────────── -->
+  <div id="join-screen">
+    <div class="join-card">
+      <div class="join-brand">
+        <div class="join-brand-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12 2 2 7 12 12 22 7 12 2" />
+            <polyline points="2 17 12 22 22 17" />
+            <polyline points="2 12 12 17 22 12" />
+          </svg>
+        </div>
+        <span class="join-brand-text">ScriptureFlow</span>
+        <span class="join-brand-badge">OPERATOR</span>
+      </div>
+
+      <div class="join-title">Join Studio Session</div>
+      <div class="join-subtitle">Enter your name so the host can identify you. Once you join, your workspace will sync
+        with the studio.</div>
+
+      <div class="join-field">
+        <label class="join-label" for="operator-name-input">YOUR NAME</label>
+        <input type="text" id="operator-name-input" class="join-input" placeholder="e.g. Tunde" maxlength="40"
+          autocomplete="off">
+      </div>
+
+      <button class="join-btn" id="join-btn" onclick="joinSession()">Join Session</button>
+
+      <div class="join-error" id="join-error"></div>
+    </div>
+  </div>
+
+  <!-- ── OPERATOR APP ─────────────────────────────────────────────────────── -->
+  <div id="operator-app">
+
+    <!-- Session Status Bar -->
+    <div id="session-bar">
+      <div class="session-bar-left">
+        <div class="session-dot" id="session-dot"></div>
+        <span class="session-label">Connected to ScriptureFlow Studio —</span>
+        <span class="session-operator-name" id="session-name-display">Operator</span>
+      </div>
+      <div class="session-bar-right">
+        <span class="privilege-badge" id="privilege-badge">Limited</span>
+        <button class="session-btn" onclick="disconnectSession()">Leave Session</button>
+      </div>
+    </div>
+
+    <!-- Import Pending Notification (Request Mode) -->
+    <div id="import-notif">
+      <span class="import-notif-text" id="import-notif-text">Song sent to host for review.</span>
+      <span class="import-notif-btn waiting" id="import-notif-status">Waiting for host...</span>
+    </div>
+
+    <!-- Main Workspace -->
+    <div id="op-workspace">
+
+      <!-- Left Sidebar: Agenda + Library -->
+      <div id="op-sidebar">
+        <!-- Agenda -->
+        <div class="op-sidebar-section" style="flex-shrink:0;">
+          <div class="op-section-label">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#EC4899" stroke-width="2.5">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+            </svg>
+            Service Agenda
+          </div>
+          <div id="op-agenda-list"
+            style="display:flex; flex-direction:column; gap:6px; max-height:140px; overflow-y:auto;"></div>
+          <button class="op-action-btn" id="op-agenda-add-btn" style="margin-top:8px; font-size:11.5px;"
+            onclick="opAddAgendaItem()">+ Add Item</button>
+        </div>
+
+        <!-- Library Tabs -->
+        <div class="op-tabs">
+          <div class="op-tab active" data-optab="songs" onclick="switchOpTab('songs')">SONGS</div>
+          <div class="op-tab" data-optab="bible" onclick="switchOpTab('bible')">BIBLE</div>
+        </div>
+
+        <!-- Songs Tab -->
+        <div class="op-tab-panel active" id="op-panel-songs">
+          <input type="text" class="op-search" placeholder="Search songs..." id="op-song-search"
+            oninput="onOpSongSearchInput()">
+          <div id="op-song-list" style="display:flex; flex-direction:column; gap:6px;"></div>
+          <button class="op-action-btn" id="op-import-song-btn" style="margin-top:8px; font-size:11.5px;"
+            onclick="openOpImportModal()">+ Add New Song</button>
+        </div>
+
+        <!-- Bible Tab -->
+        <div class="op-tab-panel" id="op-panel-bible">
+          <label class="op-import-label" style="margin-bottom:6px;">Translation</label>
+          <select id="op-version" class="op-search" style="margin-bottom:8px;" onchange="opUpdateVersion()"></select>
+          <label class="op-import-label" style="margin-bottom:6px;">Book</label>
+          <select id="op-book" class="op-search" style="margin-bottom:8px;" onchange="opUpdateChapters()"></select>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px;">
+            <div>
+              <label class="op-import-label">Chapter</label>
+              <select id="op-chapter" class="op-search" style="margin-bottom:0;" onchange="opUpdateVerses()"></select>
+            </div>
+            <div>
+              <label class="op-import-label">Start Verse</label>
+              <select id="op-verse" class="op-search" style="margin-bottom:0;"></select>
+            </div>
+          </div>
+          <label class="op-import-label">End Verse (optional)</label>
+          <select id="op-end-verse" class="op-search"></select>
+          <button class="op-action-btn" style="margin-top:10px;" onclick="opProjectPassage()">Project Passage</button>
+        </div>
+      </div>
+
+      <!-- Center Deck: Active Song Slides -->
+      <div id="op-deck">
+        <div id="op-deck-header">
+          <span class="op-deck-title" id="op-deck-song-title">No Song Loaded</span>
+          <div style="display:flex; gap:8px;">
+            <button class="session-btn" onclick="opNavigate('prev')">← Prev</button>
+            <button class="session-btn" onclick="opNavigate('next')">Next →</button>
+          </div>
+        </div>
+        <div id="op-slides-container">
+          <div
+            style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; gap:12px; color:var(--text-muted);">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="2" y="3" width="20" height="14" rx="2" />
+              <line x1="8" y1="21" x2="16" y2="21" />
+              <line x1="12" y1="17" x2="12" y2="21" />
+            </svg>
+            <span style="font-size:13px;">Select a song from the library to load slides</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Panel: Live Preview + Quick Actions -->
+      <div id="op-preview">
+        <div id="op-preview-header">
+          <span class="op-preview-title">Live Output</span>
+          <span style="font-size:10.5px; color: var(--text-muted);" id="op-live-status">Watching...</span>
+        </div>
+
+        <div id="op-live-preview">
+          <div class="op-live-empty" id="op-live-empty">No content projected</div>
+          <div class="op-live-text" id="op-live-text" style="display:none;"></div>
+          <div class="op-live-ref" id="op-live-ref" style="display:none;"></div>
+        </div>
+
+        <div class="op-quick-actions">
+          <button class="op-action-btn danger" id="op-clear-btn" onclick="opClearScreen()">Clear Screen</button>
+          <div class="op-blocked-tip" id="op-clear-blocked-tip" style="display:none;">Clear screen not permitted in this
+            session</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Session Ended Overlay -->
+  <div id="session-ended-overlay">
+    <div class="session-ended-icon">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#F87171" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+        <line x1="12" y1="9" x2="12" y2="13" />
+        <line x1="12" y1="17" x2="12.01" y2="17" />
+      </svg>
+    </div>
+    <div class="session-ended-title">Studio Session Ended</div>
+    <div class="session-ended-sub">The host has stopped the remote session.<br>Your content has been safely preserved on
+      the studio.</div>
+    <button class="session-ended-rejoin-btn" onclick="showJoinScreen()">Return to Join Screen</button>
+  </div>
+
+  <!-- Privilege Update Toast -->
+  <div class="priv-update-toast" id="priv-toast">Session privileges updated by host</div>
+
+  <!-- Import Song Modal -->
+  <div id="op-import-modal">
+    <div class="op-import-card" style="max-width:540px;">
+      <div class="op-import-title">Add & Search Songs</div>
+      <div class="op-import-sub" id="op-import-mode-desc">Search online lyrics or write custom slides to add to the church database.</div>
+
+      <!-- Segmented Tab Switcher -->
+      <div style="display:flex; gap:6px; background:rgba(0,0,0,0.3); padding:4px; border-radius:8px; margin-bottom:14px;">
+        <button type="button" id="op-tab-btn-online" class="op-import-btn primary" style="flex:1; padding:6px; font-size:11px; display:flex; align-items:center; justify-content:center; gap:5px;" onclick="switchOpImportTab('online')">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <span>Search Online</span>
+        </button>
+        <button type="button" id="op-tab-btn-manual" class="op-import-btn secondary" style="flex:1; padding:6px; font-size:11px; display:flex; align-items:center; justify-content:center; gap:5px;" onclick="switchOpImportTab('manual')">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          <span>Manual Entry</span>
+        </button>
+      </div>
+
+      <!-- Tab 1: Search Online -->
+      <div id="op-pane-online" style="display:flex; flex-direction:column; gap:10px;">
+        <div class="op-import-field" style="margin-bottom:0;">
+          <input type="text" class="op-import-input" id="op-cloud-search-input" placeholder="Type song title, artist, or lyrics..." oninput="searchOpCloudLyrics(this.value)">
+        </div>
+        <div id="op-cloud-search-results" style="min-height:140px; max-height:220px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; padding:4px 0;">
+          <div style="text-align:center; color:var(--text-muted); font-size:11.5px; padding:20px;">Type a title (e.g. Way Maker, Gratitude, Ageless God) to search online.</div>
+        </div>
+      </div>
+
+      <!-- Tab 2: Manual Entry -->
+      <div id="op-pane-manual" style="display:none; flex-direction:column; gap:10px;">
+        <div class="op-import-field">
+          <label class="op-import-label">SONG TITLE</label>
+          <input type="text" class="op-import-input" id="op-import-title" placeholder="e.g. Great Are You Lord">
+        </div>
+
+        <div class="op-import-field">
+          <label class="op-import-label">ARTIST / AUTHOR (optional)</label>
+          <input type="text" class="op-import-input" id="op-import-artist" placeholder="e.g. All Sons & Daughters">
+        </div>
+
+        <div id="op-import-stanzas">
+          <div class="op-import-field">
+            <label class="op-import-label">SLIDE 1 (Verse / Chorus)</label>
+            <textarea class="op-import-input" placeholder="Type lyrics for this slide..."></textarea>
+          </div>
+        </div>
+
+        <button
+          style="font-family:var(--font-main); font-size:12px; font-weight:600; background:none; border:1px dashed var(--border-mid); color:var(--text-muted); border-radius:var(--radius-md); padding:8px; width:100%; cursor:pointer; margin-bottom:4px;"
+          onclick="addOpImportStanza()">+ Add Another Slide</button>
+      </div>
+
+      <div class="op-import-actions" style="margin-top:12px;">
+        <button class="op-import-btn secondary" onclick="closeOpImportModal()">Close</button>
+        <button class="op-import-btn primary" id="op-import-submit-btn" style="display:none;" onclick="submitOpImport()">Submit Manual Song</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ── Operator App State ───────────────────────────────────────────────────
+    const opState = {
+      operatorId: null,
+      operatorName: '',
+      privileges: {},
+      importMode: 'request',
+      activeTab: 'songs',
+      activeSong: null,
+      activeSongId: null,
+      activeSlideIndex: -1,
+      activeLiveText: '',
+      activeLiveRef: '',
+      agendaItems: [],
+      library: { bible: {}, songs: [] },
+      pendingImportId: null,
+      sessionEventSource: null,
+      privEventSource: null,
+    };
+
+    const $ = id => document.getElementById(id);
+
+    // ── Join Session ─────────────────────────────────────────────────────────
+    async function joinSession() {
+      const nameInput = $('operator-name-input');
+      const name = nameInput.value.trim();
+      if (!name) { showJoinError('Please enter your name to join.'); return; }
+
+      const btn = $('join-btn');
+      btn.disabled = true;
+      btn.textContent = 'Joining...';
+
+      try {
+        const res = await fetch('/api/session/join', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name })
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          if (data.sessionOffline) {
+            showJoinError('The studio session has not been started yet. Ask the host to start the remote session.');
+          } else {
+            showJoinError(data.error || 'Failed to join session.');
+          }
+          btn.disabled = false;
+          btn.textContent = 'Join Session';
+          return;
+        }
+
+        // Successfully joined
+        opState.operatorId = data.operatorId;
+        opState.operatorName = data.name;
+        opState.privileges = data.privileges || {};
+        opState.importMode = data.importMode || 'request';
+
+        if (data.catalog) {
+          opState.library = data.catalog;
+          Object.keys(BIBLE_DATABASE).forEach(k => delete BIBLE_DATABASE[k]);
+          Object.assign(BIBLE_DATABASE, data.catalog.bible || {});
+          SONGS_DATABASE.splice(0, SONGS_DATABASE.length, ...(data.catalog.songs || []));
+        }
+
+        startOperatorApp();
+      } catch {
+        showJoinError('Unable to reach the studio server. Make sure you are on the same network.');
+        btn.disabled = false;
+        btn.textContent = 'Join Session';
+      }
+    }
+
+    function showJoinError(msg) {
+      const el = $('join-error');
+      el.textContent = msg;
+      el.style.display = 'block';
+    }
+
+    function showJoinScreen() {
+      $('session-ended-overlay').style.display = 'none';
+      $('operator-app').style.display = 'none';
+      $('join-screen').style.display = 'flex';
+      $('join-btn').disabled = false;
+      $('join-btn').textContent = 'Join Session';
+      $('join-error').style.display = 'none';
+      if (opState.sessionEventSource) { opState.sessionEventSource.close(); opState.sessionEventSource = null; }
+      if (opState.privEventSource) { opState.privEventSource.close(); opState.privEventSource = null; }
+    }
+
+    // ── Start App After Join ─────────────────────────────────────────────────
+    function startOperatorApp() {
+      $('join-screen').style.display = 'none';
+      $('operator-app').style.display = 'flex';
+      $('session-name-display').textContent = opState.operatorName;
+
+      applyPrivilegesToUI();
+      renderOpSongs();
+      renderOpBible();
+      renderOpAgenda();
+
+      // Listen for live display state
+      opState.sessionEventSource = new EventSource('/api/events');
+      opState.sessionEventSource.onmessage = event => {
+        const live = JSON.parse(event.data);
+        updateOpLivePreview(live);
+        if (live.catalogVersion && opState.library.catalogVersion !== live.catalogVersion) {
+          reloadCatalog();
+        }
+      };
+      opState.sessionEventSource.onerror = () => {
+        $('session-dot').style.background = '#EF4444';
+        $('session-dot').style.boxShadow = '0 0 6px #EF4444';
+      };
+
+      // Listen for privilege updates from host
+      opState.privEventSource = new EventSource(`/api/operator-events/${opState.operatorId}`);
+      opState.privEventSource.onmessage = event => {
+        const msg = JSON.parse(event.data);
+        if (msg.type === 'PRIVILEGE_UPDATE') {
+          opState.privileges = msg.privileges || opState.privileges;
+          opState.importMode = msg.importMode || opState.importMode;
+          applyPrivilegesToUI();
+          showPrivToast('Session privileges updated by host');
+        } else if (msg.type === 'SESSION_ENDED') {
+          $('session-ended-overlay').style.display = 'flex';
+          if (opState.privEventSource) { opState.privEventSource.close(); }
+          if (opState.sessionEventSource) { opState.sessionEventSource.close(); }
+        } else if (msg.type === 'IMPORT_ACCEPTED') {
+          $('import-notif').style.display = 'none';
+          showPrivToast(`"${msg.songTitle}" accepted into studio library ✓`);
+          reloadCatalog();
+        }
+      };
+    }
+
+    async function disconnectSession() {
+      try {
+        await fetch('/api/session/leave', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ operatorId: opState.operatorId })
+        });
+      } catch { }
+      showJoinScreen();
+    }
+
+    async function reloadCatalog() {
+      try {
+        const res = await fetch('/api/catalog');
+        const catalog = await res.json();
+        opState.library = catalog;
+        Object.keys(BIBLE_DATABASE).forEach(k => delete BIBLE_DATABASE[k]);
+        Object.assign(BIBLE_DATABASE, catalog.bible || {});
+        SONGS_DATABASE.splice(0, SONGS_DATABASE.length, ...(catalog.songs || []));
+        renderOpSongs();
+        renderOpBible();
+      } catch { }
+    }
+
+    // ── Privilege Application (Full Control Operator) ────────────────────────
+    function applyPrivilegesToUI() {
+      // Privilege badge
+      const badge = $('privilege-badge');
+      if (badge) {
+        badge.textContent = 'Full Control';
+        badge.className = 'privilege-badge full';
+      }
+
+      // Clear Screen
+      const clearBtn = $('op-clear-btn');
+      const clearTip = $('op-clear-blocked-tip');
+      if (clearBtn) {
+        clearBtn.classList.remove('blocked');
+        clearBtn.style.display = '';
+      }
+      if (clearTip) clearTip.style.display = 'none';
+
+      // Add to Agenda
+      const agendaAddBtn = $('op-agenda-add-btn');
+      if (agendaAddBtn) agendaAddBtn.classList.remove('blocked');
+
+      // Import song
+      const importSongBtn = $('op-import-song-btn');
+      if (importSongBtn) importSongBtn.classList.remove('blocked');
+
+      // Update import modal description
+      const importDesc = $('op-import-mode-desc');
+      if (importDesc) {
+        importDesc.textContent = 'Song will be added directly to the studio library immediately.';
+      }
+
+      // Re-render slides
+      if (opState.activeSong) renderOpSlides(opState.activeSong);
+    }
+
+    function getFullPrivileges() {
+      return {
+        projectSlide: true, navigateSlides: true, clearScreen: true,
+        loadSong: true, importSongsDirect: true, importSongsRequest: true,
+        importBibles: true, editLyrics: true,
+        addAgendaItems: true, reorderAgenda: true, removeAgendaItems: true,
+        loadMedleySlots: true, switchMedleyMode: true,
+        adjustFontSize: true, toggleTransparentBg: true, autoProject: true,
+      };
+    }
+
+    function isLimitedPreset(priv) {
+      return priv.projectSlide && priv.navigateSlides && priv.clearScreen &&
+        priv.loadSong && !priv.importSongsDirect && priv.importSongsRequest &&
+        !priv.importBibles && !priv.editLyrics &&
+        priv.addAgendaItems && !priv.reorderAgenda && !priv.removeAgendaItems &&
+        priv.loadMedleySlots && !priv.switchMedleyMode &&
+        !priv.adjustFontSize && !priv.toggleTransparentBg && !priv.autoProject;
+    }
+
+    // ── Send Remote Command ──────────────────────────────────────────────────
+    async function opSend(payload) {
+      try {
+        const res = await fetch('/api/control', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...payload, _fromRemote: true, operatorId: opState.operatorId })
+        });
+        if (!res.ok) {
+          const data = await res.json();
+          if (data.privilegeDenied) showPrivToast('Action not permitted in this session');
+        }
+        return res.ok;
+      } catch {
+        showPrivToast('Unable to reach studio server');
+        return false;
+      }
+    }
+
+    // ── Shadow Deck Sync ─────────────────────────────────────────────────────
+    async function pushShadowDeck(song) {
+      try {
+        await fetch('/api/session/shadow-deck', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            songId: song.id || song.title,
+            songTitle: song.title,
+            stanzas: song.stanzas,
+            operatorId: opState.operatorId,
+          })
+        });
+      } catch { }
+    }
+
+    // ── Song Library ─────────────────────────────────────────────────────────
+    let _opSongSearchTimer = null;
+    function onOpSongSearchInput() {
+      clearTimeout(_opSongSearchTimer);
+      _opSongSearchTimer = setTimeout(() => {
+        renderOpSongs();
+      }, 100);
+    }
+
+    function renderOpSongs() {
+      const list = $('op-song-list');
+      if (!list) return;
+      const query = ($('op-song-search').value || '').toLowerCase().trim();
+      list.replaceChildren();
+
+      const songs = SONGS_DATABASE.filter(s =>
+        !query || s.title.toLowerCase().includes(query) || (s.author || '').toLowerCase().includes(query)
+      );
+
+      if (!songs.length) {
+        list.innerHTML = '<div style="font-size:12px; color:var(--text-muted); padding:8px 0;">No songs found</div>';
+        return;
+      }
+
+      const fragment = document.createDocumentFragment();
+      const maxDisplay = Math.min(100, songs.length);
+      for (let i = 0; i < maxDisplay; i++) {
+        const song = songs[i];
+        const el = document.createElement('div');
+        el.className = 'op-lib-item' + (song.id === opState.activeSongId ? ' active' : '');
+        el.dataset.songId = song.id || song.title;
+        el.innerHTML = `<div class="op-lib-item-title">${song.title}</div>${song.author ? `<div class="op-lib-item-sub">${song.author}</div>` : ''}`;
+        const load = (e) => {
+          if (e && e.button !== undefined && e.button !== 0) return;
+          if (!opState.privileges.loadSong) { showPrivToast('Loading songs not permitted in this session'); return; }
+          loadOpSong(song);
+        };
+        el.onpointerdown = load;
+        el.onclick = load;
+        fragment.appendChild(el);
+      }
+      list.appendChild(fragment);
+    }
+
+    function loadOpSong(song) {
+      opState.activeSong = song;
+      opState.activeSongId = song.id || song.title;
+      opState.activeSlideIndex = -1;
+      $('op-deck-song-title').textContent = song.title;
+
+      // Update library list active highlight in-place
+      const list = $('op-song-list');
+      if (list) {
+        list.querySelectorAll('.op-lib-item.active').forEach(item => item.classList.remove('active'));
+        const activeEl = list.querySelector(`[data-song-id="${opState.activeSongId}"]`);
+        if (activeEl) activeEl.classList.add('active');
+      }
+
+      renderOpSlides(song);
+      // Shadow deck sync — silently push to host for crash continuity
+      pushShadowDeck(song);
+    }
+
+    function renderOpSlides(song) {
+      const container = $('op-slides-container');
+      container.innerHTML = '';
+      (song.stanzas || []).forEach((stanza, i) => {
+        const card = document.createElement('div');
+        const isActive = i === opState.activeSlideIndex;
+        card.id = `op_card_${i}`;
+        card.className = 'op-slide-card' + (isActive ? ' active' : '');
+        if (!opState.privileges.projectSlide) card.classList.add('blocked');
+
+        card.innerHTML = `
+          <div class="op-slide-type">${stanza.type || 'Slide ' + (i + 1)}</div>
+          <div class="op-slide-text">${stanza.text}</div>
+          ${isActive ? '<div class="op-slide-projected">Projected ✓</div>' : ''}
+        `;
+
+        const trigger = (e) => {
+          if (e && e.button !== undefined && e.button !== 0) return;
+          if (opState.privileges.projectSlide) {
+            opProjectSlide(i, stanza.text, `${song.title} (${stanza.type || 'Slide ' + (i + 1)})`);
+          }
+        };
+        card.onpointerdown = trigger;
+        card.onclick = trigger;
+        container.appendChild(card);
+      });
+    }
+
+    function opProjectSlide(index, text, reference) {
+      if (!opState.privileges.projectSlide) {
+        showPrivToast('Projecting not permitted in this session');
+        return;
+      }
+      // Instantaneous 0ms local UI response — update in-place without rebuilding DOM
+      opState.activeSlideIndex = index;
+
+      const container = $('op-slides-container');
+      if (container) {
+        container.querySelectorAll('.op-slide-card').forEach((c, idx) => {
+          const isTarget = idx === index;
+          c.classList.toggle('active', isTarget);
+          const badge = c.querySelector('.op-slide-projected');
+          if (isTarget) {
+            if (!badge) {
+              const b = document.createElement('div');
+              b.className = 'op-slide-projected';
+              b.textContent = 'Projected ✓';
+              c.appendChild(b);
+            }
+          } else if (badge) {
+            badge.remove();
+          }
+        });
+      }
+
+      updateOpLivePreview({ text, reference, clear: false });
+
+      // Async background push to studio & displays
+      opSend({ type: 'PROJECT', text, reference, slideId: `op_${opState.activeSongId}_${index}` });
+    }
+
+    function opNavigate(dir) {
+      if (!opState.activeSong) return;
+      if (!opState.privileges.navigateSlides) { showPrivToast('Navigation not permitted in this session'); return; }
+      const total = opState.activeSong.stanzas.length;
+      let next = opState.activeSlideIndex + (dir === 'next' ? 1 : -1);
+      next = Math.max(0, Math.min(total - 1, next));
+      if (next === opState.activeSlideIndex) return;
+      const stanza = opState.activeSong.stanzas[next];
+      opProjectSlide(next, stanza.text, `${opState.activeSong.title} (${stanza.type || 'Slide ' + (next + 1)})`);
+    }
+
+    // ── Bible ────────────────────────────────────────────────────────────────
+    function getOpTranslations() {
+      const keys = Object.keys(BIBLE_DATABASE);
+      if (!keys.length) return ['KJV'];
+      const first = keys[0];
+      if (window.libraryImporter && window.libraryImporter.isBibleBookName(first)) {
+        return ['KJV'];
+      }
+      return keys;
+    }
+
+    function getOpBibleBooks(ver) {
+      const v = ver || ($('op-version') ? $('op-version').value : null);
+      if (v && BIBLE_DATABASE[v] && typeof BIBLE_DATABASE[v] === 'object') {
+        return Object.keys(BIBLE_DATABASE[v]);
+      }
+      const keys = Object.keys(BIBLE_DATABASE);
+      if (!keys.length) return [];
+      const first = keys[0];
+      if (BIBLE_DATABASE[first] && typeof BIBLE_DATABASE[first] === 'object' && !Array.isArray(BIBLE_DATABASE[first])) {
+        if (window.libraryImporter && window.libraryImporter.isBibleBookName(first)) {
+          return keys;
+        }
+        return Object.keys(BIBLE_DATABASE[first]);
+      }
+      return keys;
+    }
+
+    function getOpBibleChapters(book, ver) {
+      if (!book) return [];
+      const v = ver || ($('op-version') ? $('op-version').value : null);
+      if (v && BIBLE_DATABASE[v]?.[book]) return Object.keys(BIBLE_DATABASE[v][book]);
+      if (BIBLE_DATABASE[book]) return Object.keys(BIBLE_DATABASE[book]);
+      const keys = Object.keys(BIBLE_DATABASE);
+      for (const k of keys) {
+        if (BIBLE_DATABASE[k] && BIBLE_DATABASE[k][book]) return Object.keys(BIBLE_DATABASE[k][book]);
+      }
+      return [];
+    }
+
+    function getOpBibleVerses(book, chapter, ver) {
+      if (!book || !chapter) return [];
+      const v = ver || ($('op-version') ? $('op-version').value : null);
+      if (v && BIBLE_DATABASE[v]?.[book]?.[chapter]) return BIBLE_DATABASE[v][book][chapter];
+      if (BIBLE_DATABASE[book]?.[chapter]) return BIBLE_DATABASE[book][chapter];
+      const keys = Object.keys(BIBLE_DATABASE);
+      for (const k of keys) {
+        if (BIBLE_DATABASE[k]?.[book]?.[chapter]) return BIBLE_DATABASE[k][book][chapter];
+      }
+      return [];
+    }
+
+    function renderOpBible() {
+      const vers = getOpTranslations();
+      const verEl = $('op-version');
+      if (verEl) {
+        verEl.innerHTML = vers.map(v => `<option value="${v}">${v}</option>`).join('');
+      }
+      opUpdateVersion();
+    }
+
+    function opUpdateVersion() {
+      const books = getOpBibleBooks();
+      const bookEl = $('op-book');
+      bookEl.innerHTML = books.map(b => `<option value="${b}">${b}</option>`).join('');
+      opUpdateChapters();
+    }
+
+    function opUpdateChapters() {
+      const book = $('op-book').value;
+      const chapters = getOpBibleChapters(book);
+      $('op-chapter').innerHTML = chapters.map(c => `<option value="${c}">${c}</option>`).join('');
+      opUpdateVerses();
+    }
+
+    function opUpdateVerses() {
+      const book = $('op-book').value;
+      const chapter = $('op-chapter').value;
+      const verses = getOpBibleVerses(book, chapter).map(v => v.verse);
+      $('op-verse').innerHTML = verses.map(v => `<option value="${v}">${v}</option>`).join('');
+      $('op-end-verse').innerHTML = ['Single verse', ...verses].map(v => `<option value="${v}">${v}</option>`).join('');
+    }
+
+    function opProjectPassage() {
+      if (!opState.privileges.projectSlide) { showPrivToast('Projecting not permitted in this session'); return; }
+      const ver = $('op-version') ? $('op-version').value : 'KJV';
+      const book = $('op-book').value;
+      const chapter = $('op-chapter').value;
+      const startVerse = Number($('op-verse').value);
+      const endVerseVal = $('op-end-verse').value;
+      const endVerse = endVerseVal === 'Single verse' ? startVerse : Number(endVerseVal);
+      const all = getOpBibleVerses(book, chapter, ver);
+      const chosen = all.filter(v => v.verse >= startVerse && v.verse <= endVerse);
+      if (!chosen.length) return;
+      const ref = `${book} ${chapter}:${startVerse}${endVerse > startVerse ? '-' + endVerse : ''} (${ver})`;
+      const text = chosen.map(v => `${v.verse}. ${v.text}`).join('\n');
+
+      // Instantaneous 0ms local response
+      updateOpLivePreview({ text, reference: ref, clear: false });
+      showPrivToast('Projected ✓');
+
+      opSend({ type: 'PROJECT', text, reference: ref, slideId: `bible_${ver}_${book}_${chapter}_${startVerse}` });
+    }
+
+    // ── Agenda ───────────────────────────────────────────────────────────────
+    function renderOpAgenda() {
+      const list = $('op-agenda-list');
+      list.innerHTML = '';
+      if (!opState.agendaItems.length) {
+        list.innerHTML = '<div style="font-size:11.5px; color:var(--text-muted);">No agenda items yet</div>';
+        return;
+      }
+      opState.agendaItems.forEach(item => {
+        const el = document.createElement('div');
+        el.className = 'op-agenda-item';
+        el.innerHTML = `<div class="op-agenda-dot"></div><span style="font-size:12px;">${item.title}</span>`;
+        list.appendChild(el);
+      });
+    }
+
+    function opAddAgendaItem() {
+      if (!opState.privileges.addAgendaItems) { showPrivToast('Adding agenda items not permitted in this session'); return; }
+      const title = prompt('Agenda item name:');
+      if (!title || !title.trim()) return;
+      const item = { id: `op_ag_${Date.now()}`, title: title.trim(), type: 'custom' };
+      opState.agendaItems.push(item);
+      renderOpAgenda();
+      opSend({ type: 'AGENDA_ADD', item });
+    }
+
+    // ── Live Preview ─────────────────────────────────────────────────────────
+    let opLastLiveKey = '';
+    function updateOpLivePreview(live) {
+      const empty = $('op-live-empty');
+      const textEl = $('op-live-text');
+      const refEl = $('op-live-ref');
+      const statusEl = $('op-live-status');
+
+      if (live.clear || !live.text) {
+        empty.style.display = '';
+        textEl.style.display = 'none';
+        refEl.style.display = 'none';
+        statusEl.textContent = 'Cleared';
+        opLastLiveKey = '';
+      } else {
+        empty.style.display = 'none';
+        textEl.style.display = '';
+        refEl.style.display = '';
+        
+        const curKey = `${live.text}|${live.reference || ''}`;
+        if (opLastLiveKey !== curKey) {
+          opLastLiveKey = curKey;
+          textEl.style.opacity = '0';
+          textEl.style.transform = 'scale(0.97)';
+          textEl.textContent = live.text;
+          refEl.textContent = live.reference || '';
+          void textEl.offsetWidth;
+          textEl.style.transition = 'opacity 0.22s ease, transform 0.22s ease';
+          textEl.style.opacity = '1';
+          textEl.style.transform = 'scale(1)';
+        } else {
+          textEl.textContent = live.text;
+          refEl.textContent = live.reference || '';
+        }
+        statusEl.textContent = 'Live';
+      }
+    }
+
+    // ── Clear Screen ─────────────────────────────────────────────────────────
+    function opClearScreen() {
+      if (!opState.privileges.clearScreen) return;
+      // Instantaneous 0ms local response
+      updateOpLivePreview({ clear: true, text: '', reference: '' });
+      opState.activeSlideIndex = -1;
+      if (opState.activeSong) renderOpSlides(opState.activeSong);
+      opSend({ type: 'CLEAR' });
+    }
+
+    // ── Tab Switching ────────────────────────────────────────────────────────
+    function switchOpTab(tab) {
+      document.querySelectorAll('.op-tab').forEach(t => t.classList.toggle('active', t.dataset.optab === tab));
+      document.querySelectorAll('.op-tab-panel').forEach(p => p.classList.toggle('active', p.id === `op-panel-${tab}`));
+      opState.activeTab = tab;
+    }
+
+    // ── Import Modal & Online Search ─────────────────────────────────────────
+    let opCloudSearchResults = [];
+    let opCloudDebounce = null;
+
+    function openOpImportModal() {
+      if (!opState.privileges.importSongsRequest && !opState.privileges.importSongsDirect) {
+        showPrivToast('Importing songs not permitted in this session'); return;
+      }
+      $('op-import-modal').classList.add('open');
+      switchOpImportTab('online');
+    }
+
+    function closeOpImportModal() { $('op-import-modal').classList.remove('open'); }
+
+    function switchOpImportTab(tab) {
+      const isOnline = tab === 'online';
+      $('op-pane-online').style.display = isOnline ? 'flex' : 'none';
+      $('op-pane-manual').style.display = isOnline ? 'none' : 'flex';
+      $('op-tab-btn-online').className = `op-import-btn ${isOnline ? 'primary' : 'secondary'}`;
+      $('op-tab-btn-manual').className = `op-import-btn ${isOnline ? 'secondary' : 'primary'}`;
+      $('op-import-submit-btn').style.display = isOnline ? 'none' : 'block';
+    }
+
+    function searchOpCloudLyrics(q) {
+      clearTimeout(opCloudDebounce);
+      const query = (q || '').trim();
+      const container = $('op-cloud-search-results');
+      if (!query) {
+        container.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:11.5px; padding:20px;">Type a title (e.g. Way Maker, Gratitude, Ageless God) to search online.</div>`;
+        return;
+      }
+
+      container.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:11.5px; padding:20px;">Searching online for "<b>${query}</b>"...</div>`;
+
+      opCloudDebounce = setTimeout(async () => {
+        try {
+          const res = await fetch(`/api/lyrics/search?q=${encodeURIComponent(query)}`);
+          if (!res.ok) throw new Error('Search failed');
+          const data = await res.json();
+          const results = data.results || [];
+          opCloudSearchResults = results;
+
+          if (results.length === 0) {
+            container.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:11.5px; padding:16px;">No online lyrics found for "${query}". Switch to Manual Entry to paste lyrics.</div>`;
+            return;
+          }
+
+          container.innerHTML = results.map((s, idx) => `
+            <div style="background:rgba(255,255,255,0.05); padding:10px 12px; border-radius:8px; border:1px solid rgba(255,255,255,0.08); display:flex; justify-content:space-between; align-items:center; gap:8px;">
+              <div style="min-width:0; flex:1;">
+                <div style="font-weight:700; font-size:12.5px; color:#FFFFFF; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${s.title}</div>
+                <div style="font-size:11px; color:#F472B6; margin-top:2px;">${s.author || 'Unknown'} • <span style="color:#94A3B8;">${s.stanzas ? s.stanzas.length : 0} slides</span></div>
+              </div>
+              <button type="button" class="op-import-btn primary" style="padding:4px 10px; font-size:11px; flex-shrink:0;" onclick="addOpCloudSongByIndex(${idx})">+ Add</button>
+            </div>
+          `).join('');
+        } catch (e) {
+          container.innerHTML = `<div style="color:#EF4444; font-size:11px; padding:12px;">Search error: ${e.message}</div>`;
+        }
+      }, 350);
+    }
+
+    async function addOpCloudSongByIndex(idx) {
+      const song = opCloudSearchResults[idx];
+      if (!song) return;
+
+      const songObj = {
+        id: song.id || `op_song_${Date.now()}`,
+        title: song.title,
+        author: song.author,
+        stanzas: song.stanzas || [{ type: 'Verse 1', text: song.title }]
+      };
+
+      if (opState.importMode === 'direct' && opState.privileges.importSongsDirect) {
+        const ok = await opSend({ type: 'IMPORT_SONG', song: songObj, direct: true });
+        if (ok) {
+          SONGS_DATABASE.push(songObj);
+          renderOpSongs();
+          loadOpSong(songObj);
+          closeOpImportModal();
+          showPrivToast(`"${song.title}" added to studio library`);
+        }
+      } else {
+        try {
+          const res = await fetch('/api/import-request', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ operatorId: opState.operatorId, song: songObj })
+          });
+          const data = await res.json();
+          if (data.accepted) {
+            opState.pendingImportId = data.importId;
+            $('import-notif-text').innerHTML = `Song <strong>"${song.title}"</strong> sent to host for review`;
+            $('import-notif').style.display = 'flex';
+            SONGS_DATABASE.push(songObj);
+            renderOpSongs();
+            loadOpSong(songObj);
+            closeOpImportModal();
+          }
+        } catch {
+          showPrivToast('Failed to send import request');
+        }
+      }
+    }
+
+    function addOpImportStanza() {
+      const container = $('op-import-stanzas');
+      const count = container.querySelectorAll('.op-import-field').length + 1;
+      const div = document.createElement('div');
+      div.className = 'op-import-field';
+      div.innerHTML = `<label class="op-import-label">SLIDE ${count}</label><textarea class="op-import-input" placeholder="Type lyrics for this slide..."></textarea>`;
+      container.appendChild(div);
+    }
+
+    async function submitOpImport() {
+      const title = $('op-import-title').value.trim();
+      const artist = $('op-import-artist').value.trim();
+      if (!title) { alert('Please enter a song title.'); return; }
+
+      const textareas = $('op-import-stanzas').querySelectorAll('textarea');
+      const stanzas = Array.from(textareas)
+        .map((ta, i) => ({ type: `Slide ${i + 1}`, text: ta.value.trim() }))
+        .filter(s => s.text);
+
+      if (!stanzas.length) { alert('Please add at least one slide with lyrics.'); return; }
+
+      const song = { title, author: artist || undefined, stanzas, id: `op_song_${Date.now()}` };
+
+      const btn = $('op-import-submit-btn');
+      btn.disabled = true;
+      btn.textContent = 'Submitting...';
+
+      if (opState.importMode === 'direct' && opState.privileges.importSongsDirect) {
+        // Direct push — add directly to catalog via control command
+        const ok = await opSend({ type: 'IMPORT_SONG', song, direct: true });
+        if (ok) {
+          SONGS_DATABASE.push(song);
+          renderOpSongs();
+          loadOpSong(song);
+          closeOpImportModal();
+          showPrivToast(`"${title}" added to studio library`);
+        }
+      } else {
+        // Request & Accept — send to host for review
+        try {
+          const res = await fetch('/api/import-request', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ operatorId: opState.operatorId, song })
+          });
+          const data = await res.json();
+          if (data.accepted) {
+            opState.pendingImportId = data.importId;
+            $('import-notif-text').innerHTML = `Song <strong>"${title}"</strong> sent to host for review`;
+            $('import-notif').style.display = 'flex';
+            // Can still project locally immediately
+            SONGS_DATABASE.push(song);
+            renderOpSongs();
+            loadOpSong(song);
+            closeOpImportModal();
+          }
+        } catch {
+          showPrivToast('Failed to send import request');
+        }
+      }
+
+      btn.disabled = false;
+      btn.textContent = 'Submit Song';
+    }
+
+    // ── UI Helpers ────────────────────────────────────────────────────────────
+    function showPrivToast(msg) {
+      const toast = $('priv-toast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // Keyboard nav
+    document.addEventListener('keydown', e => {
+      if (!opState.operatorId) return;
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      if (e.key === 'ArrowRight') opNavigate('next');
+      if (e.key === 'ArrowLeft') opNavigate('prev');
+    });
+
+    // Enter key on join screen
+    document.addEventListener('DOMContentLoaded', () => {
+      $('operator-name-input').addEventListener('keydown', e => {
+        if (e.key === 'Enter') joinSession();
+      });
+    });
+  </script>
+</body>
+
+</html>

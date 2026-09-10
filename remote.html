@@ -1,0 +1,88 @@
+<!doctype html>
+<!-- Kept for existing bookmarks. Remote operators now use the full studio dashboard. -->
+<script>location.replace('index.html?remote=1');</script>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ScriptureFlow Remote</title>
+  <script src="js/bible-db.js"></script>
+  <script src="js/songs-db.js"></script>
+  <style>
+    :root { color-scheme: dark; font-family: Arial, sans-serif; background:#0b1020; color:#f8fafc; }
+    * { box-sizing:border-box; } body { margin:0; padding:20px; max-width:1120px; margin:auto; }
+    header, .row { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    header { border-bottom:1px solid #27324a; padding-bottom:16px; margin-bottom:18px; }
+    h1 { margin:0; font-size:20px; } .status { font-size:12px; color:#9fb0cb; }
+    .dot { display:inline-block; width:9px; height:9px; border-radius:50%; background:#64748b; margin-right:6px; } .dot.live { background:#22c55e; }
+    main { display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,1fr); gap:16px; }
+    section { background:#121a2d; border:1px solid #27324a; border-radius:8px; padding:16px; }
+    h2 { margin:0 0 12px; font-size:14px; } label { display:block; font-size:12px; color:#b8c4d9; margin:11px 0 5px; }
+    select, input, button { width:100%; border-radius:6px; border:1px solid #3a4967; background:#0c1425; color:#f8fafc; padding:10px; font:inherit; }
+    button { cursor:pointer; background:#2563eb; border-color:#2563eb; font-weight:700; } button:hover { background:#1d4ed8; }
+    button.danger { background:#991b1b; border-color:#991b1b; } button.muted { background:#1e293b; border-color:#3a4967; }
+    .actions { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:14px; }
+    #now-text { font-size:20px; line-height:1.45; font-weight:700; min-height:70px; } #now-ref { color:#93c5fd; margin-top:12px; font-size:14px; }
+    #song-list { max-height:330px; overflow:auto; display:grid; gap:7px; margin-top:12px; }
+    .song { text-align:left; background:#1e293b; border-color:#3a4967; font-weight:500; } .song small { display:block; color:#a5b4cf; margin-top:3px; }
+    @media (max-width:720px) { body { padding:14px; } main { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div><h1>ScriptureFlow Remote</h1><div class="status"><span id="connection-dot" class="dot"></span><span id="connection">Connecting to studio...</span></div></div>
+    <button class="danger" style="width:auto" onclick="send({type:'BLACKOUT'})">Blackout</button>
+  </header>
+  <main>
+    <section>
+      <h2>Live Output</h2>
+      <div id="now-text">No content is currently projected.</div>
+      <div id="now-ref">Waiting for studio state...</div>
+      <div class="actions"><button class="muted" onclick="send({type:'CLEAR'})">Clear Text</button><button class="danger" onclick="send({type:'BLACKOUT'})">Blackout</button></div>
+    </section>
+    <section>
+      <h2>Project Bible Passage</h2>
+      <label for="book">Book</label><select id="book"></select>
+      <div class="row"><div style="flex:1"><label for="chapter">Chapter</label><select id="chapter"></select></div><div style="flex:1"><label for="verse">Start verse</label><select id="verse"></select></div></div>
+      <label for="end-verse">End verse (optional)</label><select id="end-verse"></select>
+      <button style="margin-top:14px" onclick="projectPassage()">Project Passage</button>
+    </section>
+    <section style="grid-column:1 / -1">
+      <div class="row"><h2 style="margin:0">Project Song</h2><input id="song-search" placeholder="Search songs" oninput="renderSongs()" style="max-width:280px"></div>
+      <div id="song-list"></div>
+    </section>
+  </main>
+  <script>
+    const byId = id => document.getElementById(id);
+    let library = { bible: {}, songs: [] };
+    const book = byId('book'), chapter = byId('chapter'), verse = byId('verse'), endVerse = byId('end-verse');
+    function options(el, values, selected) { el.innerHTML = values.map(v => `<option value="${v}" ${String(v) === String(selected) ? 'selected' : ''}>${v}</option>`).join(''); }
+    function setupBible() {
+      const books = Object.keys(library.bible || {}); options(book, books, books[0]); updateChapters();
+      book.onchange = updateChapters; chapter.onchange = updateVerses;
+    }
+    function updateChapters() { const chapters = Object.keys(library.bible[book.value] || {}); options(chapter, chapters, chapters[0]); updateVerses(); }
+    function updateVerses() { const verses = (library.bible[book.value]?.[chapter.value] || []).map(v => v.verse); options(verse, verses, verses[0]); options(endVerse, ['Single verse', ...verses], 'Single verse'); }
+    function send(payload) { return fetch('/api/control', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) }).catch(() => alert('Unable to reach the studio computer. Check that both laptops use the same network.')); }
+    function projectPassage() {
+      const all = library.bible[book.value]?.[chapter.value] || []; const first = Number(verse.value); const end = endVerse.value === 'Single verse' ? first : Number(endVerse.value);
+      if (end < first) return alert('The end verse must be after the start verse.');
+      const chosen = all.filter(v => v.verse >= first && v.verse <= end); if (!chosen.length) return;
+      const ref = `${book.value} ${chapter.value}:${first}${end > first ? '-' + end : ''}`;
+      send({type:'PROJECT', text:chosen.map(v => `${v.verse}. ${v.text}`).join('\n'), reference:ref});
+    }
+    function renderSongs() {
+      const query = byId('song-search').value.trim().toLowerCase(); const list = byId('song-list'); list.innerHTML = '';
+      (library.songs || []).filter(song => !query || song.title.toLowerCase().includes(query) || (song.author || '').toLowerCase().includes(query)).forEach(song => {
+        song.stanzas.forEach((stanza, index) => { const button = document.createElement('button'); button.className = 'song'; button.innerHTML = `${song.title} <small>${stanza.type || 'Slide ' + (index + 1)}${song.author ? ' - ' + song.author : ''}</small>`; button.onclick = () => send({type:'PROJECT', text:stanza.text, reference:`${song.title} (${stanza.type || 'Slide ' + (index + 1)})`}); list.appendChild(button); });
+      });
+      if (!list.children.length) list.textContent = 'No matching songs are available in the shared starter library.';
+    }
+    const stream = new EventSource('/api/events');
+    stream.onopen = () => { byId('connection-dot').classList.add('live'); byId('connection').textContent = 'Connected to studio'; };
+    stream.onerror = () => { byId('connection-dot').classList.remove('live'); byId('connection').textContent = 'Studio connection lost'; };
+    stream.onmessage = event => { const state = JSON.parse(event.data); byId('now-text').textContent = state.clear || state.blackout ? 'Output cleared' : (state.text || 'No content is currently projected.'); byId('now-ref').textContent = state.clear || state.blackout ? '' : (state.reference || ''); };
+    fetch('/api/catalog').then(response => response.json()).then(catalog => { library = catalog || library; setupBible(); renderSongs(); }).catch(() => { setupBible(); renderSongs(); });
+  </script>
+</body>
+</html>

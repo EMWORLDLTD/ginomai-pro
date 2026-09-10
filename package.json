@@ -1,0 +1,80 @@
+{
+  "name": "ginomai-pro",
+  "version": "1.0.0",
+  "description": "Ginomai Pro - Next-Gen Church Presentation & Broadcast System",
+  "main": "electron/main.js",
+  "scripts": {
+    "start": "electron .",
+    "app": "electron .",
+    "electron:dev": "electron .",
+    "server": "node server.js",
+    "dev": "node server.js",
+    "dist": "node scripts/build-desktop.js",
+    "dist:win": "node scripts/build-desktop.js",
+    "dist:publish": "node scripts/build-desktop.js --publish",
+    "build:desktop": "node scripts/build-desktop.js"
+  },
+  "build": {
+    "appId": "com.ginomai.pro",
+    "productName": "Ginomai Pro",
+    "copyright": "Copyright © 2026 Ginomai Pro",
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "EMWORLDLTD",
+        "repo": "ginomai-pro"
+      }
+    ],
+    "files": [
+      "**/*",
+      "!dist/*",
+      "!release/*",
+      "!installers/*",
+      "!scratch/*",
+      "!archive/*",
+      "!.git/*"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  },
+  "keywords": [
+    "obs",
+    "church",
+    "worship",
+    "bible",
+    "lyrics",
+    "vmix",
+    "broadcast",
+    "electron",
+    "desktop"
+  ],
+  "author": "ScriptureFlow Team",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^43.4.0",
+    "electron-builder": "^26.15.3"
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.9"
+  }
+}

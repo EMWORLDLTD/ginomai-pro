@@ -1,0 +1,2219 @@
+<!DOCTYPE html>
+<html lang="en" data-theme-style="bento" data-theme-mode="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ScriptureFlow Studio Pro - Clean Broadcast Media Console</title>
+  <link rel="stylesheet" href="css/main.css?v=20260903-03">
+  <link rel="stylesheet" href="css/bento-theme.css?v=20260903-06">
+  <style id="sf-deck-grid-guarantee">
+    .bento-single-deck:not(:has(> .bento-empty-unit.hero)),
+    .bento-single-deck[data-cols="1"]:not(:has(> .bento-empty-unit.hero)),
+    .bento-single-deck[data-cols="2"]:not(:has(> .bento-empty-unit.hero)),
+    .bento-single-deck[data-cols="3"]:not(:has(> .bento-empty-unit.hero)) {
+      grid-auto-rows: minmax(min-content, max-content) !important;
+    }
+    .bento-single-card {
+      height: auto !important;
+      min-height: fit-content !important;
+    }
+  </style>
+  <script src="js/theme-manager.js"></script>
+  <script src="js/bible-db.js"></script>
+  <script src="js/songs-db.js"></script>
+  <script src="js/import-engine.js"></script>
+  <script src="js/custom-dialog.js"></script>
+  <script src="js/session-manager.js"></script>
+  <script src="js/speech-ai.js"></script>
+  <script src="js/strongs-detector.js"></script>
+  <script src="js/sermon-transcript.js"></script>
+  <script src="js/bento-integration.js?v=20260903-09"></script>
+</head>
+<body data-theme-style="bento" data-theme-mode="dark">
+
+  <!-- BENTO STUDIO PRO LAYOUT ROOT (Matches Styles/scriptureflow-studio-full.html) -->
+  <div id="bento-layout-root" class="bento-app">
+
+    <!-- TOP BAR -->
+    <div class="bento-topbar">
+      <div class="bento-brand">
+        <div class="bento-logo">S</div>
+        <div class="bento-brand-name">ScriptureFlow</div>
+        <div class="bento-pro-badge">STUDIO PRO</div>
+      </div>
+      <div class="bento-cmdk" onclick="openCommandPalette()" title="Jump to verse or song (Ctrl+K)">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <span class="bento-cmdk-text">Jump to verse or song</span>
+        <kbd>Ctrl+K</kbd>
+      </div>
+
+      <!-- SESSION CONTROL PILL & QUICK DROPDOWN -->
+      <div class="bento-session-wrap">
+        <div class="bento-session-pill" id="bento-session-pill" onclick="window.sessionManager.toggleSessionDropdown(event)" title="Active Service Session (Click to switch, save or manage)">
+          <span class="session-sync-dot clean" id="bento-session-sync-dot"></span>
+          <span class="session-label">Session:</span>
+          <span class="session-name" id="bento-session-pill-name">Sunday Service</span>
+          <span class="session-count" id="bento-session-pill-count">0</span>
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+
+        <!-- FAST SESSION DROPDOWN MENU -->
+        <div class="bento-session-dropdown" id="bento-session-dropdown" style="display:none;" onclick="event.stopPropagation()">
+          <div class="session-dropdown-header">
+            <span>Saved Sessions</span>
+            <button type="button" class="session-hdr-btn" onclick="window.sessionManager.promptNewSession()" title="Create New Clean Session (Ctrl+Alt+N)">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <span>New</span>
+            </button>
+          </div>
+
+          <div class="session-dropdown-list" id="bento-session-recent-list">
+            <!-- Dynamically populated by sessionManager -->
+          </div>
+
+          <div class="session-dropdown-divider"></div>
+
+          <div class="session-dropdown-actions">
+            <button type="button" class="session-action-btn" onclick="window.sessionManager.saveCurrentSessionSnapshot()">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              <span>Save Snapshot</span>
+              <kbd>Ctrl+S</kbd>
+            </button>
+            <button type="button" class="session-action-btn" onclick="window.sessionManager.promptSaveAs()">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+              <span>Save As New...</span>
+              <kbd>Ctrl+Shift+S</kbd>
+            </button>
+            <button type="button" class="session-action-btn" onclick="window.sessionManager.openSessionManagerModal()">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+              <span>Manage Sessions Hub</span>
+              <kbd>Ctrl+O</kbd>
+            </button>
+            <button type="button" class="session-action-btn" onclick="window.sessionManager.exportSessionToFile()">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <span>Export .sflow File</span>
+            </button>
+            <button type="button" class="session-action-btn" onclick="window.sessionManager.triggerFileInput()">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <span>Import .sflow File</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="bento-tb-center">
+        <div class="bento-mic-cluster">
+          <div class="bento-mic-toggle" id="bento-mic-btn" onclick="toggleSpeechAi()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
+            <span id="bento-mic-btn-text">AI mic off</span>
+          </div>
+          <div class="bento-vu" id="bento-vu-meter"><i></i><i></i><i></i><i></i></div>
+          <div class="bento-device-sel" id="bento-device-sel" onclick="toggleAudioMicPopover(event)">
+            <span id="bento-device-name">Select Microphone...</span>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            <!-- Floating Microphone Selector Popover -->
+            <div id="audio-mic-popover" class="audio-mic-popover" onclick="event.stopPropagation()">
+              <div class="audio-mic-popover-header">AUDIO INPUT</div>
+              <div id="audio-mic-device-list" class="audio-mic-device-list">
+                <!-- Dynamically populated options -->
+              </div>
+            </div>
+          </div>
+          <div class="bento-rec-sermon-btn" id="bento-rec-sermon-btn" onclick="if(window.sermonManager) window.sermonManager.toggleSermonRecording()" title="Record Sermon (Alt+R)">
+            <span class="rec-dot-mini"></span>
+            <span id="bento-rec-sermon-label">Record Sermon</span>
+          </div>
+          <div class="bento-mic-transcript-btn" id="bento-open-transcript-btn" onclick="if(window.sermonManager) window.sermonManager.openModal()" title="Sermon Sessions & Transcript (Alt+T)">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            <span>Transcript</span>
+          </div>
+          <div class="bento-autoproj" onclick="toggleAutoProject()">Auto-project<div class="bento-switch" id="bento-autoproj-switch"><i></i></div></div>
+        </div>
+      </div>
+
+      <div class="bento-tb-right">
+        <div class="bento-op-pill" id="bento-op-pill" style="display:none;" onclick="openOperatorRenameModal()" title="Click to change operator name">
+          <div class="av" id="bento-op-av">OP</div>
+          <div class="name" id="bento-op-name">Operator · remote</div>
+          <div class="push" id="bento-op-push-btn" onclick="event.stopPropagation(); pushRemoteLibraryToHost()" title="Push songs and agenda to Host Studio">Push</div>
+        </div>
+        <div class="bento-icon-btn" id="bento-theme-mode-toggle" title="Switch to Light Mode" onclick="toggleThemeMode()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </div>
+        <div class="bento-icon-btn" title="Library manager & song editor" onclick="openImportModal()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <div class="bento-icon-btn" title="Broadcast & remote hub" onclick="openBroadcastHub()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4.9 19.1a10 10 0 0 1 0-14.2"/><path d="M19.1 4.9a10 10 0 0 1 0 14.2"/><path d="M7.8 16.2a5 5 0 0 1 0-8.4"/><path d="M16.2 7.8a5 5 0 0 1 0 8.4"/><circle cx="12" cy="12" r="1.5"/></svg>
+        </div>
+        <div class="bento-icon-btn desktop-only" style="display:none;" title="Desktop projector" onclick="toggleDesktopProjector()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="13" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </div>
+        <div class="bento-icon-btn" title="System reset & format workspace" onclick="openSystemResetModal()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+        </div>
+        <div class="bento-icon-btn" title="Studio settings" onclick="openSettingsModal()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN GRID -->
+    <div class="bento-grid" id="bento-grid-workspace">
+
+      <!-- LEFT: Agenda + Library -->
+      <div class="bento-col bento-col-left" id="bento-col-left">
+        <div class="bento-card bento-agenda-card" id="bento-agenda-card">
+          <div class="bento-card-head">
+            <div class="bento-card-title">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+              Service agenda
+            </div>
+            <div class="bento-count-badge" id="bento-agenda-count">0</div>
+          </div>
+          <div class="bento-list" id="bento-agenda-list">
+            <div class="bento-empty-unit compact">
+              <div class="empty-icon">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+              </div>
+              <div class="empty-title">Agenda empty</div>
+              <div class="empty-desc">Drag songs or scriptures here, or click + Agenda from AI feed.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resizable Splitter for Bento Agenda Height -->
+        <div class="bento-agenda-resizer" id="bento-resizer-agenda" title="Drag up/down to resize Service Agenda height (Double-click to reset)"><i></i><i></i><i></i></div>
+
+        <div class="bento-card bento-library-card" id="bento-library-card">
+          <div class="bento-card-head">
+            <div class="bento-tabs2">
+              <span id="bento-tab-bible" onclick="switchBentoTab('bible')">Bible</span>
+              <span id="bento-tab-songs" onclick="switchBentoTab('songs')">Songs</span>
+            </div>
+            <div class="bento-trans-sel" id="bento-trans-sel" onclick="toggleTranslationDropdown(event)">
+              <span id="bento-active-version-label">NIV</span>
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+              <!-- Custom Search Dialog Popover for Translation Picker -->
+              <div id="translation-dropdown-dialog" class="custom-search-dialog" style="right:0; left:auto; width:260px; z-index:1000;" onclick="event.stopPropagation()">
+                <div class="dialog-search-header">
+                  <input type="text" id="translation-search-input" class="dialog-search-input" placeholder="Search Bible version..." autocomplete="off">
+                </div>
+                <div id="translation-options-list" class="dialog-options-list"></div>
+                <div class="dialog-footer-action" onclick="openImportModal(); switchImportSubTab('bibles'); closeTranslationDropdown();">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                  <span>+ Add / Manage Translations</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="bento-searchbox" style="display:flex; align-items:center; gap:6px;" title="Search Library (Ctrl+L)">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="cursor:pointer; flex-shrink:0;" onclick="openOmniSearchPalette(state.currentTab === 'bible' ? 'verses' : 'songs', document.getElementById('bento-search-input').value)" title="Click to open Floating Omni-Search (Ctrl+K)"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="bento-search-input" placeholder="Search library (Ctrl+L)..." style="background:transparent; border:none; color:inherit; font-size:inherit; flex:1; outline:none;" oninput="handleBentoSearch(this.value)" onkeydown="if(event.key==='Escape'){clearBentoSearch();}else if(event.key==='Enter'){openOmniSearchPalette(state.currentTab==='bible'?'verses':'songs', this.value);}">
+            <span id="bento-search-clear" style="display:none; cursor:pointer; font-size:11px; opacity:0.6; line-height:1; padding:0 3px;" onclick="clearBentoSearch()" title="Clear search">✕</span>
+            <button type="button" class="tag-chip" style="font-size:9px; padding:2px 6px; border-radius:4px; flex-shrink:0; cursor:pointer;" onclick="openOmniSearchPalette(state.currentTab === 'bible' ? 'verses' : 'songs', document.getElementById('bento-search-input').value)" title="Open floating omni search">Omni ↗</button>
+          </div>
+          <div class="bento-list" id="bento-library-list">
+            <div class="bento-empty-unit compact">
+              <div class="empty-icon">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+              </div>
+              <div class="empty-title">No songs in library</div>
+              <div class="empty-desc">Import song files via the top toolbar to start.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Resizable Splitter for Bento Left Sidebar Width -->
+      <div class="bento-workspace-resizer" id="bento-resizer-left" title="Drag left/right to resize Sidebar width (Double-click to reset)"><i></i><i></i><i></i></div>
+
+      <!-- CENTER: Deck workspace -->
+      <div class="bento-col bento-col-center" id="bento-col-center">
+        <div class="bento-card bento-deck-card" id="bento-deck-card">
+          <div class="bento-deck-toolbar">
+            <div class="bento-deck-title-wrap">
+              <div class="t" id="bento-deck-title">Worship medley</div>
+              <div class="s" id="bento-deck-sub">3 songs loaded · lyrics view</div>
+            </div>
+            <div class="bento-tbtn" id="bento-strongs-btn" onclick="toggleStrongsMode()" title="Toggle Strong's Greek/Hebrew Concordance (Alt+S)">
+              <span class="sf-strong-icon">S</span>
+              <span>Strong</span>
+            </div>
+            <div class="bento-tbtn" id="bento-compare-btn" onclick="toggleCompareMode()">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="18" rx="1"/></svg>
+              Compare
+            </div>
+            <div class="bento-tbtn" id="bento-edit-btn" onclick="openSongEditor(state.activeSongId)">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg>
+              Edit song
+            </div>
+            <div class="bento-seg" id="bento-cols-seg" title="Columns layout">
+              <span data-cols="1" class="active" onclick="setBentoSingleCols(1)" title="Single column list">1 Col</span>
+              <span data-cols="2" onclick="setBentoSingleCols(2)" title="2 Columns">2 Col</span>
+              <span data-cols="3" onclick="setBentoSingleCols(3)" title="3 Columns">3 Col</span>
+            </div>
+            <div class="bento-seg" id="bento-lines-seg">
+              <span data-lines="2" onclick="setDashboardLinesSetting(2)">2L</span>
+              <span data-lines="3" onclick="setDashboardLinesSetting(3)">3L</span>
+              <span data-lines="4" onclick="setDashboardLinesSetting(4)">4L</span>
+              <span data-lines="0" class="active" onclick="setDashboardLinesSetting(0)">Full</span>
+            </div>
+            <div class="bento-zoom"><b onclick="adjustDeckZoom(-0.1)">−</b><span id="bento-zoom-label">100%</span><b onclick="adjustDeckZoom(0.1)">+</b></div>
+            <div class="bento-seg" id="bento-mode-seg">
+              <span id="bento-seg-single" class="active" onclick="setMedleyMode(false)">Single</span>
+              <span id="bento-seg-medley" onclick="setMedleyMode(true)">Medley</span>
+            </div>
+          </div>
+
+          <div class="bento-medley" id="bento-medley-container">
+            <div class="bento-empty-unit hero">
+              <div class="empty-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+              </div>
+              <div class="empty-title">No song selected</div>
+              <div class="empty-desc">Select a song from the library on the left or press Ctrl+K to search.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Resizable Splitter for Bento Right Preview Width -->
+      <div class="bento-workspace-resizer" id="bento-resizer-right" title="Drag left/right to resize Live Preview width (Double-click to reset)"><i></i><i></i><i></i></div>
+
+      <!-- RIGHT: Preview + AI feed -->
+      <div class="bento-col bento-col-right" id="bento-col-right">
+        <div class="bento-card bento-prev-card" id="bento-prev-card">
+          <div class="bento-mode-row">
+            <div class="bento-card-title">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+              Stage preview
+            </div>
+            <div style="display:flex; align-items:center; gap:6px; position:relative;">
+              <!-- Custom Stage Transition Dialog & Trigger -->
+              <div class="bento-trans-dropdown-wrapper" id="bento-trans-wrapper">
+                <button type="button" class="bento-trans-btn-trigger" id="bento-trans-trigger" onclick="toggleTransitionDialog(event)" title="Select slide transition effect and timing">
+                  <span class="bento-trans-icon-wrap" id="bento-stage-trans-icon">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"/></svg>
+                  </span>
+                  <span class="bento-trans-name" id="bento-stage-trans-label">Crossfade</span>
+                  <svg class="bento-trans-arrow" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+
+                <!-- Custom Floating Transition Dialog -->
+                <div class="bento-trans-dialog" id="bento-trans-dialog" onclick="event.stopPropagation()">
+                  <div class="bento-trans-dialog-header">
+                    <div class="bento-trans-dialog-title">Slide Transition</div>
+                    <span class="bento-trans-dialog-badge" id="bento-trans-speed-badge">300ms</span>
+                  </div>
+
+                  <!-- Transition Options Grid -->
+                  <div class="bento-trans-dialog-grid">
+                    <div class="bento-trans-option active" data-type="fade" onclick="selectTransitionOption('fade')">
+                      <div class="bento-trans-opt-icon">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"/></svg>
+                      </div>
+                      <div class="bento-trans-opt-text">
+                        <div class="bento-trans-opt-name">Crossfade</div>
+                        <div class="bento-trans-opt-sub">Smooth dissolve</div>
+                      </div>
+                      <svg class="bento-trans-check" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+
+                    <div class="bento-trans-option" data-type="zoom-in" onclick="selectTransitionOption('zoom-in')">
+                      <div class="bento-trans-opt-icon">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                      </div>
+                      <div class="bento-trans-opt-text">
+                        <div class="bento-trans-opt-name">Zoom In</div>
+                        <div class="bento-trans-opt-sub">Zoom through</div>
+                      </div>
+                      <svg class="bento-trans-check" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+
+                    <div class="bento-trans-option" data-type="zoom-out" onclick="selectTransitionOption('zoom-out')">
+                      <div class="bento-trans-opt-icon">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                      </div>
+                      <div class="bento-trans-opt-text">
+                        <div class="bento-trans-opt-name">Zoom Out</div>
+                        <div class="bento-trans-opt-sub">Settle in view</div>
+                      </div>
+                      <svg class="bento-trans-check" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+
+                    <div class="bento-trans-option" data-type="slide-left" onclick="selectTransitionOption('slide-left')">
+                      <div class="bento-trans-opt-icon">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                      </div>
+                      <div class="bento-trans-opt-text">
+                        <div class="bento-trans-opt-name">Slide Left</div>
+                        <div class="bento-trans-opt-sub">Right to left push</div>
+                      </div>
+                      <svg class="bento-trans-check" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+
+                    <div class="bento-trans-option" data-type="slide-right" onclick="selectTransitionOption('slide-right')">
+                      <div class="bento-trans-opt-icon">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                      </div>
+                      <div class="bento-trans-opt-text">
+                        <div class="bento-trans-opt-name">Slide Right</div>
+                        <div class="bento-trans-opt-sub">Left to right push</div>
+                      </div>
+                      <svg class="bento-trans-check" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+
+                    <div class="bento-trans-option" data-type="slide-up" onclick="selectTransitionOption('slide-up')">
+                      <div class="bento-trans-opt-icon">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+                      </div>
+                      <div class="bento-trans-opt-text">
+                        <div class="bento-trans-opt-name">Slide Up</div>
+                        <div class="bento-trans-opt-sub">Bottom to top rise</div>
+                      </div>
+                      <svg class="bento-trans-check" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+
+                    <div class="bento-trans-option" data-type="slide-down" onclick="selectTransitionOption('slide-down')">
+                      <div class="bento-trans-opt-icon">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+                      </div>
+                      <div class="bento-trans-opt-text">
+                        <div class="bento-trans-opt-name">Slide Down</div>
+                        <div class="bento-trans-opt-sub">Top to bottom drop</div>
+                      </div>
+                      <svg class="bento-trans-check" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+
+                    <div class="bento-trans-option" data-type="cut" onclick="selectTransitionOption('cut')">
+                      <div class="bento-trans-opt-icon">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                      </div>
+                      <div class="bento-trans-opt-text">
+                        <div class="bento-trans-opt-name">Cut</div>
+                        <div class="bento-trans-opt-sub">Instant switch</div>
+                      </div>
+                      <svg class="bento-trans-check" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                  </div>
+
+                  <!-- Speed Duration Controls & Test Action in Dialog -->
+                  <div class="bento-trans-dialog-footer">
+                    <div class="bento-trans-speed-row">
+                      <span class="bento-trans-speed-label">Speed:</span>
+                      <div class="bento-trans-speed-group">
+                        <button type="button" class="bento-trans-speed-btn" data-dur="150" onclick="setTransitionDurationSetting(150)" title="Low (150ms)">
+                          <svg class="bento-speed-icon" width="9" height="10" viewBox="0 0 9 10" fill="currentColor">
+                            <rect x="0" y="6" width="2" height="4" rx="0.75"/>
+                            <rect x="3.5" y="3" width="2" height="7" rx="0.75" opacity="0.25"/>
+                            <rect x="7" y="0" width="2" height="10" rx="0.75" opacity="0.25"/>
+                          </svg>
+                          <span>Low</span>
+                        </button>
+                        <button type="button" class="bento-trans-speed-btn active" data-dur="300" onclick="setTransitionDurationSetting(300)" title="Medium (300ms)">
+                          <svg class="bento-speed-icon" width="9" height="10" viewBox="0 0 9 10" fill="currentColor">
+                            <rect x="0" y="6" width="2" height="4" rx="0.75"/>
+                            <rect x="3.5" y="3" width="2" height="7" rx="0.75"/>
+                            <rect x="7" y="0" width="2" height="10" rx="0.75" opacity="0.25"/>
+                          </svg>
+                          <span>Med</span>
+                        </button>
+                        <button type="button" class="bento-trans-speed-btn" data-dur="600" onclick="setTransitionDurationSetting(600)" title="High (600ms)">
+                          <svg class="bento-speed-icon" width="9" height="10" viewBox="0 0 9 10" fill="currentColor">
+                            <rect x="0" y="6" width="2" height="4" rx="0.75"/>
+                            <rect x="3.5" y="3" width="2" height="7" rx="0.75"/>
+                            <rect x="7" y="0" width="2" height="10" rx="0.75"/>
+                          </svg>
+                          <span>High</span>
+                        </button>
+                      </div>
+                    </div>
+                    <button type="button" class="bento-trans-test-btn" onclick="testLiveTransitionEffect()" title="Test transition effect">
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                      <span>Test</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="bento-live-cluster idle" id="bento-live-status"><i></i>IDLE</div>
+            </div>
+          </div>
+          <div class="row-modes" style="display:flex;gap:6px;margin-bottom:9px;">
+            <div class="bento-seg" style="flex:1;">
+              <span id="bento-prev-mode-full" class="active" style="flex:1;text-align:center;" onclick="setPreviewTargetMode('sanctuary')">Full display</span>
+              <span id="bento-prev-mode-lt" style="flex:1;text-align:center;" onclick="setPreviewTargetMode('livestream')">Lower-third</span>
+            </div>
+            <div class="bento-zoom"><b onclick="adjustTextScale(-0.1)">−</b><span id="bento-textscale-label">1.0x</span><b onclick="adjustTextScale(0.1)">+</b></div>
+          </div>
+          <div class="bento-prev-box-wrapper">
+            <div class="bento-prev-box" id="bento-preview-box">
+              <span class="res-tag">1080p</span>
+              <div class="bento-prev-idle" id="bento-prev-idle-hint">
+                <div class="empty-icon">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                </div>
+                <div class="empty-title">Output idle</div>
+                <div class="empty-desc">Click any slide or AI suggestion to project live</div>
+              </div>
+              <div class="lt" id="bento-preview-text-overlay">
+                <div class="l1" id="bento-prev-l1"></div>
+                <div class="l2" id="bento-prev-l2"></div>
+              </div>
+            </div>
+          </div>
+          <div class="bento-stage-actions">
+            <div class="bento-sbtn clear" onclick="clearAllOutputs()">Clear</div>
+            <div class="bento-sbtn hold" id="bento-hold-btn" onclick="toggleHoldLive()">Hold</div>
+            <div class="bento-sbtn trans" id="bento-trans-btn" onclick="toggleTransparencyLive()">Transparent</div>
+          </div>
+        </div>
+
+        <!-- Resizable Splitter between Stage Preview & AI Feed in Right Column -->
+        <div class="bento-prev-resizer" id="bento-resizer-preview" title="Drag up/down to resize Preview / AI Feed height (Double-click to reset)"><i></i><i></i><i></i></div>
+
+        <div class="bento-card bento-feed-card" id="bento-feed-card">
+          <div class="bento-card-head">
+            <div class="bento-card-title">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+              <span>AI Live Feed</span>
+              <span class="ai-live-indicator-dot" id="bento-ai-live-dot" title="Microphone Status"></span>
+            </div>
+            <button type="button" class="bento-doc-trigger-btn" id="bento-transcript-open-btn" onclick="if(window.sermonManager) window.sermonManager.openModal()" title="View Sermon History & Export .txt">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+              <span id="bento-transcript-badge-text">History</span>
+            </button>
+          </div>
+          <div class="bento-transcript" id="bento-ai-transcript" onclick="if(window.sermonManager) window.sermonManager.openModal()" title="Click to view full Live Sermon Audio Transcript & export .txt">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>
+            <span id="bento-ai-transcript-text">Click "AI Mic" to listen to preacher speech or choir...</span>
+          </div>
+          <div class="bento-list" id="bento-ai-feed-list">
+            <div class="bento-empty-unit compact">
+              <div class="empty-icon">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+              </div>
+              <div class="empty-title">Listening for scriptures</div>
+              <div class="empty-desc">Turn on AI Mic to automatically detect spoken verses.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Note: Classic Studio Pro layout is safely preserved in archive/classic-studio/ -->
+
+  <!-- Draggable Floating Omni-Search Window (Verses & Songs + Local & Online) -->
+  <div id="omni-search-palette" class="omni-search-floating-palette" style="display:none;">
+    <!-- Drag Header Bar -->
+    <div class="omni-drag-header" id="omni-drag-header">
+      <div class="omni-drag-grip" title="Drag to move anywhere">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="9" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
+        <span class="omni-palette-title">Omni-Search</span>
+      </div>
+      
+      <!-- Multi-Mode Selector: All (Unified) vs Scriptures vs Song Lyrics -->
+      <div class="omni-mode-pills">
+        <button type="button" id="omni-tab-all" class="omni-mode-pill active" onclick="switchOmniSearchMode('all')">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+          <span>All</span>
+        </button>
+        <button type="button" id="omni-tab-verses" class="omni-mode-pill" onclick="switchOmniSearchMode('verses')">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          <span>Scriptures</span>
+        </button>
+        <button type="button" id="omni-tab-songs" class="omni-mode-pill" onclick="switchOmniSearchMode('songs')">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+          <span>Songs</span>
+        </button>
+      </div>
+
+      <div class="omni-header-actions">
+        <button type="button" class="omni-close-btn" onclick="closeOmniSearchPalette()" title="Close (Esc)">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Search Input Wrap -->
+    <div class="omni-search-input-wrap">
+      <svg class="omni-search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="omni-search-input" class="omni-search-input" placeholder="Search scriptures, songs, or lyrics..." autocomplete="off" oninput="handleOmniSearchInput(this.value)">
+      <button type="button" id="omni-input-clear-btn" class="omni-input-clear" style="display:none;" onclick="clearOmniSearchInput()">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <!-- Dynamic Scrollable Results -->
+    <div id="omni-search-results-box" class="omni-results-container"></div>
+
+    <!-- Footer -->
+    <div class="omni-palette-footer">
+      <span id="omni-footer-hint"><kbd>Esc</kbd> Close &nbsp;•&nbsp; <kbd>↑↓</kbd> Navigate</span>
+      <div id="omni-footer-meta"></div>
+    </div>
+  </div>
+
+  <!-- Legacy Command Palette Modal (Preserved for compatibility) -->
+  <div id="cmd-modal-backdrop" class="modal-backdrop" style="display:none;">
+    <div class="cmd-modal">
+      <input type="text" id="cmd-input" class="cmd-input" placeholder="Type a scripture or song..." autocomplete="off">
+    </div>
+  </div>
+
+  <!-- Broadcast & Remote Hub Modal (Wide & Minimalist) -->
+  <div id="links-modal-backdrop" class="modal-backdrop">
+    <div class="links-modal" style="padding:22px 26px; max-width:660px; width:92%; background:#0B0E17; border:1px solid rgba(255,255,255,0.09); border-radius:16px; box-shadow:0 24px 70px rgba(0,0,0,0.9);">
+      
+      <!-- Top Header (Single Clean Eyebrow Header like SERVICE AGENDA) -->
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.06);">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#60A5FA" stroke-width="2.5"><path d="M2 16.1A5 5 0 0 1 5.9 20"/><path d="M2 12.05A9 9 0 0 1 9.95 20"/><path d="M2 8V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-6"/><line x1="2" y1="20" x2="2.01" y2="20"/></svg>
+          <span style="font-size:10.5px; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-starlight);">BROADCAST & REMOTE HUB</span>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span id="hub-operators-badge" style="display:none; font-family:var(--font-mono); font-size:9.5px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; color:#86EFAC; background:rgba(34,197,94,0.12); padding:2px 8px; border-radius:var(--radius-pill);">0 ONLINE</span>
+
+          <div style="display:flex; align-items:center; gap:5px; font-family:var(--font-mono); font-size:10.5px; color:rgba(255,255,255,0.6); background:rgba(255,255,255,0.03); padding:2px 9px; border-radius:var(--radius-pill); border:1px solid rgba(255,255,255,0.06);">
+            <span style="width:5px; height:5px; border-radius:50%; background:#10B981; flex-shrink:0;"></span>
+            <span style="font-size:9.5px; font-weight:600; letter-spacing:0.04em; color:rgba(255,255,255,0.4);">IP</span>
+            <input type="text" id="lan-ip-input" placeholder="192.168.x.x" style="width:96px; font-size:10.5px; font-weight:450; font-family:var(--font-mono); background:transparent; border:none; color:#F8FAFC; outline:none;" oninput="updateLanIpHost(this.value.trim())">
+            <span style="cursor:pointer; opacity:0.5; font-size:11px;" onclick="resetLanIpHost()" title="Reset to auto-detected IP">↺</span>
+          </div>
+          <button class="settings-close-btn" onclick="document.getElementById('links-modal-backdrop').classList.remove('open')" title="Close" style="width:26px; height:26px; border-radius:6px;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Native Desktop Multi-Monitor Projector Card (Electron Only) -->
+      <div id="desktop-monitor-card" style="display:none; background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.18); border-radius:10px; padding:10px 12px; margin-bottom:10px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <span style="font-weight:500; font-size:12px; color:#ECFDF5;">Desktop Multi-Monitor Projector</span>
+          <span id="desktop-projector-modal-status" style="font-family:var(--font-mono); font-size:9.5px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; color:#94A3B8;">OFFLINE</span>
+        </div>
+        <div style="display:flex; gap:6px; align-items:center;">
+          <select id="desktop-display-select" style="flex:1; background:#0B0F19; border:1px solid rgba(16,185,129,0.25); color:#E2E8F0; font-size:11px; font-weight:450; border-radius:6px; padding:4px 8px; outline:none; cursor:pointer;">
+            <option value="">Detecting screens...</option>
+          </select>
+          <button id="desktop-projector-toggle-btn" class="hub-action-btn status-live" onclick="toggleDesktopProjector()" style="font-weight:500;">
+            Launch
+          </button>
+        </div>
+      </div>
+
+      <!-- Clean Minimalist Output Rows -->
+      <div style="display:flex; flex-direction:column;">
+        
+        <!-- 1. Sanctuary HDMI Output -->
+        <div style="padding:11px 4px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.04); gap:12px;">
+          <div style="display:flex; align-items:center; gap:12px; min-width:0;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#34D399" stroke-width="2" style="flex-shrink:0;"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            <div style="min-width:0;">
+              <div style="font-weight:500; font-size:12.5px; color:#F8FAFC; letter-spacing:-0.005em;">Sanctuary Projector</div>
+              <div style="font-size:11px; font-weight:400; color:rgba(255,255,255,0.45); line-height:1.4; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Full 16:9 output for house displays & sanctuary screens</div>
+            </div>
+          </div>
+          <div style="display:flex; gap:6px; align-items:center; flex-shrink:0;">
+            <button class="hub-action-btn" onclick="copyOutputLink('sanctuary', this)">Copy Link</button>
+            <button class="hub-action-btn icon-only" onclick="openOutputLink('sanctuary')" title="Open in new window">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- 2. Livestream OBS Output -->
+        <div style="padding:11px 4px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.04); gap:12px;">
+          <div style="display:flex; align-items:center; gap:12px; min-width:0;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F472B6" stroke-width="2" style="flex-shrink:0;"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"/></svg>
+            <div style="min-width:0;">
+              <div style="font-weight:500; font-size:12.5px; color:#F8FAFC; letter-spacing:-0.005em;">Livestream Overlay</div>
+              <div style="font-size:11px; font-weight:400; color:rgba(255,255,255,0.45); line-height:1.4; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Transparent lower-third browser source for OBS & vMix</div>
+            </div>
+          </div>
+          <div style="display:flex; gap:6px; align-items:center; flex-shrink:0;">
+            <button class="hub-action-btn" onclick="copyOutputLink('livestream', this)">Copy Link</button>
+            <button class="hub-action-btn icon-only" onclick="openOutputLink('livestream')" title="Open in new window">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- 3. Remote Co-Pilot Controller -->
+        <div id="hub-remote-row" style="padding:11px 4px; display:flex; align-items:center; justify-content:space-between; gap:12px;">
+          <div style="display:flex; align-items:center; gap:12px; min-width:0;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#60A5FA" stroke-width="2" style="flex-shrink:0;"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+            <div style="min-width:0;">
+              <div style="display:flex; align-items:center; gap:6px;">
+                <span style="font-weight:500; font-size:12.5px; color:#F8FAFC; letter-spacing:-0.005em;">Remote Co-Pilot</span>
+                <span id="hub-remote-status-pill" style="font-family:var(--font-mono); font-size:9.5px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-muted);">○ PAUSED</span>
+              </div>
+              <div id="hub-remote-desc" style="font-size:11px; font-weight:400; color:rgba(255,255,255,0.45); line-height:1.4; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Wireless control for smartphones, iPads, and operators</div>
+            </div>
+          </div>
+          <div id="hub-remote-actions" style="display:flex; gap:6px; align-items:center; flex-shrink:0;">
+            <button id="hub-toggle-session-btn" class="hub-action-btn status-paused" onclick="toggleSession()" title="Start or pause wireless remote session">Start</button>
+            <button id="hub-remote-copy-btn" class="hub-action-btn" onclick="copyRemoteControlLink(this)">Copy Link</button>
+            <button id="hub-remote-open-btn" class="hub-action-btn icon-only" onclick="openRemoteControl()" title="Open in new window">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            </button>
+            <button id="hub-qr-toggle-btn" class="hub-action-btn" onclick="toggleHubQrCode()" title="Scan QR Code with phone">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+              <span style="font-size:10px; font-weight:600; letter-spacing:0.04em;">QR</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Inline QR Code Card (Collapsible) -->
+        <div id="hub-qr-card" style="display:none; margin-top:10px; padding:12px 14px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:10px; align-items:center; gap:16px;">
+          <div style="background:#FFFFFF; padding:6px; border-radius:8px; flex-shrink:0;">
+            <img id="hub-qr-img" src="" alt="Remote QR Code" width="92" height="92" style="display:block; border-radius:4px;">
+          </div>
+          <div style="flex:1; min-width:0;">
+            <div style="font-size:12px; font-weight:550; color:#FFFFFF; margin-bottom:3px;">Scan with Smartphone Camera</div>
+            <div style="font-size:11px; font-weight:400; color:rgba(255,255,255,0.5); line-height:1.4; margin-bottom:6px;">Connect your phone to the same Wi-Fi to control live slides wirelessly.</div>
+            <div id="hub-qr-url-text" style="font-family:var(--font-mono); font-size:10px; font-weight:450; color:#60A5FA; word-break:break-all; background:rgba(0,0,0,0.3); padding:4px 8px; border-radius:4px;"></div>
+          </div>
+        </div>
+
+        <!-- Connected Operators List -->
+        <div id="hub-operators-card" style="display:none; margin-top:10px; padding:10px 12px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <span style="font-size:10px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:rgba(255,255,255,0.45);">Connected Operators</span>
+            <span id="hub-operators-count-pill" style="font-family:var(--font-mono); font-size:9.5px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; color:#34D399;">0 ACTIVE</span>
+          </div>
+          <div id="hub-operators-list" style="display:flex; flex-direction:column; gap:4px;">
+          </div>
+          <div style="margin-top:8px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.06);">
+            <button id="hub-push-to-remote-btn" onclick="pushHostLibraryToRemote()" class="mode-toggle-btn active" style="width:100%; justify-content:center; gap:6px; background:rgba(59,130,246,0.18); border-color:rgba(59,130,246,0.4); color:#93C5FD; font-size:11px; font-weight:600; padding:6px 12px; border-radius:6px;" title="Push current songs, bibles and service agenda to all connected remote operators">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="7 13 12 18 17 13"/><line x1="12" y1="18" x2="12" y2="6"/></svg>
+              <span>Push Library & Agenda to Remote</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hidden URL state holders -->
+      <input type="hidden" id="url-sanctuary">
+      <input type="hidden" id="url-livestream">
+      <input type="hidden" id="url-remote">
+      <input type="hidden" id="url-auto">
+
+      <!-- Lightweight OBS Tip Footer -->
+      <div style="margin-top:16px; font-size:10.5px; font-weight:400; color:rgba(255,255,255,0.4); text-align:center; letter-spacing:0.02em;">
+        OBS TIP: Add Browser Source • 1920×1080 • Paste copied link
+      </div>
+    </div>
+  </div>
+
+  <!-- Import & Cloud Library Manager Modal -->
+  <div id="import-modal-backdrop" class="modal-backdrop">
+    <div class="settings-modal-card library-import-modal">
+      
+      <!-- Top Header -->
+      <div class="settings-header">
+        <div class="settings-header-title">
+          <div class="settings-header-icon">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          </div>
+          <div>
+            <div style="font-weight:600; font-size:15px; color:#F8FAFC; letter-spacing:-0.01em;">Library Manager</div>
+            <div style="font-size:11px; font-weight:400; color:#94A3B8; margin-top:1px;">Import files, create songs, or install cloud content</div>
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <button type="button" class="mode-toggle-btn" onclick="window.libraryImporter.exportCustomLibrary()" title="Backup My Entire Custom Library as JSON" style="font-size:11px; padding:6px 12px; border-radius:7px; border:1px solid rgba(255,255,255,0.12); color:#F8FAFC; background:rgba(255,255,255,0.04); display:flex; align-items:center; gap:6px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            <span>Backup</span>
+          </button>
+          <button class="settings-close-btn" onclick="document.getElementById('import-modal-backdrop').classList.remove('open')" title="Close" style="width:30px; height:30px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Clean Segmented Navigation Bar -->
+      <div class="import-nav-bar">
+        <div class="import-nav-tabs">
+          <button id="import-tab-btn-files" class="import-nav-tab active" onclick="switchImportSubTab('files')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <span>File Import</span>
+          </button>
+          <button id="import-tab-btn-manual" class="import-nav-tab" onclick="switchImportSubTab('manual')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            <span>Song Creator</span>
+          </button>
+          <button id="import-tab-btn-bibles" class="import-nav-tab" onclick="switchImportSubTab('bibles')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            <span>Online Bibles</span>
+          </button>
+          <button id="import-tab-btn-cloudsongs" class="import-nav-tab" onclick="switchImportSubTab('cloudsongs')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
+            <span>Cloud Lyrics</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Modal Content Body -->
+      <div class="import-modal-body">
+        
+        <!-- SUB TAB 1: FILE IMPORT & DROPZONE -->
+        <div id="import-subtab-files" class="import-subtab-pane" style="display:flex; flex-direction:column; gap:16px;">
+          
+          <div id="import-dropzone" class="import-dropzone-box" onclick="document.getElementById('import-file-input').click()">
+            <input type="file" id="import-file-input" accept=".txt,.json,.xml,.usfm,.sfm,.csv" multiple style="display:none;" onchange="handleUnifiedFileImport(event)">
+            
+            <div class="dropzone-icon-circle">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            </div>
+            
+            <div class="dropzone-main-text">Drag & drop files to import</div>
+            <div class="dropzone-sub-text">Songs, Bibles, or complete library backup files</div>
+            
+            <div class="dropzone-format-pills">
+              <span class="format-pill">.TXT</span>
+              <span class="format-pill">.JSON</span>
+              <span class="format-pill">.XML</span>
+              <span class="format-pill">.USFM</span>
+              <span class="format-pill">.CSV</span>
+            </div>
+
+            <button type="button" class="dropzone-browse-btn" onclick="event.stopPropagation(); document.getElementById('import-file-input').click()">Browse Files</button>
+          </div>
+
+          <div class="import-footer-row">
+            <label class="import-checkbox-label">
+              <input type="checkbox" id="import-overwrite-dupes" checked style="accent-color:var(--accent-pink);">
+              <span>Overwrite existing duplicate titles</span>
+            </label>
+            <div style="font-size:11px; color:var(--text-muted); font-family:var(--font-mono);">Auto-detects format on drop</div>
+          </div>
+        </div>
+
+        <!-- SUB TAB 2: MANUAL SONG ENTRY (SONG CREATOR) -->
+        <div id="import-subtab-manual" class="import-subtab-pane" style="display:none; flex-direction:column; gap:12px;">
+          
+          <!-- Title & Author Inline Row -->
+          <div class="import-form-row">
+            <div class="import-input-wrap" style="flex:1.2;">
+              <span class="import-input-label">Title</span>
+              <input type="text" id="import-song-title" class="import-text-field" placeholder="Song Title (e.g. Ageless God)" oninput="updateImportLivePreview()">
+            </div>
+            <div class="import-input-wrap" style="flex:1;">
+              <span class="import-input-label">Artist / Author</span>
+              <input type="text" id="import-song-author" class="import-text-field" placeholder="Artist or Writer" oninput="updateImportLivePreview()">
+            </div>
+          </div>
+
+          <!-- Quick Tag Insertion Chips -->
+          <div class="tag-chips-bar">
+            <span class="tag-chips-label">Insert Section:</span>
+            <button type="button" class="tag-chip" onclick="insertTagIntoImport('Verse 1')">+ Verse 1</button>
+            <button type="button" class="tag-chip" onclick="insertTagIntoImport('Verse 2')">+ Verse 2</button>
+            <button type="button" class="tag-chip" onclick="insertTagIntoImport('Chorus')">+ Chorus</button>
+            <button type="button" class="tag-chip" onclick="insertTagIntoImport('Bridge')">+ Bridge</button>
+            <button type="button" class="tag-chip" onclick="insertTagIntoImport('Pre-Chorus')">+ Pre-Chorus</button>
+            <button type="button" class="tag-chip" onclick="insertTagIntoImport('Outro')">+ Outro</button>
+          </div>
+
+          <!-- 2-Column Split: Lyrics Input & Parsed Slides Preview -->
+          <div class="import-split-view">
+            <div class="split-col">
+              <div class="split-col-header">
+                <span>Lyrics Input</span>
+              </div>
+              <textarea id="import-song-text" class="import-textarea" placeholder="Verse 1&#10;You are here moving in our midst...&#10;&#10;Chorus&#10;Way Maker, Miracle Worker..." oninput="updateImportLivePreview()"></textarea>
+            </div>
+
+            <div class="split-col">
+              <div class="split-col-header">
+                <span>Slide Deck Preview</span>
+                <span id="import-preview-count" class="preview-count-badge">0 Slides</span>
+              </div>
+              <div id="import-preview-box" class="import-preview-container">
+                <span style="color:var(--text-muted); font-size:11px; margin:auto;">Type lyrics on the left to see live parsed slides...</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer Actions -->
+          <div class="import-footer-row" style="margin-top:2px;">
+            <label class="import-checkbox-label">
+              <input type="checkbox" id="import-manual-overwrite" checked style="accent-color:var(--accent-pink);">
+              <span>Overwrite if song already exists</span>
+            </label>
+            <button type="button" class="import-primary-btn" onclick="submitCustomSongText()">Save to Songbook</button>
+          </div>
+        </div>
+
+        <!-- SUB TAB 3: ONLINE BIBLES -->
+        <div id="import-subtab-bibles" class="import-subtab-pane" style="display:none; flex-direction:column; gap:12px;">
+          <div class="import-search-bar-wrap">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="cloud-bible-search-input" class="import-search-field" placeholder="Search 28+ Bible versions by code or name (e.g. NIV, ESV, KJV, Berean, MSG, Yoruba, Spanish)..." oninput="filterCloudBibles(this.value)">
+          </div>
+
+          <!-- Language Category Filter Pills -->
+          <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+            <span style="font-size:11px; color:var(--text-muted); font-weight:600; margin-right:4px;">Filter:</span>
+            <button type="button" class="tag-chip" onclick="document.getElementById('cloud-bible-search-input').value=''; filterCloudBibles('');">All (28+)</button>
+            <button type="button" class="tag-chip" onclick="document.getElementById('cloud-bible-search-input').value='English'; filterCloudBibles('English');">English</button>
+            <button type="button" class="tag-chip" onclick="document.getElementById('cloud-bible-search-input').value='Spanish'; filterCloudBibles('Spanish');">Spanish</button>
+            <button type="button" class="tag-chip" onclick="document.getElementById('cloud-bible-search-input').value='Yoruba'; filterCloudBibles('Yoruba');">Yoruba</button>
+            <button type="button" class="tag-chip" onclick="document.getElementById('cloud-bible-search-input').value='Igbo'; filterCloudBibles('Igbo');">Igbo</button>
+            <button type="button" class="tag-chip" onclick="document.getElementById('cloud-bible-search-input').value='Hausa'; filterCloudBibles('Hausa');">Hausa</button>
+          </div>
+
+          <div id="cloud-bibles-list" class="cloud-bibles-grid"></div>
+        </div>
+
+        <!-- SUB TAB 4: ONLINE SONGS SEARCH -->
+        <div id="import-subtab-cloudsongs" class="import-subtab-pane" style="display:none; flex-direction:column; gap:12px;">
+          <div class="import-search-bar-wrap">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="cloud-song-search-input" class="import-search-field" placeholder="Search any song online by title, artist, or lyrics (e.g. Way Maker, Gratitude, Ageless God)..." oninput="filterCloudSongs(this.value)">
+          </div>
+
+          <!-- Quick Search Chips -->
+          <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+            <span style="font-size:11px; color:var(--text-muted); font-weight:600; margin-right:4px;">Popular:</span>
+            <button type="button" class="tag-chip" onclick="document.getElementById('cloud-song-search-input').value='Way Maker'; filterCloudSongs('Way Maker');">Way Maker</button>
+            <button type="button" class="tag-chip" onclick="document.getElementById('cloud-song-search-input').value='Goodness of God'; filterCloudSongs('Goodness of God');">Goodness of God</button>
+            <button type="button" class="tag-chip" onclick="document.getElementById('cloud-song-search-input').value='Firm Foundation'; filterCloudSongs('Firm Foundation');">Firm Foundation</button>
+            <button type="button" class="tag-chip" onclick="document.getElementById('cloud-song-search-input').value='Gratitude Brandon Lake'; filterCloudSongs('Gratitude Brandon Lake');">Gratitude</button>
+            <button type="button" class="tag-chip" onclick="document.getElementById('cloud-song-search-input').value='Ageless God'; filterCloudSongs('Ageless God');">Ageless God</button>
+            <button type="button" class="tag-chip" onclick="document.getElementById('cloud-song-search-input').value='Holy Forever'; filterCloudSongs('Holy Forever');">Holy Forever</button>
+            <button type="button" class="tag-chip" onclick="document.getElementById('cloud-song-search-input').value='How Great Thou Art'; filterCloudSongs('How Great Thou Art');">How Great Thou Art</button>
+          </div>
+
+          <div id="cloud-songs-results" style="display:flex; flex-direction:column; gap:8px;"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Auto-Lyrics Search Custom Dialog Modal (Matches User Design Screenshot) -->
+  <div id="auto-lyrics-modal-backdrop" class="modal-backdrop">
+    <div class="settings-modal-card auto-lyrics-dialog" style="max-width:680px; padding:24px; border-radius:18px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <span style="font-weight:600; font-size:15px; color:var(--text-starlight); letter-spacing:-0.01em;">Auto-Lyrics Search</span>
+        <button type="button" class="settings-close-btn" style="padding:4px 14px; border-radius:8px; font-size:12px; font-weight:600;" onclick="document.getElementById('auto-lyrics-modal-backdrop').classList.remove('open')">Close</button>
+      </div>
+
+      <div style="display:flex; gap:10px; margin-bottom:12px;">
+        <input type="text" id="auto-lyrics-title" class="import-text-field search-input" placeholder="Song title (optional)..." style="flex:1; padding:9px 12px; border-radius:8px; outline:none;" autocomplete="off">
+        <input type="text" id="auto-lyrics-artist" class="import-text-field search-input" placeholder="Artist..." style="flex:1; padding:9px 12px; border-radius:8px; outline:none;" autocomplete="off">
+        <button type="button" class="mode-toggle-btn active repo-action-btn" onclick="performAutoLyricsSearch()" style="font-weight:600; font-size:12px; padding:9px 18px; border-radius:8px; cursor:pointer;">Search</button>
+      </div>
+
+      <div style="font-size:11.5px; color:var(--text-muted); margin-bottom:16px;">Continue your last search or run a new one.</div>
+
+      <div id="auto-lyrics-results-box" style="border:1px solid rgba(255,255,255,0.06); border-radius:10px; min-height:180px; max-height:260px; overflow-y:auto; padding:16px; color:var(--text-muted); font-size:12px;">
+        No results yet.
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive Song & Lyrics Editor Modal -->
+  <div id="song-editor-modal-backdrop" class="modal-backdrop">
+    <div class="settings-modal-card song-editor-modal-card" style="max-width:880px; width:92vw; border-radius:18px; overflow:hidden;">
+      <div class="settings-header" style="border-bottom:1px solid rgba(255,255,255,0.08); padding:16px 20px;">
+        <div class="settings-header-title">
+          <div class="settings-header-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          </div>
+          <div>
+            <div style="font-weight:700; font-size:15px; color:#FFFFFF; letter-spacing:-0.01em;">Song Lyrics Editor</div>
+            <div style="font-size:11px; color:var(--text-muted);">Edit song stanzas, verse tags, chorus lines, and live slide preview</div>
+          </div>
+        </div>
+        <button type="button" class="settings-close-btn" onclick="closeSongEditor()" title="Close Editor">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1.2fr 1fr; gap:20px; padding:20px; max-height:75vh; overflow-y:auto;">
+        <!-- Left Column: Inputs & Raw Stanza Editor -->
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <input type="hidden" id="editor-song-id">
+          <div>
+            <label style="display:block; font-size:11px; font-weight:600; color:var(--text-muted); margin-bottom:4px; letter-spacing:0.04em;">SONG TITLE</label>
+            <input type="text" id="editor-song-title" class="import-text-field search-input" placeholder="e.g. Amazing Grace" style="width:100%; padding:8px 12px; font-size:13px; font-weight:600;" oninput="handleSongEditorInput()">
+          </div>
+
+          <div>
+            <label style="display:block; font-size:11px; font-weight:600; color:var(--text-muted); margin-bottom:4px; letter-spacing:0.04em;">AUTHOR / ARTIST / SONGBOOK</label>
+            <input type="text" id="editor-song-author" class="import-text-field search-input" placeholder="e.g. John Newton" style="width:100%; padding:8px 12px; font-size:12.5px;" oninput="handleSongEditorInput()">
+          </div>
+
+          <div style="display:flex; flex-direction:column; flex:1;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+              <label style="font-size:11px; font-weight:600; color:var(--text-muted); letter-spacing:0.04em;">LYRICS & STANZAS ([Verse 1], [Chorus], etc.)</label>
+              <span style="font-size:10px; color:rgba(255,255,255,0.4);">Separate stanzas with empty lines</span>
+            </div>
+            <textarea id="editor-song-text" class="import-textarea" style="width:100%; min-height:260px; flex:1; padding:12px; font-family:var(--font-mono, monospace); font-size:12.5px; line-height:1.5; resize:vertical;" oninput="handleSongEditorInput()" placeholder="[Verse 1]
+Amazing grace how sweet the sound
+That saved a wretch like me...
+
+[Chorus]
+My chains are gone, I've been set free..."></textarea>
+          </div>
+        </div>
+
+        <!-- Right Column: Live Slide Preview Split -->
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <div style="font-size:11px; font-weight:600; color:var(--text-muted); letter-spacing:0.04em;">LIVE SLIDES PREVIEW</div>
+          <div id="editor-preview-box" style="display:flex; flex-direction:column; gap:10px; background:rgba(7,9,14,0.75); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:14px; min-height:340px; max-height:420px; overflow-y:auto;">
+            <div style="color:var(--text-muted); font-size:12px; text-align:center; padding:20px;">Type lyrics to see generated presentation slides.</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:14px 20px; border-top:1px solid rgba(255,255,255,0.08); background:rgba(10,12,18,0.6);">
+        <button type="button" class="mode-toggle-btn" onclick="deleteSongEditor()" style="color:#EF4444; border-color:rgba(239,68,68,0.3); background:rgba(239,68,68,0.1); font-size:12px; font-weight:600;">Delete Song</button>
+        <div style="display:flex; gap:10px;">
+          <button type="button" class="mode-toggle-btn" onclick="closeSongEditor()" style="font-size:12px;">Cancel</button>
+          <button type="button" class="mode-toggle-btn active repo-action-btn" onclick="saveSongEditor()" style="font-size:12px; font-weight:600; padding:6px 18px;">Save Changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- System Reset Confirmation Modal -->
+  <div id="system-reset-modal-backdrop" class="modal-backdrop">
+    <div class="system-reset-modal-card" style="max-width:480px; width:90vw; border-radius:18px; overflow:hidden;">
+      <div class="settings-header" style="border-bottom:1px solid rgba(255,255,255,0.08); padding:16px 20px;">
+        <div class="settings-header-title">
+          <div class="settings-header-icon" style="background:rgba(242,85,75,0.15); border:1px solid rgba(242,85,75,0.35);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F2554B" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <div>
+            <div style="font-weight:700; font-size:15px; color:#FFFFFF; letter-spacing:-0.01em;">Confirm System Reset</div>
+            <div style="font-size:11px; color:var(--text-muted);">Reset workspace, loaded songs, scriptures, and defaults</div>
+          </div>
+        </div>
+        <button type="button" class="settings-close-btn" onclick="closeSystemResetModal()" title="Cancel">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+
+      <div style="padding:20px; color:var(--text-muted); font-size:12.5px; line-height:1.6; display:flex; flex-direction:column; gap:12px;">
+        <p style="margin-bottom:2px; color:#F8FAFC;">Choose which data you would like to clear from this device:</p>
+        
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <!-- Option 1: Factory Reset -->
+          <div style="background:rgba(242,85,75,0.08); border:1px solid rgba(242,85,75,0.25); border-radius:10px; padding:12px 14px; display:flex; justify-content:space-between; align-items:center; gap:12px;">
+            <div>
+              <div style="font-weight:700; font-size:13px; color:#FCA5A5;">Clear Everything (Factory Reset)</div>
+              <div style="font-size:11px; color:#94A3B8; margin-top:2px;">Wipes all downloaded Bibles, saved songs, agendas, and resets workspace.</div>
+            </div>
+            <button type="button" class="mode-toggle-btn active reset-confirm-btn" onclick="performSystemReset()" style="background:#F2554B; border:1px solid #DC2626; color:#FFFFFF; font-size:11px; font-weight:700; padding:6px 14px; border-radius:8px; flex-shrink:0;">Clear All</button>
+          </div>
+
+          <!-- Option 2: Clear Bibles Only -->
+          <div style="background:rgba(59,130,246,0.06); border:1px solid rgba(59,130,246,0.2); border-radius:10px; padding:12px 14px; display:flex; justify-content:space-between; align-items:center; gap:12px;">
+            <div>
+              <div style="font-weight:700; font-size:13px; color:#93C5FD;">Clear Downloaded Bibles Only</div>
+              <div style="font-size:11px; color:#94A3B8; margin-top:2px;">Deletes all offline Bible versions from storage to free up disk space.</div>
+            </div>
+            <button type="button" class="mode-toggle-btn" onclick="performClearBiblesOnly()" style="background:rgba(59,130,246,0.2); border:1px solid rgba(59,130,246,0.4); color:#93C5FD; font-size:11px; font-weight:700; padding:6px 14px; border-radius:8px; flex-shrink:0;">Clear Bibles</button>
+          </div>
+
+          <!-- Option 3: Clear Songs Only -->
+          <div style="background:rgba(236,72,153,0.06); border:1px solid rgba(236,72,153,0.2); border-radius:10px; padding:12px 14px; display:flex; justify-content:space-between; align-items:center; gap:12px;">
+            <div>
+              <div style="font-weight:700; font-size:13px; color:#F472B6;">Clear Saved Songs Only</div>
+              <div style="font-size:11px; color:#94A3B8; margin-top:2px;">Deletes all custom & cloud imported songs from the local database.</div>
+            </div>
+            <button type="button" class="mode-toggle-btn" onclick="performClearSongsOnly()" style="background:rgba(236,72,153,0.2); border:1px solid rgba(236,72,153,0.4); color:#F472B6; font-size:11px; font-weight:700; padding:6px 14px; border-radius:8px; flex-shrink:0;">Clear Songs</button>
+          </div>
+        </div>
+
+        <div style="font-size:11px; color:#64748B; margin-top:2px; font-style:italic;">Note: Theme and visual styling settings will always be preserved.</div>
+      </div>
+
+      <div class="reset-footer" style="display:flex; justify-content:flex-end; gap:10px; padding:12px 20px; border-top:1px solid rgba(255,255,255,0.08); background:rgba(10,12,18,0.6);">
+        <button type="button" class="mode-toggle-btn" onclick="closeSystemResetModal()" style="font-size:12px; border-radius:8px; padding:6px 16px;">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Provider Selection Modal (First-Use Onboarding) -->
+  <div id="ai-provider-modal-backdrop" class="modal-backdrop">
+    <div class="ai-provider-modal-card" style="max-width:520px; width:92vw; border-radius:18px; overflow:hidden; background:var(--card, #131218); border:1px solid var(--border-strong, rgba(255,255,255,0.15)); box-shadow:0 24px 60px rgba(0,0,0,0.85); height:auto !important; max-height:90vh !important;">
+      <div class="settings-header" style="border-bottom:1px solid var(--border, rgba(255,255,255,0.08)); padding:16px 20px;">
+        <div class="settings-header-title">
+          <div class="settings-header-icon" style="background:linear-gradient(135deg, rgba(138,109,255,0.25), rgba(46,207,192,0.2)); border:1px solid rgba(138,109,255,0.4);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          </div>
+          <div>
+            <div style="font-weight:700; font-size:15px; color:#FFFFFF; letter-spacing:-0.01em;">Choose AI Speech Engine</div>
+            <div style="font-size:11.5px; color:var(--dim, #a3a1ae);">Select speech recognition for live services</div>
+          </div>
+        </div>
+        <button type="button" class="settings-close-btn" onclick="closeAiProviderModal()" title="Close">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+
+      <div style="padding:16px 20px; display:flex; flex-direction:column; gap:10px;">
+        <!-- Option 1: Deepgram Live Cloud -->
+        <div class="ai-provider-card" id="provider-card-deepgram" onclick="selectAiProviderChoice('deepgram')" style="background:linear-gradient(135deg, rgba(138,109,255,0.12), rgba(19,18,24,0.9)); border:1.5px solid rgba(138,109,255,0.45); border-radius:14px; padding:14px 16px; cursor:pointer; transition:opacity 0.04s ease, border-color 0.04s ease, background 0.04s ease;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <div style="width:9px; height:9px; border-radius:50%; background:#8A6DFF;"></div>
+              <span style="font-weight:700; font-size:13.5px; color:#FFFFFF;">Deepgram Cloud (Pro Live)</span>
+            </div>
+            <span style="font-size:9.5px; font-weight:700; background:rgba(138,109,255,0.22); color:#C3B6FF; border:1px solid rgba(138,109,255,0.4); padding:2px 7px; border-radius:20px; letter-spacing:0.3px;">RECOMMENDED</span>
+          </div>
+          <div style="font-size:11.5px; color:var(--dim, #a3a1ae); line-height:1.45; margin-bottom:8px;">
+            Real-time cloud AI optimized for auditoriums, worship music, and preacher accents.
+          </div>
+          <div style="display:flex; flex-wrap:wrap; gap:8px 12px; font-size:10.5px; color:#C3B6FF; font-weight:500;">
+            <span style="display:inline-flex; align-items:center; gap:4px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Sub-250ms latency</span>
+            <span style="display:inline-flex; align-items:center; gap:4px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Scripture & lyrics boost</span>
+            <span style="display:inline-flex; align-items:center; gap:4px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Noise immune</span>
+          </div>
+        </div>
+
+        <!-- Option 2: Browser Native -->
+        <div class="ai-provider-card" id="provider-card-native" onclick="selectAiProviderChoice('native')" style="background:rgba(255,255,255,0.03); border:1.5px solid var(--border, rgba(255,255,255,0.1)); border-radius:14px; padding:14px 16px; cursor:pointer; transition:opacity 0.04s ease, border-color 0.04s ease, background 0.04s ease;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <div style="width:9px; height:9px; border-radius:50%; background:#64748B;"></div>
+              <span style="font-weight:700; font-size:13.5px; color:#FFFFFF;">Browser Native (Offline)</span>
+            </div>
+            <span style="font-size:9.5px; font-weight:700; background:rgba(255,255,255,0.06); color:var(--dim, #a3a1ae); border:1px solid rgba(255,255,255,0.1); padding:2px 7px; border-radius:20px; letter-spacing:0.3px;">FREE</span>
+          </div>
+          <div style="font-size:11.5px; color:var(--dim, #a3a1ae); line-height:1.45;">
+            Built-in web speech. Zero setup, best for quiet rooms or offline testing.
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 20px; border-top:1px solid var(--border, rgba(255,255,255,0.08)); background:rgba(10,12,18,0.6);">
+        <label style="display:flex; align-items:center; gap:8px; font-size:11.5px; color:var(--dim, #a3a1ae); cursor:pointer;">
+          <input type="checkbox" id="ai-provider-remember-check" checked style="cursor:pointer;">
+          <span>Remember my choice</span>
+        </label>
+        <button type="button" class="mode-toggle-btn" onclick="closeAiProviderModal()" style="font-size:12px; border-radius:8px; padding:6px 16px;">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ultra-Premium Studio Pro Settings Modal -->
+  <div id="settings-modal-backdrop" class="modal-backdrop">
+    <div class="settings-modal-card">
+      
+      <!-- Top Header -->
+      <div class="settings-header">
+        <div class="settings-header-title">
+          <div class="settings-header-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+          </div>
+          <div>
+            <div style="font-weight:700; font-size:15px; color:#FFFFFF; letter-spacing:-0.01em;">Studio Preferences</div>
+            <div style="font-size:11px; color:var(--text-muted);">Configure broadcast outputs, speech recognition, and typography</div>
+          </div>
+        </div>
+
+        <button class="settings-close-btn" onclick="document.getElementById('settings-modal-backdrop').classList.remove('open')" title="Close Settings">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+
+      <!-- Main Layout (Sidebar + Content) -->
+      <div class="settings-body">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="settings-sidebar">
+          <div class="settings-nav-list">
+            <div class="settings-nav-item active" onclick="switchSettingsTab('themes', this)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 10 10c0 5.523-4.477 10-10 10a10 10 0 0 1-10-10C2 6.477 6.477 2 12 2z"/><path d="M12 2v20"/></svg>
+              <span>Themes & Styles</span>
+            </div>
+
+            <div class="settings-nav-item" onclick="switchSettingsTab('typography', this)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+              <span>Typography</span>
+            </div>
+
+            <div class="settings-nav-item" onclick="switchSettingsTab('display', this)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+              <span>Display & Lower-Third</span>
+            </div>
+
+            <div class="settings-nav-item" onclick="switchSettingsTab('medley', this)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+              <span>Medley View</span>
+            </div>
+
+            <div class="settings-nav-item" onclick="switchSettingsTab('speech', this)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+              <span>AI Speech Engine</span>
+            </div>
+
+            <div class="settings-nav-item" onclick="switchSettingsTab('imports', this)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <span>Bibles & Songs Repositories</span>
+            </div>
+
+            <div class="settings-nav-item" onclick="switchSettingsTab('shortcuts', this)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="6" y1="8" x2="6.01" y2="8"/><line x1="10" y1="8" x2="10.01" y2="8"/><line x1="14" y1="8" x2="14.01" y2="8"/><line x1="18" y1="8" x2="18.01" y2="8"/><line x1="8" y1="12" x2="8.01" y2="12"/><line x1="12" y1="12" x2="12.01" y2="12"/><line x1="16" y1="12" x2="16.01" y2="12"/><line x1="7" y1="16" x2="17" y2="16"/></svg>
+              <span>Hotkeys & Control</span>
+            </div>
+          </div>
+
+          <div class="settings-version-tag">
+            <div style="color:var(--text-starlight); font-weight:600;">SCRIPTUREFLOW LIVE</div>
+            <div>Build 2.4.0-PRO</div>
+          </div>
+        </aside>
+
+        <!-- Right Content Pane -->
+        <main class="settings-content-pane">
+
+          <!-- TAB: THEMES & STYLES -->
+          <div id="tab-themes" class="settings-tab-page" style="display:flex; flex-direction:column; gap:16px;">
+            <div>
+              <div class="settings-section-title">UI Themes & Layout Styles</div>
+              <div class="settings-section-desc">Select your preferred studio console layout aesthetic and appearance mode.</div>
+            </div>
+
+            <!-- Section 1: UI Layout Style -->
+            <div class="settings-card-group">
+              <div class="settings-field-label" style="margin-bottom:2px;">Console Layout Style</div>
+              <div class="settings-field-sub" style="margin-bottom:12px;">ScriptureFlow Studio Pro flagship console architecture</div>
+              
+              <div class="theme-styles-picker-grid" style="grid-template-columns: 1fr;">
+                <!-- Bento Studio Pro Card -->
+                <div class="theme-style-card active" data-style-id="bento" onclick="setUiThemeStyle('bento')">
+                  <div class="theme-style-card-header">
+                    <div class="theme-style-card-title">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="2"/><rect x="14" y="3" width="7" height="5" rx="2"/><rect x="14" y="12" width="7" height="9" rx="2"/><rect x="3" y="16" width="7" height="5" rx="2"/></svg>
+                      <span>Bento Studio Pro</span>
+                    </div>
+                    <span class="theme-style-card-badge" style="background:rgba(59,130,246,0.15); color:#60A5FA; border-color:rgba(59,130,246,0.3);">FLAGSHIP</span>
+                  </div>
+                  <div class="theme-style-card-desc">High-efficiency modular workspace with resizable card zones, unified omni-search, 0ms latency slide controls, and integrated AI speech recognition.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section 2: Appearance Mode (Dark / Light) -->
+            <div class="settings-card-group">
+              <div class="settings-field-label" style="margin-bottom:2px;">Appearance Mode</div>
+              <div class="settings-field-sub" style="margin-bottom:12px;">Toggle between high-contrast dark aesthetic and clean light studio mode</div>
+
+              <div class="theme-mode-switcher-group">
+                <button type="button" class="theme-mode-btn active" data-mode-id="dark" onclick="setUiThemeMode('dark')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                  <span>Dark Mode</span>
+                </button>
+                <button type="button" class="theme-mode-btn" data-mode-id="light" onclick="setUiThemeMode('light')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                  <span>Light Mode</span>
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- TAB 1: TYPOGRAPHY -->
+          <div id="tab-typography" class="settings-tab-page" style="display:none; flex-direction:column; gap:16px;">
+            <div>
+              <div class="settings-section-title">Typography & Styling</div>
+              <div class="settings-section-desc">Essential text controls for projected scriptures and song lyrics.</div>
+            </div>
+
+            <!-- Card 1: FONT FAMILY & SIZE -->
+            <div class="settings-card-group">
+              
+              <!-- Font Family -->
+              <div class="settings-field-row">
+                <div class="settings-field-info">
+                  <div class="settings-field-label">Font Family</div>
+                  <div class="settings-field-sub">Select display font for sanctuary projector and OBS output</div>
+                </div>
+                <select class="settings-select-custom" id="setting-font-family" style="width:170px;" onchange="updateTypographySetting('fontFamily', this.value)">
+                  <option value="Outfit" selected>Outfit</option>
+                  <option value="Inter">Inter</option>
+                  <option value="Cinzel">Cinzel</option>
+                  <option value="Montserrat">Montserrat</option>
+                  <option value="Roboto">Roboto</option>
+                  <option value="Poppins">Poppins</option>
+                </select>
+              </div>
+
+              <!-- Font Size -->
+              <div class="settings-field-row">
+                <div class="settings-field-info">
+                  <div class="settings-field-label">Base Font Size</div>
+                  <div class="settings-field-sub">Target font size in points for text slides</div>
+                </div>
+                <select class="settings-select-custom" id="setting-font-size-select" style="width:170px;" onchange="updateTypographySetting('fontSize', parseInt(this.value, 10))">
+                  <option value="36">36 pt</option>
+                  <option value="48" selected>48 pt</option>
+                  <option value="56">56 pt</option>
+                  <option value="64">64 pt</option>
+                  <option value="72">72 pt</option>
+                  <option value="84">84 pt</option>
+                </select>
+              </div>
+
+              <!-- Line Height -->
+              <div class="settings-field-row">
+                <div class="settings-field-info">
+                  <div class="settings-field-label">Line Spacing</div>
+                  <div class="settings-field-sub">Vertical distance between lines</div>
+                </div>
+                <select class="settings-select-custom" id="setting-line-height-select" style="width:170px;" onchange="updateTypographySetting('lineHeight', this.value)">
+                  <option value="1.1">1.1×</option>
+                  <option value="1.25">1.25×</option>
+                  <option value="1.35" selected>1.4× (Default)</option>
+                  <option value="1.5">1.5×</option>
+                  <option value="1.7">1.7×</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Card 2: ALIGNMENT & SHADOW -->
+            <div class="settings-card-group">
+              
+              <!-- Bible Scriptures Text Alignment -->
+              <div class="settings-field-row">
+                <div class="settings-field-info">
+                  <div class="settings-field-label" style="display:flex; align-items:center; gap:6px;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#60A5FA" stroke-width="2.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                    <span>Bible Alignment</span>
+                  </div>
+                  <div class="settings-field-sub">Horizontal alignment for scripture verses</div>
+                </div>
+                <div class="settings-segmented-group" id="bible-align-group">
+                  <button type="button" class="settings-segmented-btn" id="btn-bible-align-left" onclick="setTextAlignSetting('left', 'bible')">Left</button>
+                  <button type="button" class="settings-segmented-btn active" id="btn-bible-align-center" onclick="setTextAlignSetting('center', 'bible')">Center</button>
+                  <button type="button" class="settings-segmented-btn" id="btn-bible-align-right" onclick="setTextAlignSetting('right', 'bible')">Right</button>
+                </div>
+              </div>
+
+              <!-- Song Lyrics Text Alignment -->
+              <div class="settings-field-row">
+                <div class="settings-field-info">
+                  <div class="settings-field-label" style="display:flex; align-items:center; gap:6px;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#F472B6" stroke-width="2.5"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                    <span>Song Lyrics Alignment</span>
+                  </div>
+                  <div class="settings-field-sub">Horizontal alignment for worship lyrics</div>
+                </div>
+                <div class="settings-segmented-group" id="songs-align-group">
+                  <button type="button" class="settings-segmented-btn" id="btn-songs-align-left" onclick="setTextAlignSetting('left', 'songs')">Left</button>
+                  <button type="button" class="settings-segmented-btn active" id="btn-songs-align-center" onclick="setTextAlignSetting('center', 'songs')">Center</button>
+                  <button type="button" class="settings-segmented-btn" id="btn-songs-align-right" onclick="setTextAlignSetting('right', 'songs')">Right</button>
+                </div>
+              </div>
+
+              <!-- Text Shadow Intensity -->
+              <div class="settings-field-row">
+                <div class="settings-field-info">
+                  <div class="settings-field-label">Text Shadow / Contrast Depth</div>
+                  <div class="settings-field-sub">Enhance text legibility over camera backgrounds</div>
+                </div>
+                <div class="settings-segmented-group">
+                  <button type="button" class="settings-segmented-btn" onclick="setShadowIntensityLevel(0)">None</button>
+                  <button type="button" class="settings-segmented-btn active" onclick="setShadowIntensityLevel(1)">Normal</button>
+                  <button type="button" class="settings-segmented-btn" onclick="setShadowIntensityLevel(2)">Medium</button>
+                  <button type="button" class="settings-segmented-btn" onclick="setShadowIntensityLevel(3)">Heavy</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Reset Defaults Button -->
+            <div style="display:flex; justify-content:flex-end; margin-top:2px;">
+              <button type="button" class="mode-toggle-btn" style="padding:8px 16px; font-size:11.5px; font-weight:600; display:flex; align-items:center; gap:6px;" onclick="resetTypographyDefaults()">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                <span>Reset to Defaults</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- TAB 2: DISPLAY & LOWER THIRD -->
+          <div id="tab-display" class="settings-tab-page" style="display:none; flex-direction:column; gap:16px;">
+            <div>
+              <div class="settings-section-title">Display & Broadcast Routing</div>
+              <div class="settings-section-desc">Manage lower-third overlays, OBS/vMix feeds, and background transparency.</div>
+            </div>
+
+            <div class="settings-card-group">
+              <div class="settings-field-row">
+                <div class="settings-field-info">
+                  <div class="settings-field-label">Default Output Aspect Ratio</div>
+                  <div class="settings-field-sub">Sets aspect bounds for sanctuary projector window</div>
+                </div>
+                <select class="settings-select-custom">
+                  <option value="16:9">16:9 Widescreen (1920x1080)</option>
+                  <option value="21:9">21:9 Ultrawide Cinema</option>
+                  <option value="lower-third">Lower-Third Banner Mode</option>
+                </select>
+              </div>
+
+              <div class="settings-field-row">
+                <div class="settings-field-info">
+                  <div class="settings-field-label">Remove Background (Transparent Overlay)</div>
+                  <div class="settings-field-sub">Make lower-third / display card background transparent for seamless OBS/vMix camera overlays</div>
+                </div>
+                <label class="settings-switch">
+                  <input type="checkbox" id="setting-transparent-bg-toggle" onchange="toggleTransparentBg(this.checked)">
+                  <span class="settings-slider"></span>
+                </label>
+              </div>
+
+              <div class="settings-field-row">
+                <div class="settings-field-info">
+                  <div class="settings-field-label">Show Song Title Header on Screen</div>
+                  <div class="settings-field-sub">Display song title & verse tag above projected song lyrics on sanctuary/OBS output</div>
+                </div>
+                <label class="settings-switch">
+                  <input type="checkbox" id="setting-song-title-toggle" onchange="toggleSongTitleDisplaySetting(this.checked)">
+                  <span class="settings-slider"></span>
+                </label>
+              </div>
+
+              <div class="settings-field-row">
+                <div class="settings-field-info">
+                  <div class="settings-field-label">Max Lines per Slide (Verse Auto-Splitting)</div>
+                  <div class="settings-field-sub">Break down long verses or choruses into 2, 3, or 4 sub-slides</div>
+                </div>
+                <select class="settings-select-custom" id="setting-max-lines-select" style="width:180px;" onchange="updateMaxLinesSetting(this.value)">
+                  <option value="2">2 Lines per Slide</option>
+                  <option value="3">3 Lines per Slide</option>
+                  <option value="4" selected>4 Lines (Recommended)</option>
+                  <option value="6">6 Lines per Slide</option>
+                  <option value="0">Disabled (Full Verse)</option>
+                </select>
+              </div>
+
+              <div class="settings-field-row">
+                <div class="settings-field-info">
+                  <div class="settings-field-label">Auto-Shrink Long Verses</div>
+                  <div class="settings-field-sub">Automatically adjust font size to fit long verses on a single slide</div>
+                </div>
+                <label class="settings-switch">
+                  <input type="checkbox" checked>
+                  <span class="settings-slider"></span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Section 2: Concordance & Word Study Presentation -->
+            <div class="settings-card-group">
+              <div class="settings-field-label">Concordance & Word Study Presentation</div>
+              <div class="settings-field-sub">Configure display card style and projection canvas when presenting Greek & Hebrew word studies</div>
+
+              <div class="settings-field-row" style="margin-top:14px;">
+                <div class="settings-field-info">
+                  <div class="settings-field-label">Concordance Display Card Style</div>
+                  <div class="settings-field-sub">Choose visual presentation style for live word studies</div>
+                </div>
+                <select class="settings-select-custom" id="setting-concordance-style" style="width:240px;" onchange="updateConcordanceStyleSetting(this.value)">
+                  <option value="hero" selected>Modern Focus Card (Flashcard)</option>
+                  <option value="classic">Classic Theological Card</option>
+                </select>
+              </div>
+
+              <div class="settings-field-row">
+                <div class="settings-field-info">
+                  <div class="settings-field-label">Concordance Projection Canvas</div>
+                  <div class="settings-field-sub">Keep word studies full screen on sanctuary & livestream displays, even when songs/lyrics are lower-third</div>
+                </div>
+                <select class="settings-select-custom" id="setting-concordance-mode" style="width:240px;" onchange="updateConcordanceModeSetting(this.value)">
+                  <option value="full" selected>Always Fullscreen (Recommended)</option>
+                  <option value="auto">Follow Global Mode (Full / Lower-Third)</option>
+                </select>
+              </div>
+
+              <div class="settings-field-row">
+                <div class="settings-field-info">
+                  <div class="settings-field-label">Concordance Live Stream Position</div>
+                  <div class="settings-field-sub">Choose screen corner and slide intro/outro animation for broadcast output</div>
+                </div>
+                <select class="settings-select-custom" id="setting-concordance-position" style="width:240px;" onchange="updateConcordancePositionSetting(this.value)">
+                  <option value="right" selected>Bottom Right (Slide in/out Right)</option>
+                  <option value="left">Bottom Left (Slide in/out Left)</option>
+                  <option value="center">Bottom Center (Slide Up/Down)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Section 3: Universal Slide & Song Transition Effects -->
+            <div class="settings-card-group">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                <div>
+                  <div class="settings-field-label">Slide & Song Transition Effects</div>
+                  <div class="settings-field-sub">Choose animation effect when clicking between songs, verses, and slides across all themes and displays</div>
+                </div>
+                <button type="button" class="mode-toggle-btn" style="padding:6px 14px; font-size:11.5px; font-weight:700; color:#38BDF8; background:rgba(56,189,248,0.1); border:1px solid rgba(56,189,248,0.3); display:flex; align-items:center; gap:6px; cursor:pointer;" onclick="testLiveTransitionEffect()" title="Send a sample verse to test this transition live">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  <span>Test Effect Live</span>
+                </button>
+              </div>
+
+              <!-- Transition Effects Picker Grid -->
+              <div class="transition-styles-grid" style="display:grid; grid-template-columns: repeat(4, 1fr); gap:8px; margin:12px 0 16px 0;">
+                
+                <!-- Crossfade -->
+                <div class="transition-style-card active" data-transition-type="fade" onclick="setTransitionTypeSetting('fade')">
+                  <div class="trans-card-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"/></svg>
+                  </div>
+                  <div class="trans-card-title">Crossfade</div>
+                  <div class="trans-card-desc">Smooth dissolve</div>
+                </div>
+
+                <!-- Zoom In -->
+                <div class="transition-style-card" data-transition-type="zoom-in" onclick="setTransitionTypeSetting('zoom-in')">
+                  <div class="trans-card-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                  </div>
+                  <div class="trans-card-title">Zoom In</div>
+                  <div class="trans-card-desc">Zoom through</div>
+                </div>
+
+                <!-- Zoom Out -->
+                <div class="transition-style-card" data-transition-type="zoom-out" onclick="setTransitionTypeSetting('zoom-out')">
+                  <div class="trans-card-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                  </div>
+                  <div class="trans-card-title">Zoom Out</div>
+                  <div class="trans-card-desc">Settle in view</div>
+                </div>
+
+                <!-- Slide Left -->
+                <div class="transition-style-card" data-transition-type="slide-left" onclick="setTransitionTypeSetting('slide-left')">
+                  <div class="trans-card-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                  </div>
+                  <div class="trans-card-title">Slide Left</div>
+                  <div class="trans-card-desc">Right to left push</div>
+                </div>
+
+                <!-- Slide Right -->
+                <div class="transition-style-card" data-transition-type="slide-right" onclick="setTransitionTypeSetting('slide-right')">
+                  <div class="trans-card-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                  </div>
+                  <div class="trans-card-title">Slide Right</div>
+                  <div class="trans-card-desc">Left to right push</div>
+                </div>
+
+                <!-- Slide Up -->
+                <div class="transition-style-card" data-transition-type="slide-up" onclick="setTransitionTypeSetting('slide-up')">
+                  <div class="trans-card-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+                  </div>
+                  <div class="trans-card-title">Slide Up</div>
+                  <div class="trans-card-desc">Bottom to top rise</div>
+                </div>
+
+                <!-- Slide Down -->
+                <div class="transition-style-card" data-transition-type="slide-down" onclick="setTransitionTypeSetting('slide-down')">
+                  <div class="trans-card-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+                  </div>
+                  <div class="trans-card-title">Slide Down</div>
+                  <div class="trans-card-desc">Top to bottom drop</div>
+                </div>
+
+                <!-- Cut / Instant -->
+                <div class="transition-style-card" data-transition-type="cut" onclick="setTransitionTypeSetting('cut')">
+                  <div class="trans-card-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                  </div>
+                  <div class="trans-card-title">Cut (Instant)</div>
+                  <div class="trans-card-desc">Zero animation</div>
+                </div>
+
+              </div>
+
+              <!-- Speed / Duration Row -->
+              <div class="settings-field-row" style="margin-top:8px; border-top:1px solid rgba(255,255,255,0.06); padding-top:12px;">
+                <div class="settings-field-info">
+                  <div class="settings-field-label">Transition Speed & Timing</div>
+                  <div class="settings-field-sub">Adjust duration for slide animations</div>
+                </div>
+                <div class="settings-segmented-group">
+                  <button type="button" class="settings-segmented-btn transition-speed-btn" data-duration="150" onclick="setTransitionDurationSetting(150)">Fast (150ms)</button>
+                  <button type="button" class="settings-segmented-btn transition-speed-btn active" data-duration="300" onclick="setTransitionDurationSetting(300)">Normal (300ms)</button>
+                  <button type="button" class="settings-segmented-btn transition-speed-btn" data-duration="500" onclick="setTransitionDurationSetting(500)">Smooth (500ms)</button>
+                  <button type="button" class="settings-segmented-btn transition-speed-btn" data-duration="800" onclick="setTransitionDurationSetting(800)">Slow (800ms)</button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- TAB: MEDLEY VIEW -->
+          <div id="tab-medley" class="settings-tab-page" style="display:none; flex-direction:column; gap:16px;">
+            <div>
+              <div class="settings-section-title">Medley Deck & Quick Slot Configuration</div>
+              <div class="settings-section-desc">Configure quick slot assignment buttons (S1, S2, S3) and medley multi-column deck options.</div>
+            </div>
+
+            <div class="settings-card-group">
+              <div class="settings-field-row">
+                <div class="settings-field-info">
+                  <div class="settings-field-label">Bible Medley Column "Change" Action</div>
+                  <div class="settings-field-sub">Choose whether the Change button on Bible medley columns selects a new Chapter/Passage or switches the Bible Version</div>
+                </div>
+                <select class="settings-select-custom" id="setting-bible-medley-change-target" style="width:220px;" onchange="updateBibleMedleyChangeTarget(this.value)">
+                  <option value="chapter" selected>Change Chapter / Passage</option>
+                  <option value="version">Change Version (Translation)</option>
+                </select>
+              </div>
+
+              <div class="settings-field-row">
+                <div class="settings-field-info">
+                  <div class="settings-field-label">Bible Medley Quick Buttons (S1, S2, S3)</div>
+                  <div class="settings-field-sub">Show quick S1, S2, S3 slot assignment buttons on the Bible books list</div>
+                </div>
+                <label class="settings-switch">
+                  <input type="checkbox" id="setting-bible-medley-toggle" onchange="toggleBibleMedleyButtonsSetting(this.checked)">
+                  <span class="settings-slider"></span>
+                </label>
+              </div>
+
+              <div class="settings-field-row">
+                <div class="settings-field-info">
+                  <div class="settings-field-label">Songs Medley Quick Buttons (S1, S2, S3)</div>
+                  <div class="settings-field-sub">Show quick S1, S2, S3 slot assignment buttons on the songs library list</div>
+                </div>
+                <label class="settings-switch">
+                  <input type="checkbox" id="setting-medley-view-toggle" onchange="toggleMedleyViewSetting(this.checked)">
+                  <span class="settings-slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 3: SPEECH AI ENGINE -->
+          <div id="tab-speech" class="settings-tab-page" style="display:none; flex-direction:column; gap:16px;">
+            <div>
+              <div class="settings-section-title">AI Speech Recognition & Provider Settings</div>
+              <div class="settings-section-desc">Configure Deepgram Cloud live streaming, custom church vocabulary, audio hardware input, and auto-projection.</div>
+            </div>
+
+            <!-- Remote Mode Audio Notice -->
+            <div id="speech-remote-mode-banner" style="display:none; padding:12px 14px; background:rgba(236,72,153,0.08); border:1px solid rgba(236,72,153,0.3); border-radius:10px; font-size:12px; color:#FBCFE8; line-height:1.5;">
+              <div style="font-weight:700; display:flex; align-items:center; gap:6px; margin-bottom:2px;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <span>Host-Managed Audio Input</span>
+              </div>
+              <div>Live Speech AI recognition is managed exclusively on the Host Studio computer to prevent audio feedback or conflict. The wireless remote focuses on slide projection and library navigation.</div>
+            </div>
+
+            <!-- Provider Selection & API Configuration Group -->
+            <div class="settings-card-group">
+              <div class="settings-field-row">
+                <div class="settings-field-info">
+                  <div class="settings-field-label">AI Speech Provider Engine</div>
+                  <div class="settings-field-sub">Choose between professional low-latency Deepgram live streaming or free browser speech</div>
+                </div>
+                <div class="settings-segmented-group" id="setting-ai-provider-segmented">
+                  <button type="button" class="settings-segmented-btn active" id="btn-provider-deepgram" onclick="updateAiProviderSetting('deepgram')">Deepgram Cloud (Pro)</button>
+                  <button type="button" class="settings-segmented-btn" id="btn-provider-native" onclick="updateAiProviderSetting('native')">Browser Native (Free)</button>
+                </div>
+              </div>
+
+              <!-- Deepgram API Key Row (Visible for Deepgram) -->
+              <div id="deepgram-config-fields" style="display:flex; flex-direction:column; gap:14px;">
+                <div class="settings-field-row" style="align-items:flex-start;">
+                  <div class="settings-field-info">
+                    <div class="settings-field-label">Deepgram API Key</div>
+                    <div class="settings-field-sub">Your live streaming API token from <a href="https://console.deepgram.com" target="_blank" style="color:var(--purple-text, #C3B6FF); text-decoration:underline;">console.deepgram.com</a></div>
+                  </div>
+                  <div style="display:flex; flex-direction:column; gap:8px; width:320px;">
+                    <div style="display:flex; gap:6px; position:relative;">
+                      <input type="password" id="setting-deepgram-api-key" class="import-text-field search-input" placeholder="Enter your Deepgram API key..." style="flex:1; padding:8px 36px 8px 12px; border-radius:8px; font-family:var(--font-mono, monospace); font-size:12px;" onchange="saveDeepgramApiKey(this.value)">
+                      <button type="button" onclick="toggleDeepgramKeyVisibility()" title="Show/Hide API Key" style="position:absolute; right:74px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--dim, #a3a1ae); cursor:pointer; padding:4px; display:flex; align-items:center;">
+                        <svg id="deepgram-eye-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                      </button>
+                      <button type="button" class="mode-toggle-btn active repo-action-btn" onclick="saveDeepgramApiKey(document.getElementById('setting-deepgram-api-key').value)" style="font-size:11.5px; font-weight:600; padding:6px 12px; border-radius:8px;">Save</button>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                      <span id="deepgram-test-status" style="font-size:11px; color:var(--dim, #a3a1ae); font-weight:500;">● Status: Not checked</span>
+                      <button type="button" onclick="testDeepgramConnection()" class="mode-toggle-btn" style="font-size:11px; padding:4px 10px; border-radius:6px;">Test Connection</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Deepgram Model Selection Row -->
+                <div class="settings-field-row">
+                  <div class="settings-field-info">
+                    <div class="settings-field-label">Deepgram Speech Model</div>
+                    <div class="settings-field-sub">Nova-2 provides optimal sub-250ms response and high acoustic accuracy</div>
+                  </div>
+                  <select class="settings-select-custom" id="setting-deepgram-model-select" style="width:200px;" onchange="updateDeepgramModelSetting(this.value)">
+                    <option value="nova-2" selected>Nova-2 (Recommended)</option>
+                    <option value="nova-3">Nova-3 (Latest Gen)</option>
+                    <option value="enhanced">Enhanced General</option>
+                  </select>
+                </div>
+
+                <!-- Custom Church Vocabulary & Worship Terms -->
+                <div class="settings-field-row" style="align-items:flex-start;">
+                  <div class="settings-field-info">
+                    <div class="settings-field-label">Custom Church Vocabulary & Terms</div>
+                    <div class="settings-field-sub">Comma-separated pastor names, church phrases, or worship terms boosted in the AI model</div>
+                  </div>
+                  <textarea id="setting-church-custom-terms" class="import-textarea" style="width:320px; min-height:64px; font-size:11.5px; padding:8px 10px; border-radius:8px;" placeholder="e.g. Jehovah Jireh, El Shaddai, Ebenezer, Hosanna, Maranatha, Bishop David, Pastor Grace" onchange="updateChurchCustomTermsSetting(this.value)"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- Audio Input & Hardware Group -->
+            <div class="settings-card-group" id="speech-settings-card-group">
+              <!-- Microphone Device Selection Row -->
+              <div class="settings-field-row" style="align-items:flex-start;">
+                <div class="settings-field-info">
+                  <div class="settings-field-label">Audio Microphone Source</div>
+                  <div class="settings-field-sub">Choose which laptop microphone, USB interface, or mixer to pick audio from</div>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:8px; width:260px;">
+                  <div style="display:flex; gap:6px;">
+                    <select class="settings-select-custom" id="setting-audio-mic-select" style="flex:1; width:auto; text-overflow:ellipsis; overflow:hidden;" onchange="selectAudioInputDevice(this.value)">
+                      <option value="default">Scanning audio devices...</option>
+                    </select>
+                    <button type="button" onclick="refreshAudioInputDevices()" title="Refresh microphone list" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); color:var(--text-starlight); border-radius:8px; padding:6px 10px; cursor:pointer; font-size:12px; display:flex; align-items:center; justify-content:center;">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                    </button>
+                  </div>
+
+                  <!-- Live Audio Level VU Meter -->
+                  <div style="background:#0D121D; border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:8px 10px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+                      <span style="font-size:10.5px; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em;">Input Level</span>
+                      <span id="mic-vu-level-text" style="font-family:var(--font-mono); font-size:10px; font-weight:700; color:#F8FAFC;">0%</span>
+                    </div>
+                    <!-- VU Level Bar Track -->
+                    <div style="width:100%; height:6px; background:rgba(255,255,255,0.06); border-radius:3px; overflow:hidden; position:relative;">
+                      <div id="mic-vu-meter-bar" style="width:0%; height:100%; background:linear-gradient(90deg, #10B981, #22C55E); border-radius:3px; transition:width 0.05s ease-out;"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Auto-Project Toggle -->
+              <div class="settings-field-row">
+                <div class="settings-field-info">
+                  <div class="settings-field-label">Auto-Project Matched Scripture</div>
+                  <div class="settings-field-sub">Automatically send detected spoken verses directly to output screen</div>
+                </div>
+                <label class="settings-switch">
+                  <input type="checkbox" id="setting-auto-project-toggle" checked onchange="toggleAutoProject(this.checked)">
+                  <span class="settings-slider"></span>
+                </label>
+              </div>
+
+              <!-- Confidence Threshold Slider -->
+              <div class="settings-field-row">
+                <div class="settings-field-info">
+                  <div class="settings-field-label">AI Match Confidence Threshold</div>
+                  <div class="settings-field-sub">Higher percentage avoids false positive verse triggers during sermons</div>
+                </div>
+                <div class="settings-range-wrap">
+                  <input type="range" class="settings-range-slider" min="50" max="95" value="75" oninput="this.nextElementSibling.innerText = this.value + '%'">
+                  <span class="settings-val-badge">75%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 4: BIBLES & SONGS REPOSITORIES -->
+          <div id="tab-imports" class="settings-tab-page" style="display:none; flex-direction:column; gap:16px;">
+            <div>
+              <div class="settings-section-title">Library Management & Repositories</div>
+              <div class="settings-section-desc">Manage installed Bible translations, songbooks, and online repository access.</div>
+            </div>
+
+            <div class="settings-card-group">
+              <div class="settings-field-row">
+                <div class="settings-field-info">
+                  <div class="settings-field-label">Online Cloud Sync</div>
+                  <div class="settings-field-sub">Connect to ScriptureFlow Online Cloud for automatic song lyrics updates</div>
+                </div>
+                <label class="settings-switch">
+                  <input type="checkbox" checked>
+                  <span class="settings-slider"></span>
+                </label>
+              </div>
+
+              <div class="settings-field-row">
+                <div class="settings-field-info">
+                  <div class="settings-field-label">Open Repository & Imports Wizard</div>
+                  <div class="settings-field-sub">Launch wizard to drag & drop song text files or download online Bibles</div>
+                </div>
+                <button type="button" class="mode-toggle-btn active" onclick="document.getElementById('settings-modal-backdrop').classList.remove('open'); openImportModal();">
+                  Launch Manager ↗
+                </button>
+              </div>
+            </div>
+
+            <!-- Danger Zone: System Reset & Workspace Format -->
+            <div class="settings-card-group" style="border-color: rgba(239,68,68,0.25); background: rgba(239,68,68,0.03);">
+              <div class="settings-field-row">
+                <div class="settings-field-info">
+                  <div class="settings-field-label" style="color:#FCA5A5;">System Reset & Format</div>
+                  <div class="settings-field-sub">Reset all loaded songs, Bible passages, Service Agenda, and workspace state to blank defaults. UI theme styling is preserved.</div>
+                </div>
+                <button type="button" class="mode-toggle-btn" style="background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.4); color:#FCA5A5; font-weight:700; padding:6px 14px;" onclick="openSystemResetModal();">
+                  Reset & Format
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 5: HOTKEYS & SHORTCUTS -->
+          <div id="tab-shortcuts" class="settings-tab-page" style="display:none; flex-direction:column; gap:16px;">
+            <div>
+              <div class="settings-section-title">Keyboard Shortcuts & Fast Control</div>
+              <div class="settings-section-desc">Master hotkeys for instantaneous live service broadcast operation.</div>
+            </div>
+
+            <div class="settings-card-group" style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:#0E131F; border-radius:8px; border:1px solid rgba(255,255,255,0.08);">
+                <span style="font-size:12.5px; font-weight:500; color:var(--text-starlight);">Quick Command Palette</span>
+                <kbd style="font-family:var(--font-mono); font-size:11px; font-weight:600; background:rgba(236,72,153,0.18); color:var(--accent-pink-light); border:1px solid rgba(236,72,153,0.4); padding:3px 8px; border-radius:6px;">Ctrl + K</kbd>
+              </div>
+
+              <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:#0E131F; border-radius:8px; border:1px solid rgba(255,255,255,0.08);">
+                <span style="font-size:12.5px; font-weight:500; color:var(--text-starlight);">Focus Library Search</span>
+                <kbd style="font-family:var(--font-mono); font-size:11px; font-weight:600; background:rgba(59,130,246,0.2); color:#93C5FD; border:1px solid rgba(59,130,246,0.45); padding:3px 8px; border-radius:6px;">Ctrl + L</kbd>
+              </div>
+
+              <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:#0E131F; border-radius:8px; border:1px solid rgba(255,255,255,0.08);">
+                <span style="font-size:12.5px; font-weight:500; color:var(--text-starlight);">Clear Output Screen</span>
+                <kbd style="font-family:var(--font-mono); font-size:11px; font-weight:600; background:rgba(255,255,255,0.08); color:var(--text-starlight); border:1px solid rgba(255,255,255,0.15); padding:3px 8px; border-radius:6px;">Space / Esc</kbd>
+              </div>
+
+              <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:#0E131F; border-radius:8px; border:1px solid rgba(255,255,255,0.08);">
+                <span style="font-size:12.5px; font-weight:500; color:var(--text-starlight);">Next / Previous Slide</span>
+                <kbd style="font-family:var(--font-mono); font-size:11px; font-weight:600; background:rgba(255,255,255,0.08); color:var(--text-starlight); border:1px solid rgba(255,255,255,0.15); padding:3px 8px; border-radius:6px;">← / →</kbd>
+              </div>
+
+              <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:#0E131F; border-radius:8px; border:1px solid rgba(255,255,255,0.08);">
+                <span style="font-size:12.5px; font-weight:500; color:var(--text-starlight);">Blackout Panic Toggle</span>
+                <kbd style="font-family:var(--font-mono); font-size:11px; font-weight:600; background:rgba(239,68,68,0.2); color:#FCA5A5; border:1px solid rgba(239,68,68,0.45); padding:3px 8px; border-radius:6px;">B</kbd>
+              </div>
+
+              <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:#0E131F; border-radius:8px; border:1px solid rgba(255,255,255,0.08);">
+                <span style="font-size:12.5px; font-weight:500; color:var(--text-starlight);">Switch Bible / Songs Tab</span>
+                <kbd style="font-family:var(--font-mono); font-size:11px; font-weight:600; background:rgba(255,255,255,0.08); color:var(--text-starlight); border:1px solid rgba(255,255,255,0.15); padding:3px 8px; border-radius:6px;">Tab</kbd>
+              </div>
+
+              <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:#0E131F; border-radius:8px; border:1px solid rgba(255,255,255,0.08);">
+                <span style="font-size:12.5px; font-weight:500; color:var(--text-starlight);">Toggle Medley Deck View</span>
+                <kbd style="font-family:var(--font-mono); font-size:11px; font-weight:600; background:rgba(255,255,255,0.08); color:var(--text-starlight); border:1px solid rgba(255,255,255,0.15); padding:3px 8px; border-radius:6px;">Ctrl + M</kbd>
+              </div>
+            </div>
+          </div>
+
+        </main>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Import Request Notification Banner (Host Side) ───────────────── -->
+  <div id="host-import-notif" style="display:none; position:fixed; bottom:24px; right:24px; z-index:800; max-width:360px; background:#121824; border:1px solid rgba(236,72,153,0.4); border-radius:12px; padding:16px 18px; box-shadow:0 8px 32px rgba(0,0,0,0.4);">
+    <div style="font-size:11px; font-weight:700; letter-spacing:0.6px; color:var(--accent-pink-light); text-transform:uppercase; margin-bottom:8px;">Import Request</div>
+    <div id="host-import-notif-text" style="font-size:13px; color:var(--text-starlight); margin-bottom:14px; line-height:1.5;"></div>
+    <div style="display:flex; gap:10px;">
+      <button id="host-import-accept-btn" style="flex:1; font-family:var(--font-main); font-size:12.5px; font-weight:700; background:#22C55E; color:#fff; border:none; border-radius:8px; padding:9px; cursor:pointer;" onclick="hostAcceptImport()">Accept</button>
+      <button style="flex:1; font-family:var(--font-main); font-size:12.5px; font-weight:600; background:rgba(255,255,255,0.06); color:var(--text-muted); border:1px solid rgba(255,255,255,0.12); border-radius:8px; padding:9px; cursor:pointer;" onclick="hostDismissImport()">Dismiss</button>
+    </div>
+  </div>
+
+  <!-- ── Remote Session Setup Panel ─────────────────────────────────────── -->
+  <div id="session-panel-backdrop" style="display:none; position:fixed; inset:0; z-index:700; background:rgba(6,8,15,0.85);" onclick="closeSessionPanel()"></div>
+
+  <div id="session-panel" style="display:none; position:fixed; top:0; right:0; bottom:0; width:400px; z-index:701; background:#0B0F1C; border-left:1px solid rgba(255,255,255,0.1); overflow-y:auto; flex-direction:column;">
+    <div style="padding:20px 22px 16px; border-bottom:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:space-between; flex-shrink:0;">
+      <div>
+        <div style="font-size:15px; font-weight:700; color:var(--text-starlight);">Remote Operator</div>
+        <div style="font-size:11.5px; color:var(--text-muted); margin-top:2px;">Wireless co-pilot with full projection & library control</div>
+      </div>
+      <button onclick="closeSessionPanel()" style="background:none; border:1px solid rgba(255,255,255,0.12); color:var(--text-muted); border-radius:6px; padding:4px 8px; cursor:pointer; font-family:var(--font-main); font-size:12px; display:flex; align-items:center; justify-content:center;">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <!-- Session Status & URL Card -->
+    <div style="padding:20px 22px; border-bottom:1px solid rgba(255,255,255,0.07); display:flex; flex-direction:column; gap:16px;">
+      
+      <!-- Status Badge -->
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 14px; background:#111827; border:1px solid rgba(255,255,255,0.08); border-radius:10px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div id="session-status-dot" style="width:10px; height:10px; border-radius:50%; background:#64748B;"></div>
+          <div>
+            <div id="session-status-text" style="font-size:12.5px; font-weight:700; color:var(--text-starlight);">Session Inactive</div>
+            <div style="font-size:11px; color:var(--text-muted); margin-top:1px;">Local Network Server</div>
+          </div>
+        </div>
+        <span style="font-size:10px; font-weight:700; letter-spacing:0.6px; padding:3px 8px; border-radius:4px; background:rgba(34,197,94,0.15); color:#86EFAC; border:1px solid rgba(34,197,94,0.3); text-transform:uppercase;">Full Control</span>
+      </div>
+
+      <!-- Operator URL -->
+      <div style="background:#111827; border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:14px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <span style="font-size:11px; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Operator URL</span>
+          <span style="font-size:10.5px; color:#93C5FD; font-family:var(--font-mono);">LAN Port 8500</span>
+        </div>
+        <div id="session-op-url" style="font-size:12.5px; font-weight:600; font-family:var(--font-mono); color:var(--accent-pink-light); word-break:break-all; padding:8px 10px; background:rgba(0,0,0,0.3); border-radius:6px; border:1px solid rgba(255,255,255,0.05); margin-bottom:10px;">Start session to generate URL</div>
+        <div style="display:flex; gap:8px;">
+          <button id="session-copy-url-btn" onclick="copySessionUrl()" style="flex:1; font-family:var(--font-main); font-size:12px; font-weight:700; background:rgba(236,72,153,0.18); border:1px solid rgba(236,72,153,0.35); color:var(--accent-pink-light); border-radius:6px; padding:7px 12px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span>Copy Link</span>
+          </button>
+          <button onclick="window.open(sessionPanelState.operatorUrl || 'operator.html', '_blank')" style="font-family:var(--font-main); font-size:12px; font-weight:600; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); color:var(--text-starlight); border-radius:6px; padding:7px 12px; cursor:pointer;">Open ↗</button>
+        </div>
+      </div>
+
+      <!-- Connected Operator Display -->
+      <div style="background:#111827; border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:14px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+          <span style="font-size:11px; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Connected Operator</span>
+          <span id="session-op-count" style="font-size:13px; font-weight:800; color:var(--accent-pink-light);">0 Online</span>
+        </div>
+        <div id="session-op-names" style="display:flex; flex-direction:column; gap:6px;">
+          <div style="font-size:12px; color:var(--text-muted); font-style:italic;">No operator connected yet. Share the URL above.</div>
+        </div>
+      </div>
+
+      <!-- Push Library & Agenda to Remote Action -->
+      <div style="background:#111827; border:1px solid rgba(59,130,246,0.25); border-radius:10px; padding:14px; display:flex; flex-direction:column; gap:8px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:11px; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Sync with Remote</span>
+          <span id="session-push-status-pill" style="font-family:var(--font-mono); font-size:9px; font-weight:600; color:#93C5FD; background:rgba(59,130,246,0.15); padding:1px 6px; border-radius:4px;">SYNC READY</span>
+        </div>
+        <div style="font-size:11px; color:rgba(255,255,255,0.6); line-height:1.4;">Push all songs, active Bibles, and the Service Agenda to connected remote operators.</div>
+        <button id="session-push-to-remote-btn" onclick="pushHostLibraryToRemote()" style="width:100%; font-family:var(--font-main); font-size:12px; font-weight:700; background:rgba(59,130,246,0.2); border:1px solid rgba(59,130,246,0.45); color:#93C5FD; border-radius:7px; padding:9px 12px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="7 13 12 18 17 13"/><line x1="12" y1="18" x2="12" y2="6"/></svg>
+          <span>Push Library & Agenda to Remote</span>
+        </button>
+      </div>
+
+      <!-- Overview Info Callout -->
+      <div style="padding:12px 14px; background:rgba(34,197,94,0.06); border:1px solid rgba(34,197,94,0.2); border-radius:10px; font-size:11.5px; color:#A7F3D0; line-height:1.5;">
+        <strong>Independent Workspace:</strong> Remote operator navigates their own deck and can project directly to the screen without shifting the Host's view.
+      </div>
+    </div>
+
+    <!-- Start / Stop Session Button -->
+    <div style="padding:20px 22px; margin-top:auto;">
+      <button id="session-start-stop-btn" onclick="toggleSession()" style="width:100%; font-family:var(--font-main); font-size:14px; font-weight:800; background:linear-gradient(135deg,#22C55E,#16A34A); border:none; color:#fff; border-radius:10px; padding:14px; cursor:pointer; transition:opacity 0.2s, transform 0.1s; box-shadow:0 4px 14px rgba(34,197,94,0.3);">Start Remote Session</button>
+    </div>
+  </div>
+
+  <!-- ── Remote Operator Waiting / Lock Overlay ─────────────────────── -->
+  <div id="remote-lock-overlay" style="display:none; position:fixed; inset:0; z-index:99999; background:rgba(6,8,15,0.95); backdrop-filter:blur(12px); flex-direction:column; align-items:center; justify-content:center; padding:24px; text-align:center;">
+    <div style="width:68px; height:68px; border-radius:50%; background:rgba(236,72,153,0.12); border:1.5px solid rgba(236,72,153,0.35); display:flex; align-items:center; justify-content:center; margin-bottom:20px; box-shadow:0 0 30px rgba(236,72,153,0.15);">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#F472B6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 12.55a11 11 0 0 1 14.08 0"/>
+        <path d="M1.42 9a16 16 0 0 1 21.16 0"/>
+        <path d="M8.53 16.11a6 6 0 0 1 6.95 0"/>
+        <line x1="12" y1="20" x2="12.01" y2="20"/>
+      </svg>
+    </div>
+    <div style="font-size:22px; font-weight:800; color:var(--text-starlight); margin-bottom:8px; letter-spacing:-0.01em;">Studio Session Offline</div>
+    <div style="font-size:13.5px; color:var(--text-muted); max-width:440px; line-height:1.6; margin-bottom:24px;">
+      The host has not started the remote operator session yet. Your screen will automatically connect and unlock as soon as the host clicks <strong>"Start Remote Session"</strong>.
+    </div>
+    <div style="display:flex; align-items:center; gap:8px; padding:8px 18px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:20px; font-size:11.5px; color:#94A3B8;">
+      <div style="width:8px; height:8px; border-radius:50%; background:#F59E0B; box-shadow:0 0 8px #F59E0B;"></div>
+      <span>Listening for host activation...</span>
+    </div>
+  </div>
+
+  <!-- ── Operator Join / Name Setup Modal ──────────────────────────────── -->
+  <div id="operator-join-modal-backdrop" class="modal-backdrop" style="display:none; position:fixed; inset:0; z-index:999999; align-items:center; justify-content:center; padding:20px;">
+    <div class="operator-join-card" style="width:100%; max-width:420px; border-radius:18px; padding:32px 28px; text-align:center; position:relative;">
+      
+      <!-- Brand Icon -->
+      <div class="settings-header-icon" style="width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+      </div>
+
+      <div id="operator-modal-title" style="font-size:18px; font-weight:700; color:#FFFFFF; margin-bottom:6px; letter-spacing:-0.01em;">Join as Operator</div>
+      <div id="operator-modal-desc" style="font-size:12.5px; color:var(--text-muted); line-height:1.5; margin-bottom:22px;">Enter your name so the Studio Pro host can identify your console.</div>
+
+      <!-- Input Field -->
+      <div style="margin-bottom:18px; text-align:left;">
+        <label for="operator-join-name-input" style="display:block; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:#94A3B8; margin-bottom:6px;">Your Name / Call Sign</label>
+        <input type="text" id="operator-join-name-input" maxlength="40" placeholder="e.g. Bro John / Sarah" autocomplete="name" class="import-text-field" style="width:100%; padding:12px 14px; font-size:14px; outline:none;">
+        <div id="operator-join-error" style="display:none; margin-top:6px; font-size:11.5px; color:#F87171;">Please enter your name to continue.</div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div style="display:flex; gap:10px;">
+        <button type="button" id="operator-join-cancel-btn" onclick="closeOperatorJoinModal()" style="display:none; flex:1; border-radius:10px; font-size:13px; font-weight:600; padding:11px; cursor:pointer;" class="mode-toggle-btn">
+          Cancel
+        </button>
+        <button type="button" id="operator-join-submit-btn" onclick="submitOperatorName()" class="mode-toggle-btn active repo-action-btn" style="flex:2; border-radius:10px; font-size:13.5px; font-weight:700; padding:12px; cursor:pointer;">
+          Connect to Studio
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Live Sermon Audio Transcript Modal (TXT Export) ────────────────── -->
+  <div id="sermon-transcript-modal-backdrop" class="modal-backdrop" onclick="if(event.target===this && window.sermonManager) window.sermonManager.closeModal()">
+    <div class="sermon-transcript-modal-card master-detail" onclick="event.stopPropagation()">
+      <!-- LEFT SIDEBAR: SESSIONS HISTORY -->
+      <div class="sermon-modal-sidebar">
+        <div class="sermon-sidebar-head">
+          <div class="sermon-sidebar-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            <span>Sessions</span>
+          </div>
+          <button type="button" class="sermon-sidebar-new-btn" onclick="if(window.sermonManager) window.sermonManager.promptCloseOrNewSession()" title="Close Active & Start New Service Session">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span>New</span>
+          </button>
+        </div>
+        <div class="sermon-sidebar-search">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="sermon-session-search-input" placeholder="Search sessions..." oninput="if(window.sermonManager) window.sermonManager.setSessionSearch(this.value)" />
+        </div>
+        <div class="sermon-sessions-list" id="sermon-sessions-list">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+
+      <!-- RIGHT MAIN: DETAIL VIEWER / .TXT STYLE REPORT -->
+      <div class="sermon-modal-main">
+        <div class="sermon-modal-head">
+          <div class="sermon-modal-head-left">
+            <div class="sermon-modal-icon-badge">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
+            </div>
+            <div>
+              <div class="sermon-modal-title-row">
+                <input type="text" id="sermon-modal-title-input" class="sermon-modal-title-field" placeholder="Session Name (e.g. Sunday 1st Service)" onchange="if(window.sermonManager) window.sermonManager.setTitle(this.value)" />
+              </div>
+              <div class="sermon-modal-meta-row">
+                <span style="color:#94A3B8; font-size:12px;">Speaker:</span>
+                <input type="text" id="sermon-modal-speaker-input" class="sermon-modal-speaker-field" placeholder="Pastor Name" onchange="if(window.sermonManager) window.sermonManager.setSpeaker(this.value)" />
+                <span class="sermon-dot-sep">•</span>
+                <span class="sermon-status-tag" id="sermon-modal-status-badge"><i></i> STANDBY</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="sermon-modal-head-right">
+            <button type="button" class="sermon-btn primary" onclick="if(window.sermonManager) window.sermonManager.downloadTxt()" title="Save / Download Entire Service as .txt File">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <span>Export Service (.txt)</span>
+            </button>
+            <button type="button" class="sermon-btn" onclick="if(window.sermonManager) window.sermonManager.copyToClipboard()" title="Copy Full Service Transcript">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              <span>Copy All</span>
+            </button>
+            <button type="button" class="sermon-close-btn" onclick="if(window.sermonManager) window.sermonManager.closeModal()" title="Close (Esc)">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Search Bar & Stats -->
+        <div class="sermon-modal-toolbar">
+          <div class="sermon-search-box">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" placeholder="Search within this sermon..." oninput="if(window.sermonManager) window.sermonManager.setSearchFilter(this.value)" />
+          </div>
+          <div class="sermon-stats-pill" id="sermon-modal-stats-pill">0 words • 0m 00s • 0 scriptures</div>
+        </div>
+
+        <!-- Live Transcript Scroll Area -->
+        <div class="sermon-modal-body" id="sermon-modal-scroll-area">
+          <div class="sermon-modal-empty" id="sermon-modal-empty">
+            <div class="sermon-empty-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
+            </div>
+            <div class="sermon-empty-title">Waiting for Pastor Live Audio</div>
+            <div class="sermon-empty-desc">Turn on "Record Sermon" or speak into the microphone to capture words, scriptures, and Strong's terms.</div>
+          </div>
+          <div class="sermon-modal-para-list" id="sermon-modal-para-list"></div>
+        </div>
+
+        <div class="sermon-modal-foot">
+          <div class="sermon-foot-hint">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            <span>Auto-persisted in real-time. Click <b>"Save as .txt"</b> to export the sermon text file anytime.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Strong's Concordance / Lexicon Inspector Drawer ──────────────── -->
+  <div id="strongs-inspector-modal-backdrop" onclick="if(event.target===this)closeLexiconInspector()">
+    <div class="strongs-inspector-drawer" onclick="event.stopPropagation()">
+      <div class="strongs-drawer-head">
+        <div class="strongs-head-meta">
+          <button type="button" class="strongs-back-btn" id="strongs-drawer-back-btn" onclick="navigateBackLexiconHistory()" title="Back to previous word" style="display:none;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+            <span id="strongs-drawer-back-label">Back</span>
+          </button>
+          <span class="strongs-id-badge" id="strongs-drawer-id">G3056</span>
+          <span class="strongs-lang-pill" id="strongs-drawer-lang">Greek Word Study</span>
+        </div>
+        <div class="strongs-head-actions">
+          <select id="drawer-concordance-style-select" class="strongs-style-select" onchange="updateConcordanceStyleSetting(this.value)" title="Select Concordance presentation card style">
+            <option value="hero" selected>Focus Card</option>
+            <option value="classic">Theological</option>
+          </select>
+          <select id="drawer-concordance-position-select" class="strongs-style-select" onchange="updateConcordancePositionSetting(this.value)" title="Select Live Stream Position (Right / Left / Center)">
+            <option value="right" selected>Right Side</option>
+            <option value="left">Left Side</option>
+            <option value="center">Center</option>
+          </select>
+          <button type="button" class="strongs-project-btn" id="strongs-drawer-project-btn" onclick="projectCurrentLexiconWord()" title="Project this Greek/Hebrew Word Study to Output Screen">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            <span>Project</span>
+          </button>
+          <button type="button" class="strongs-close-btn" onclick="closeLexiconInspector()" title="Close (Esc)">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="strongs-drawer-body" id="strongs-drawer-body">
+        <!-- Original Lemma Hero Block -->
+        <div class="strongs-hero-block">
+          <div class="strongs-lemma-text" id="strongs-drawer-lemma">λόγος</div>
+          <div class="strongs-phonetic-row">
+            <span class="translit" id="strongs-drawer-translit">lógos</span>
+            <span>•</span>
+            <span class="pron" id="strongs-drawer-pron">/log'-os/</span>
+          </div>
+          <div class="strongs-pos-badge" id="strongs-drawer-pos">Noun Masculine</div>
+        </div>
+
+        <!-- Strong's Concise Definition -->
+        <div class="strongs-section-card">
+          <div class="strongs-section-title">Strong's Definition</div>
+          <div class="strongs-def-text" id="strongs-drawer-shortdef"></div>
+        </div>
+
+        <!-- Root / Derivation -->
+        <div class="strongs-section-card" id="strongs-drawer-origin-card">
+          <div class="strongs-section-title">Etymology & Root Origin</div>
+          <div class="strongs-def-text" id="strongs-drawer-origin"></div>
+        </div>
+
+        <!-- KJV Translation Usage -->
+        <div class="strongs-section-card" id="strongs-drawer-kjv-card">
+          <div class="strongs-section-title">KJV Translation Usage</div>
+          <div class="strongs-def-text" id="strongs-drawer-kjv"></div>
+        </div>
+
+        <!-- Full Thayer's / BDB Lexicon Definition -->
+        <div class="strongs-section-card" id="strongs-drawer-thayer-card">
+          <div class="strongs-section-title" id="strongs-drawer-lex-title">Thayer's Greek-English Lexicon</div>
+          <div class="strongs-thayer-content" id="strongs-drawer-full-def"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Session Manager Modal ────────────────────────────────────── -->
+  <div id="session-manager-modal" class="sf-modal-backdrop" style="display:none;" onclick="if(event.target===this)window.sessionManager.closeSessionManagerModal()">
+    <div class="sf-modal-dialog session-manager-dialog" onclick="event.stopPropagation()">
+      <div class="sf-modal-head">
+        <div class="sf-modal-title-wrap">
+          <div class="session-head-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          </div>
+          <div>
+            <div class="sf-modal-title">Service Sessions & Setlists</div>
+            <div class="sf-modal-sub">Create, switch, snapshot, or export church services and event agendas</div>
+          </div>
+        </div>
+        <div class="sf-modal-actions">
+          <button type="button" class="sf-btn sf-btn-primary sf-btn-sm" onclick="window.sessionManager.promptNewSession()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span>New Session</span>
+          </button>
+          <button type="button" class="sf-btn sf-btn-secondary sf-btn-sm" onclick="window.sessionManager.triggerFileInput()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <span>Import .sflow</span>
+          </button>
+          <button type="button" class="sf-modal-close" onclick="window.sessionManager.closeSessionManagerModal()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="sf-modal-body">
+        <div class="session-modal-list" id="session-modal-list">
+          <!-- Session Cards injected dynamically -->
+        </div>
+      </div>
+
+      <div class="sf-modal-foot">
+        <div class="session-foot-hint">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          <span>Sessions auto-persist locally in real-time. Export <code>.sflow</code> files to backup or share with other church laptops.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Global Drag & Drop Overlay ─────────────────────────────────── -->
+  <div id="session-dropzone-overlay" class="session-dropzone-overlay" style="display:none;">
+    <div class="session-dropzone-box">
+      <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <div class="t">Drop ScriptureFlow Session File Here</div>
+      <div class="d">Release your .sflow service package to load the agenda instantly</div>
+    </div>
+  </div>
+
+  <!-- ── Custom ScriptureFlow Prompt & Confirm Dialog Modal ────────────── -->
+  <div id="sf-custom-dialog-backdrop" class="modal-backdrop sf-dialog-backdrop" style="display:none;" onclick="if(event.target===this) window.sfCloseCustomDialog(null)">
+    <div class="sf-custom-dialog-card" onclick="event.stopPropagation()">
+      <div class="sf-dialog-head">
+        <div class="sf-dialog-icon-badge" id="sf-dialog-icon-badge">
+          <!-- SVG icon dynamically populated -->
+        </div>
+        <div class="sf-dialog-head-meta">
+          <h3 class="sf-dialog-title" id="sf-dialog-title">Save Session Snapshot</h3>
+          <p class="sf-dialog-subtitle" id="sf-dialog-subtitle">Save current agenda snapshot as a new session:</p>
+        </div>
+        <button type="button" class="sf-dialog-close-btn" onclick="window.sfCloseCustomDialog(null)" title="Cancel (Esc)">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="sf-dialog-body" id="sf-dialog-body">
+        <div class="sf-dialog-input-wrap" id="sf-dialog-input-wrap">
+          <input type="text" id="sf-dialog-input" class="sf-dialog-input" placeholder="" spellcheck="false" autocomplete="off" />
+        </div>
+        <div class="sf-dialog-message" id="sf-dialog-message" style="display:none;"></div>
+      </div>
+      <div class="sf-dialog-foot">
+        <button type="button" class="sf-dialog-btn secondary" id="sf-dialog-cancel-btn" onclick="window.sfCloseCustomDialog(null)">Cancel</button>
+        <button type="button" class="sf-dialog-btn primary" id="sf-dialog-confirm-btn" onclick="window.sfSubmitCustomDialog()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

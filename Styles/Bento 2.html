@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScriptureFlow Studio Pro - Dark Neon Bento Workstation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        
+        * {
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            height: 100%;
+            max-height: 100vh;
+            overflow: hidden !important;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #0c0a18;
+            color: #f1f0f7;
+            user-select: none;
+        }
+
+        /* Modern Dark Glass & Glow Bento Box Styling */
+        .bento-card {
+            background: #171427;
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 1.5rem;
+            box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.6);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .bento-card:hover {
+            border-color: rgba(168, 85, 247, 0.3);
+            box-shadow: 0 16px 36px -8px rgba(124, 58, 237, 0.25);
+        }
+
+        /* Glowing Gradient Cards (Inspired by Cryptoin My Balance & Pro Cards) */
+        .gradient-card-purple {
+            background: linear-gradient(135deg, #6d28d9 0%, #8b5cf6 50%, #c084fc 100%);
+            box-shadow: 0 10px 25px -5px rgba(124, 58, 237, 0.4);
+        }
+        
+        .gradient-card-dark-glow {
+            background: linear-gradient(145deg, #1f1b38 0%, #151226 100%);
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 10px 30px -10px rgba(0, 0, 0, 0.7);
+        }
+
+        .gradient-btn-purple {
+            background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+            box-shadow: 0 4px 15px -2px rgba(124, 58, 237, 0.4);
+            transition: all 0.2s ease;
+        }
+        .gradient-btn-purple:hover {
+            background: linear-gradient(135deg, #6d28d9 0%, #9333ea 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px -2px rgba(147, 51, 234, 0.6);
+        }
+
+        /* Custom Scrollbars */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(168, 85, 247, 0.25);
+            border-radius: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(168, 85, 247, 0.6);
+        }
+
+        /* Glass Modal Backdrop */
+        .glass-modal {
+            background: rgba(12, 10, 24, 0.85);
+            backdrop-filter: blur(20px);
+        }
+
+        /* Neon Pulse Badges */
+        .neon-pill-green {
+            background: rgba(34, 197, 94, 0.15);
+            color: #4ade80;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+        
+        .neon-pill-purple {
+            background: rgba(168, 85, 247, 0.15);
+            color: #c084fc;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+        }
+
+        /* Continuous Navigation Pill Capsule (Cryptoin Style) */
+        .nav-pill-container {
+            background: linear-gradient(180deg, rgba(32, 26, 60, 0.85) 0%, rgba(20, 16, 38, 0.95) 100%);
+            border: 1px solid rgba(168, 85, 247, 0.25);
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.12);
+            border-radius: 9999px;
+        }
+
+        /* Light Theme Styles */
+        body.light-theme {
+            background-color: #f1f5f9;
+            color: #0f172a;
+        }
+
+        body.light-theme .bento-card {
+            background: #ffffff;
+            border-color: #e2e8f0;
+            box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.05);
+        }
+        body.light-theme .bento-card:hover {
+            border-color: rgba(124, 58, 237, 0.35);
+            box-shadow: 0 12px 32px -8px rgba(124, 58, 237, 0.12);
+        }
+
+        body.light-theme header,
+        body.light-theme footer,
+        body.light-theme aside {
+            background-color: #ffffff;
+            border-color: #e2e8f0;
+            box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03);
+        }
+
+        body.light-theme .nav-pill-container {
+            background: #ffffff;
+            border-color: #cbd5e1;
+            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08);
+        }
+
+        body.light-theme .theme-switcher-capsule {
+            background: #e2e8f0;
+            border-color: #cbd5e1;
+        }
+
+        body.light-theme .bg-\[\#1e1a34\],
+        body.light-theme .bg-\[\#19162c\],
+        body.light-theme .bg-\[\#120f21\],
+        body.light-theme .bg-\[\#151226\] {
+            background-color: #f8fafc;
+            border-color: #e2e8f0;
+        }
+
+        body.light-theme .bg-\[\#1f1b38\] {
+            background-color: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+
+        body.light-theme .bg-\[\#252042\],
+        body.light-theme .bg-\[\#272242\],
+        body.light-theme .bg-\[\#2a244a\] {
+            background-color: #e2e8f0;
+            color: #0f172a;
+        }
+
+        /* Scoped typography for Light Mode */
+        body.light-theme h1, 
+        body.light-theme h2, 
+        body.light-theme h3, 
+        body.light-theme h4, 
+        body.light-theme h5 {
+            color: #0f172a !important;
+        }
+
+        body.light-theme .text-zinc-200,
+        body.light-theme .text-zinc-300 {
+            color: #1e293b !important;
+        }
+
+        body.light-theme .text-zinc-400,
+        body.light-theme .text-zinc-500 {
+            color: #64748b !important;
+        }
+
+        body.light-theme .gradient-card-dark-glow {
+            background: linear-gradient(145deg, #faf5ff 0%, #f3e8ff 100%);
+            border: 1px solid #c084fc;
+            box-shadow: 0 4px 16px -2px rgba(168, 85, 247, 0.15);
+        }
+
+        body.light-theme .gradient-card-dark-glow .slide-text {
+            color: #3b0764 !important;
+            font-weight: 600;
+        }
+
+        /* Stage Preview Screen Contrast Preservation */
+        body.light-theme #stage-preview-box {
+            background-color: #090812 !important;
+            border-color: #334155;
+        }
+
+        body.light-theme #stage-preview-box #stage-main-text {
+            color: #ffffff !important;
+        }
+
+        body.light-theme #stage-preview-box #stage-active-tag {
+            background: rgba(168, 85, 247, 0.25) !important;
+            color: #d8b4fe !important;
+            border: 1px solid rgba(168, 85, 247, 0.4) !important;
+        }
+
+        /* Protection for gradient & solid purple buttons */
+        body.light-theme .gradient-btn-purple,
+        body.light-theme .gradient-btn-purple *,
+        body.light-theme .bg-violet-600,
+        body.light-theme .bg-violet-600 * {
+            color: #ffffff !important;
+        }
+
+        body.light-theme #audio-dropdown-menu,
+        body.light-theme #bible-trans-dropdown-menu {
+            background: #ffffff;
+            border-color: #cbd5e1;
+            box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.15);
+        }
+
+        body.light-theme .glass-modal {
+            background: rgba(15, 23, 42, 0.65);
+        }
+
+        body.light-theme input {
+            color: #0f172a !important;
+            background-color: #ffffff !important;
+            border-color: #cbd5e1 !important;
+        }
+
+        body.light-theme input::placeholder {
+            color: #94a3b8 !important;
+        }
+    </style>
+</head>
+<body class="h-screen w-screen p-2.5 flex items-center justify-between gap-2.5 overflow-hidden bg-[#0c0a18]">
+
+    <!-- LEFT FLOATING ICON SIDEBAR (Cryptoin Left Nav) -->
+    <aside class="w-14 h-full min-h-0 bg-[#151226] border border-white/5 rounded-3xl flex flex-col items-center justify-between py-4 shrink-0 shadow-xl">
+        <!-- Top App Brand Logo Icon & Theme Switcher -->
+        <div class="flex flex-col items-center gap-3">
+            <!-- Light/Dark Pill Switcher Capsule -->
+            <div class="bg-[#1e1a34] p-1 rounded-full flex flex-col gap-1 border border-white/10 shadow-inner theme-switcher-capsule">
+                <button id="theme-btn-light" title="Light Theme" onclick="setTheme('light')" class="p-1.5 rounded-full text-zinc-400 hover:text-zinc-900 transition">
+                    <i data-lucide="sun" class="w-3.5 h-3.5"></i>
+                </button>
+                <button id="theme-btn-dark" title="Dark Theme" onclick="setTheme('dark')" class="p-1.5 rounded-full bg-violet-600 text-white shadow-md transition">
+                    <i data-lucide="moon" class="w-3.5 h-3.5"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Middle Navigation Items: Single Continuous Joined Pill Capsule -->
+        <nav class="nav-pill-container w-11 py-2 px-1 flex flex-col items-center gap-2.5 my-auto">
+            <!-- Active Primary Item (Glowing Gradient Pill at top of capsule) -->
+            <button title="Dashboard & Main Deck" onclick="setDeckViewMode('medley')" class="w-9 h-9 rounded-full gradient-btn-purple text-white flex items-center justify-center shadow-lg shadow-purple-600/40 transition-transform active:scale-95">
+                <i data-lucide="layout-grid" class="w-4 h-4"></i>
+            </button>
+            <button title="Service Agenda" class="w-8 h-8 rounded-full text-zinc-400 hover:text-white hover:bg-white/10 flex items-center justify-center transition">
+                <i data-lucide="list-ordered" class="w-4 h-4"></i>
+            </button>
+            <button title="Library Manager" onclick="openModal('editor-modal')" class="w-8 h-8 rounded-full text-zinc-400 hover:text-white hover:bg-white/10 flex items-center justify-center transition">
+                <i data-lucide="folder-open" class="w-4 h-4"></i>
+            </button>
+            <button title="AI Speech Recognition Engine" class="w-8 h-8 rounded-full text-zinc-400 hover:text-white hover:bg-white/10 flex items-center justify-center transition">
+                <i data-lucide="sparkles" class="w-4 h-4"></i>
+            </button>
+            <button title="Broadcast Hub" onclick="openModal('broadcast-modal')" class="w-8 h-8 rounded-full text-zinc-400 hover:text-white hover:bg-white/10 flex items-center justify-center transition">
+                <i data-lucide="radio" class="w-4 h-4"></i>
+            </button>
+            
+            <!-- Capsule Internal Divider Line -->
+            <div class="w-4 h-[1px] bg-white/10 my-0.5"></div>
+
+            <button title="Settings" class="w-8 h-8 rounded-full text-zinc-400 hover:text-white hover:bg-white/10 flex items-center justify-center transition">
+                <i data-lucide="settings" class="w-4 h-4"></i>
+            </button>
+        </nav>
+
+        <!-- Bottom Actions (Power / Disconnect Button) -->
+        <button title="System Reset" class="w-9 h-9 rounded-full text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 flex items-center justify-center transition">
+            <i data-lucide="power" class="w-4 h-4"></i>
+        </button>
+    </aside>
+
+    <!-- MAIN RIGHT CONTAINER (Header + Grid Workspace) -->
+    <div class="flex-1 h-full min-h-0 flex flex-col justify-between overflow-hidden">
+
+        <!-- TOP HEADER BAR (Cryptoin Dashboard Style) -->
+        <header class="w-full h-12 min-h-[48px] mb-2 px-4 bg-[#151226] border border-white/5 rounded-2xl flex items-center justify-between gap-3 shrink-0 shadow-lg">
+            <!-- Brand Title & Welcome -->
+            <div class="flex items-center gap-3">
+                <h1 class="font-extrabold text-base tracking-tight text-white flex items-center gap-2">
+                    ScriptureFlow <span class="text-[10px] bg-violet-600/30 text-violet-300 border border-violet-500/40 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">Studio Pro</span>
+                </h1>
+                <span class="text-xs text-zinc-400 hidden lg:flex items-center gap-1.5">
+                    <span>Hi Operator</span>
+                    <i data-lucide="shield-check" class="w-3.5 h-3.5 text-violet-400"></i>
+                </span>
+            </div>
+
+            <!-- Global Command Search Input Bar -->
+            <div class="flex-1 max-w-md hidden md:flex items-center bg-[#1e1a34] border border-white/5 rounded-xl px-3 py-1.5 gap-2 text-zinc-400 focus-within:border-violet-500 transition">
+                <i data-lucide="search" class="w-3.5 h-3.5 text-zinc-400"></i>
+                <input type="text" id="global-search" placeholder="Search songs, scriptures, sermons..." class="bg-transparent border-none outline-none text-xs text-zinc-200 placeholder-zinc-500 w-full">
+                <span class="text-[9px] bg-[#272242] text-zinc-400 border border-white/10 px-1.5 py-0.5 rounded font-mono">⌘K</span>
+            </div>
+
+            <!-- System Quick Metrics & Controls -->
+            <div class="flex items-center gap-2.5">
+                <!-- Status Pills (BTC/ETH Style Pills from image) -->
+                <div class="hidden xl:flex items-center gap-1.5 text-[11px] font-bold">
+                    <span class="neon-pill-green px-2.5 py-1 rounded-xl flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> NDI 1080p
+                    </span>
+                    <span class="neon-pill-purple px-2.5 py-1 rounded-xl">
+                        AI Mic Active
+                    </span>
+                </div>
+
+                <!-- Mic Audio Signal Bar with Custom Bento Floating Dropdown -->
+                <div class="relative">
+                    <button id="audio-dropdown-btn" onclick="toggleAudioDropdown()" class="flex items-center gap-2 bg-[#1e1a34] hover:bg-[#252044] border border-white/10 px-3 py-1.5 rounded-xl text-xs text-zinc-200 transition shadow-sm">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <i data-lucide="mic" class="w-3.5 h-3.5 text-emerald-400"></i>
+                        <span id="selected-audio-device" class="text-[11px] font-medium max-w-[110px] truncate">USB Soundboard</span>
+                        <i data-lucide="chevron-down" class="w-3 h-3 text-zinc-400 transition-transform duration-200" id="audio-dropdown-arrow"></i>
+                    </button>
+
+                    <!-- Custom Bento Dark Glass Popover Dropdown Dialog -->
+                    <div id="audio-dropdown-menu" class="hidden absolute right-0 mt-2 w-64 bg-[#18142a]/95 backdrop-blur-xl border border-violet-500/30 rounded-2xl shadow-2xl z-50 p-2 space-y-1">
+                        <div class="px-2.5 py-1.5 text-[10px] font-bold text-zinc-400 uppercase tracking-wider border-b border-white/5 flex items-center justify-between">
+                            <span>Audio Source Input</span>
+                            <span class="text-emerald-400 font-mono text-[9px]">48kHz • 24bit</span>
+                        </div>
+                        
+                        <div class="space-y-0.5 pt-1">
+                            <button onclick="selectAudioDevice('USB Soundboard')" class="audio-option-item w-full px-2.5 py-2 rounded-xl text-xs flex items-center justify-between bg-violet-600/20 text-white border border-violet-500/40 font-semibold group transition">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <i data-lucide="sliders" class="w-3.5 h-3.5 text-violet-400 shrink-0"></i>
+                                    <div class="text-left min-w-0">
+                                        <p class="truncate text-xs font-bold">USB Soundboard</p>
+                                        <p class="text-[9px] text-zinc-400 truncate">Focusrite Scarlett 2i2</p>
+                                    </div>
+                                </div>
+                                <i data-lucide="check" class="w-3.5 h-3.5 text-violet-400 shrink-0 check-icon"></i>
+                            </button>
+
+                            <button onclick="selectAudioDevice('Built-in Mic')" class="audio-option-item w-full px-2.5 py-2 rounded-xl text-xs flex items-center justify-between text-zinc-300 hover:bg-[#231d3d] hover:text-white border border-transparent transition group">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <i data-lucide="mic" class="w-3.5 h-3.5 text-zinc-400 group-hover:text-violet-400 shrink-0"></i>
+                                    <div class="text-left min-w-0">
+                                        <p class="truncate text-xs font-medium">Built-in Mic</p>
+                                        <p class="text-[9px] text-zinc-500 truncate">MacBook Pro Array</p>
+                                    </div>
+                                </div>
+                                <i data-lucide="check" class="w-3.5 h-3.5 text-violet-400 shrink-0 opacity-0 check-icon"></i>
+                            </button>
+
+                            <button onclick="selectAudioDevice('Dante Network Input')" class="audio-option-item w-full px-2.5 py-2 rounded-xl text-xs flex items-center justify-between text-zinc-300 hover:bg-[#231d3d] hover:text-white border border-transparent transition group">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <i data-lucide="radio" class="w-3.5 h-3.5 text-zinc-400 group-hover:text-violet-400 shrink-0"></i>
+                                    <div class="text-left min-w-0">
+                                        <p class="truncate text-xs font-medium">Dante Network Stream</p>
+                                        <p class="text-[9px] text-zinc-500 truncate">Ch 1/2 Sanctuary Desk</p>
+                                    </div>
+                                </div>
+                                <i data-lucide="check" class="w-3.5 h-3.5 text-violet-400 shrink-0 opacity-0 check-icon"></i>
+                            </button>
+                        </div>
+
+                        <div class="pt-1.5 border-t border-white/5 flex items-center justify-between px-2 text-[10px] text-zinc-400">
+                            <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Signal Meter</span>
+                            <div class="w-20 bg-[#120f21] h-1.5 rounded-full overflow-hidden border border-white/10">
+                                <div class="bg-gradient-to-r from-emerald-400 via-violet-400 to-amber-400 h-full w-[68%] animate-pulse"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Primary CTA Button (Send & Receive Style Gradient Pill) -->
+                <button onclick="openModal('broadcast-modal')" class="gradient-btn-purple text-white px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md">
+                    <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                    <span>Broadcast Hub</span>
+                </button>
+
+                <!-- Profile Badge -->
+                <div class="w-8 h-8 rounded-xl bg-violet-600/30 border border-violet-500/40 flex items-center justify-center font-bold text-xs text-violet-200">
+                    OP
+                </div>
+            </div>
+        </header>
+
+        <!-- BENTO GRID WORKSPACE (100% Height, No Overflow Page Scroll) -->
+        <main class="grid grid-cols-12 gap-2.5 flex-1 min-h-0 h-full w-full overflow-hidden">
+
+            <!-- LEFT COLUMN (3 COLS) - Service Agenda & Song/Bible Library -->
+            <div class="col-span-12 lg:col-span-3 flex flex-col gap-2.5 h-full min-h-0">
+
+                <!-- BENTO WIDGET 1: Service Agenda Rundown (40% Height) -->
+                <div class="bento-card p-3.5 flex flex-col justify-between h-[40%] min-h-0 overflow-hidden">
+                    <div class="flex items-center justify-between pb-2 border-b border-white/5 shrink-0">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="list-ordered" class="w-4 h-4 text-violet-400"></i>
+                            <h3 class="font-bold text-xs uppercase tracking-wider text-zinc-200">Service Agenda</h3>
+                        </div>
+                        <span id="agenda-count" class="neon-pill-purple px-2 py-0.5 rounded-full text-[10px] font-bold">3 Items</span>
+                    </div>
+
+                    <!-- Agenda Playlist Scrollable Area -->
+                    <div id="agenda-list" class="flex-1 my-2 overflow-y-auto space-y-1.5 pr-1 custom-scrollbar min-h-0">
+                        <!-- Item 1 -->
+                        <div class="bg-[#1e1a34] border border-violet-500/40 rounded-xl p-2 flex items-center justify-between group hover:border-violet-500 transition cursor-pointer" onclick="loadAgendaItem('Amazing Grace', 'song')">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <span class="w-5 h-5 rounded-lg bg-violet-600/40 text-violet-200 text-[10px] font-bold flex items-center justify-center shrink-0">1</span>
+                                <div class="min-w-0">
+                                    <h4 class="text-xs font-semibold text-white truncate">Amazing Grace</h4>
+                                    <p class="text-[10px] text-zinc-400 truncate">Song • Key: G • Slot 1</p>
+                                </div>
+                            </div>
+                            <span class="neon-pill-green text-[9px] font-bold px-1.5 py-0.5 rounded">LIVE</span>
+                        </div>
+
+                        <!-- Item 2 -->
+                        <div class="bg-[#19162c] border border-white/5 rounded-xl p-2 flex items-center justify-between group hover:border-violet-500/40 transition cursor-pointer" onclick="loadAgendaItem('John 3:16-18', 'bible')">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <span class="w-5 h-5 rounded-lg bg-[#252042] text-zinc-400 text-[10px] font-bold flex items-center justify-center shrink-0">2</span>
+                                <div class="min-w-0">
+                                    <h4 class="text-xs font-semibold text-zinc-300 truncate">John 3:16-18</h4>
+                                    <p class="text-[10px] text-zinc-400 truncate">Scripture • KJV / ESV</p>
+                                </div>
+                            </div>
+                            <i data-lucide="grip-vertical" class="w-3.5 h-3.5 text-zinc-600 group-hover:text-zinc-400"></i>
+                        </div>
+
+                        <!-- Item 3 -->
+                        <div class="bg-[#19162c] border border-white/5 rounded-xl p-2 flex items-center justify-between group hover:border-violet-500/40 transition cursor-pointer" onclick="loadAgendaItem('How Great Thou Art', 'song')">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <span class="w-5 h-5 rounded-lg bg-[#252042] text-zinc-400 text-[10px] font-bold flex items-center justify-center shrink-0">3</span>
+                                <div class="min-w-0">
+                                    <h4 class="text-xs font-semibold text-zinc-300 truncate">How Great Thou Art</h4>
+                                    <p class="text-[10px] text-zinc-400 truncate">Song • Key: A • Slot 2</p>
+                                </div>
+                            </div>
+                            <i data-lucide="grip-vertical" class="w-3.5 h-3.5 text-zinc-600 group-hover:text-zinc-400"></i>
+                        </div>
+                    </div>
+
+                    <!-- Footer Action -->
+                    <div class="pt-1.5 border-t border-white/5 flex items-center justify-between shrink-0">
+                        <span class="text-[10px] text-zinc-500">Drag to reorder rundown</span>
+                        <button class="text-violet-400 hover:text-violet-300 text-[10px] font-bold flex items-center gap-1">
+                            <i data-lucide="plus-circle" class="w-3 h-3"></i> Add Item
+                        </button>
+                    </div>
+                </div>
+
+                <!-- BENTO WIDGET 2: Bible & Song Library Manager (60% Height) -->
+                <div class="bento-card p-3.5 flex flex-col justify-between h-[60%] min-h-0 overflow-hidden">
+                    <!-- Tab Selector Switcher (Pill Style) -->
+                    <div class="flex bg-[#120f21] p-1 rounded-2xl border border-white/5 shrink-0 mb-2">
+                        <button id="lib-tab-bible" onclick="switchLibraryTab('bible')" class="flex-1 py-1 text-xs font-bold rounded-xl text-zinc-400 hover:text-white transition">
+                            <i data-lucide="book-open" class="w-3 h-3 inline mr-1"></i> Bible
+                        </button>
+                        <button id="lib-tab-songs" onclick="switchLibraryTab('songs')" class="flex-1 py-1 text-xs font-bold rounded-xl gradient-btn-purple text-white shadow-md transition">
+                            <i data-lucide="music" class="w-3 h-3 inline mr-1"></i> Songs
+                        </button>
+                    </div>
+
+                    <!-- BIBLE PANEL (Hidden by default) -->
+                    <div id="panel-bible" class="hidden flex-1 flex flex-col min-h-0 overflow-hidden">
+                        <div class="space-y-1.5 mb-2 shrink-0">
+                            <!-- Custom Bento Translation Dropdown Dialog -->
+                            <div class="relative">
+                                <button id="bible-trans-dropdown-btn" onclick="toggleBibleTransDropdown()" class="w-full flex items-center justify-between bg-[#1e1a34] hover:bg-[#252044] border border-white/10 px-3 py-1.5 rounded-xl text-xs text-zinc-200 transition">
+                                    <span id="selected-bible-trans" class="truncate font-semibold text-xs">KJV - King James Version</span>
+                                    <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-zinc-400 shrink-0 transition-transform duration-200" id="bible-trans-arrow"></i>
+                                </button>
+
+                                <div id="bible-trans-dropdown-menu" class="hidden absolute top-full left-0 right-0 mt-1 bg-[#18142a]/95 backdrop-blur-xl border border-violet-500/30 rounded-2xl shadow-2xl z-50 p-2 space-y-1">
+                                    <div class="px-2 py-1 text-[10px] font-bold text-zinc-400 uppercase tracking-wider border-b border-white/5">
+                                        Select Primary Translation
+                                    </div>
+                                    <div class="max-h-40 overflow-y-auto custom-scrollbar space-y-0.5 pt-1">
+                                        <button onclick="selectBibleTrans('KJV - King James Version')" class="trans-option w-full px-2.5 py-1.5 rounded-xl text-xs flex items-center justify-between bg-violet-600/20 text-white border border-violet-500/40 font-semibold transition">
+                                            <span>KJV - King James Version</span>
+                                            <i data-lucide="check" class="w-3.5 h-3.5 text-violet-400"></i>
+                                        </button>
+                                        <button onclick="selectBibleTrans('NIV - New Intl Version')" class="trans-option w-full px-2.5 py-1.5 rounded-xl text-xs flex items-center justify-between text-zinc-300 hover:bg-[#231d3d] hover:text-white transition">
+                                            <span>NIV - New Intl Version</span>
+                                        </button>
+                                        <button onclick="selectBibleTrans('ESV - English Standard Version')" class="trans-option w-full px-2.5 py-1.5 rounded-xl text-xs flex items-center justify-between text-zinc-300 hover:bg-[#231d3d] hover:text-white transition">
+                                            <span>ESV - English Standard Version</span>
+                                        </button>
+                                        <button onclick="selectBibleTrans('NLT - New Living Translation')" class="trans-option w-full px-2.5 py-1.5 rounded-xl text-xs flex items-center justify-between text-zinc-300 hover:bg-[#231d3d] hover:text-white transition">
+                                            <span>NLT - New Living Translation</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between bg-[#19162c] p-1.5 rounded-xl border border-white/5 text-[11px]">
+                                <span class="text-zinc-300 font-medium">Dual Translation Mode</span>
+                                <input type="checkbox" id="compare-mode-toggle" onchange="toggleCompareMode(this.checked)" class="accent-violet-500 cursor-pointer">
+                            </div>
+                        </div>
+
+                        <div class="flex gap-1.5 mb-2 shrink-0">
+                            <input type="text" id="bible-passage-input" placeholder="e.g. John 3 or Psalm 23" class="flex-1 bg-[#1e1a34] border border-white/5 rounded-xl px-2.5 py-1 text-xs text-zinc-200 outline-none focus:border-violet-500">
+                            <button onclick="loadBiblePassage()" class="gradient-btn-purple px-3 py-1 rounded-xl text-xs font-bold text-white">Go</button>
+                        </div>
+
+                        <div class="flex-1 overflow-y-auto space-y-1.5 pr-1 custom-scrollbar min-h-0">
+                            <div onclick="selectScriptureShortcut('John 3:16-18')" class="bg-[#19162c] hover:bg-[#211d3b] border border-white/5 p-2 rounded-xl cursor-pointer transition">
+                                <h5 class="text-xs font-bold text-white">John 3:16-18</h5>
+                                <p class="text-[10px] text-zinc-400 truncate">For God so loved the world that He gave His only Son...</p>
+                            </div>
+                            <div onclick="selectScriptureShortcut('Psalm 23:1-6')" class="bg-[#19162c] hover:bg-[#211d3b] border border-white/5 p-2 rounded-xl cursor-pointer transition">
+                                <h5 class="text-xs font-bold text-zinc-300">Psalm 23:1-6</h5>
+                                <p class="text-[10px] text-zinc-400 truncate">The Lord is my shepherd; I shall not want...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SONGS PANEL (Active Default) -->
+                    <div id="panel-songs" class="flex-1 flex flex-col min-h-0 overflow-hidden">
+                        <div class="relative mb-2 shrink-0">
+                            <i data-lucide="search" class="w-3.5 h-3.5 text-zinc-400 absolute left-2.5 top-2"></i>
+                            <input type="text" id="song-search-input" oninput="filterSongs(this.value)" placeholder="Search lyrics, titles..." class="w-full bg-[#1e1a34] border border-white/5 rounded-xl pl-8 pr-2 py-1 text-xs text-zinc-200 outline-none focus:border-violet-500">
+                        </div>
+
+                        <!-- Song Items List Container (Dynamically Rendered) -->
+                        <div id="songs-list-container" class="flex-1 overflow-y-auto space-y-1.5 pr-1 custom-scrollbar min-h-0">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Footer Info -->
+                    <div class="pt-2 border-t border-white/5 flex items-center justify-between text-[10px] text-zinc-400 shrink-0">
+                        <span>Database: <strong id="song-count-label" class="text-zinc-200">6 Songs</strong></span>
+                        <span class="text-emerald-400 font-semibold flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Synced
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CENTER COLUMN (6 COLS) - Hero Slide Deck Workspace -->
+            <div class="col-span-12 lg:col-span-6 bento-card p-4 flex flex-col justify-between h-full min-h-0 overflow-hidden">
+                
+                <!-- Deck Header Control Bar -->
+                <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-white/5 shrink-0">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-xl bg-violet-600/30 text-violet-300 border border-violet-500/40 flex items-center justify-center">
+                            <i data-lucide="layers" class="w-4 h-4"></i>
+                        </div>
+                        <div>
+                            <h2 id="active-deck-title" class="text-sm font-extrabold text-white tracking-wide">WORSHIP MEDLEY DECK</h2>
+                            <p id="active-deck-sub" class="text-[10px] text-zinc-400">Multi-Slot Medley Mode Active • 3 Column Switcher</p>
+                        </div>
+                    </div>
+
+                    <!-- View & Format Switches -->
+                    <div class="flex items-center gap-2">
+                        <!-- Lines Per Slide Pill Switcher -->
+                        <div class="flex bg-[#120f21] border border-white/5 rounded-xl p-0.5 text-[10px] font-bold text-zinc-400">
+                            <button id="lps-2l" onclick="setLinesPerSlide('2L')" class="px-2 py-0.5 hover:text-white rounded-lg">2L</button>
+                            <button id="lps-3l" onclick="setLinesPerSlide('3L')" class="px-2 py-0.5 bg-[#252042] text-white rounded-lg">3L</button>
+                            <button id="lps-4l" onclick="setLinesPerSlide('4L')" class="px-2 py-0.5 hover:text-white rounded-lg">4L</button>
+                            <button id="lps-full" onclick="setLinesPerSlide('Full')" class="px-2 py-0.5 hover:text-white rounded-lg">Full</button>
+                        </div>
+
+                        <!-- View Mode Pill Segment (Single vs Medley) -->
+                        <div class="flex bg-[#120f21] border border-white/5 p-0.5 rounded-xl text-[11px] font-bold">
+                            <button id="view-single-btn" onclick="setDeckViewMode('single')" class="px-2.5 py-0.5 rounded-lg text-zinc-400 hover:text-white transition">Single</button>
+                            <button id="view-medley-btn" onclick="setDeckViewMode('medley')" class="px-2.5 py-0.5 rounded-lg gradient-btn-purple text-white shadow-md transition">Medley</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SINGLE VIEW NAV TABS (Only active in Single mode) -->
+                <div id="single-slot-nav" class="hidden my-2 flex items-center gap-2 shrink-0 overflow-x-auto custom-scrollbar pb-1">
+                    <button id="slot-tab-s1" onclick="switchSingleSlot('S1')" class="gradient-btn-purple text-white px-3 py-1 rounded-xl text-xs font-bold flex items-center gap-2 shrink-0">
+                        <span class="w-4 h-4 rounded-full bg-white/20 text-[10px] flex items-center justify-center">S1</span>
+                        <span id="slot-s1-label">Amazing Grace</span>
+                    </button>
+                    <button id="slot-tab-s2" onclick="switchSingleSlot('S2')" class="bg-[#19162c] border border-white/5 text-zinc-300 px-3 py-1 rounded-xl text-xs font-medium flex items-center gap-2 shrink-0">
+                        <span class="w-4 h-4 rounded-full bg-[#272244] text-[10px] flex items-center justify-center text-zinc-400">S2</span>
+                        <span id="slot-s2-label">How Great Thou Art</span>
+                    </button>
+                    <button id="slot-tab-s3" onclick="switchSingleSlot('S3')" class="bg-[#19162c] border border-white/5 text-zinc-300 px-3 py-1 rounded-xl text-xs font-medium flex items-center gap-2 shrink-0">
+                        <span class="w-4 h-4 rounded-full bg-[#272244] text-[10px] flex items-center justify-center text-zinc-400">S3</span>
+                        <span id="slot-s3-label">10,000 Reasons</span>
+                    </button>
+                </div>
+
+                <!-- MEDLEY 3-COLUMN VIEW (Active Default) -->
+                <div id="deck-container-medley" class="grid grid-cols-3 gap-2.5 flex-1 my-2 min-h-0 overflow-y-auto pr-1 custom-scrollbar">
+                    
+                    <!-- SLOT 1 -->
+                    <div class="bg-[#120f21] border border-white/5 rounded-2xl p-2.5 flex flex-col gap-2 h-full min-h-0">
+                        <div class="flex items-center justify-between pb-1.5 border-b border-white/5 shrink-0">
+                            <div>
+                                <span class="text-[9px] font-bold text-violet-400 uppercase tracking-widest">SLOT 1</span>
+                                <h4 id="medley-col-s1-title" class="text-xs font-bold text-white truncate">Amazing Grace</h4>
+                            </div>
+                        </div>
+                        <div id="col-s1-slides" class="flex-1 overflow-y-auto space-y-2 pr-1 custom-scrollbar min-h-0"></div>
+                    </div>
+
+                    <!-- SLOT 2 -->
+                    <div class="bg-[#120f21] border border-white/5 rounded-2xl p-2.5 flex flex-col gap-2 h-full min-h-0">
+                        <div class="flex items-center justify-between pb-1.5 border-b border-white/5 shrink-0">
+                            <div>
+                                <span class="text-[9px] font-bold text-emerald-400 uppercase tracking-widest">SLOT 2</span>
+                                <h4 id="medley-col-s2-title" class="text-xs font-bold text-white truncate">How Great Thou Art</h4>
+                            </div>
+                        </div>
+                        <div id="col-s2-slides" class="flex-1 overflow-y-auto space-y-2 pr-1 custom-scrollbar min-h-0"></div>
+                    </div>
+
+                    <!-- SLOT 3 -->
+                    <div class="bg-[#120f21] border border-white/5 rounded-2xl p-2.5 flex flex-col gap-2 h-full min-h-0">
+                        <div class="flex items-center justify-between pb-1.5 border-b border-white/5 shrink-0">
+                            <div>
+                                <span class="text-[9px] font-bold text-cyan-400 uppercase tracking-widest">SLOT 3</span>
+                                <h4 id="medley-col-s3-title" class="text-xs font-bold text-white truncate">10,000 Reasons</h4>
+                            </div>
+                        </div>
+                        <div id="col-s3-slides" class="flex-1 overflow-y-auto space-y-2 pr-1 custom-scrollbar min-h-0"></div>
+                    </div>
+
+                </div>
+
+                <!-- SINGLE VIEW DECK CONTAINER -->
+                <div id="deck-container-single" class="hidden flex-1 my-2 overflow-y-auto space-y-2.5 pr-1 custom-scrollbar min-h-0">
+                    <!-- Populated dynamically -->
+                </div>
+
+                <!-- COMPARE MODE CONTAINER -->
+                <div id="deck-container-compare" class="hidden flex-1 my-2 overflow-y-auto space-y-2.5 pr-1 custom-scrollbar min-h-0">
+                    <div class="bg-[#120f21] border border-white/10 p-3 rounded-2xl">
+                        <span class="text-xs font-bold text-violet-400 uppercase">JOHN 3:16 - DUAL COMPARISON</span>
+                        <div class="grid grid-cols-2 gap-3 mt-2">
+                            <div class="p-2.5 bg-[#19162c] rounded-xl border border-white/5">
+                                <span class="text-[10px] font-bold text-amber-400">KJV</span>
+                                <p class="text-xs text-zinc-200 mt-1 leading-relaxed">For God so loved the world, that he gave his only begotten Son...</p>
+                            </div>
+                            <div class="p-2.5 bg-[#19162c] rounded-xl border border-white/5">
+                                <span class="text-[10px] font-bold text-emerald-400">NIV</span>
+                                <p class="text-xs text-zinc-200 mt-1 leading-relaxed">For God so loved the world that he gave his one and only Son...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Status Bar -->
+                <div class="pt-2 border-t border-white/5 flex items-center justify-between text-[11px] text-zinc-400 shrink-0">
+                    <span class="flex items-center gap-2">
+                        <span>Text Scale:</span>
+                        <input type="range" min="80" max="140" value="100" id="text-scale-slider" oninput="adjustTextScale(this.value)" class="w-20 accent-violet-500 cursor-pointer">
+                        <span id="text-scale-val" class="font-mono text-zinc-200">100%</span>
+                    </span>
+                    <span class="text-zinc-500 text-[10px]">Click any slide card to project live</span>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN (3 COLS) - Live Monitor & AI Speech Engine -->
+            <div class="col-span-12 lg:col-span-3 flex flex-col gap-2.5 h-full min-h-0">
+
+                <!-- BENTO WIDGET 3: Live Output Monitor -->
+                <div class="bento-card p-3.5 flex flex-col justify-between h-[50%] min-h-0 overflow-hidden">
+                    <div class="flex items-center justify-between pb-1.5 border-b border-white/5 shrink-0">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping"></span>
+                            <h3 class="font-bold text-xs uppercase tracking-wider text-white">Live Monitor</h3>
+                        </div>
+                        <div class="flex bg-[#120f21] border border-white/5 rounded-lg p-0.5 text-[9px] font-bold">
+                            <button id="mode-169-btn" onclick="setStageDisplayMode('169')" class="px-2 py-0.5 gradient-btn-purple text-white rounded">16:9</button>
+                            <button id="mode-l3-btn" onclick="setStageDisplayMode('l3')" class="px-2 py-0.5 text-zinc-400 hover:text-white rounded">Overlay</button>
+                        </div>
+                    </div>
+
+                    <!-- Live Rendered Screen Canvas Box -->
+                    <div id="stage-preview-box" class="relative flex-1 my-2 bg-[#090812] rounded-2xl border border-white/10 overflow-hidden flex flex-col items-center justify-center p-3 text-center shadow-inner group min-h-0">
+                        <div id="stage-bg-overlay" class="absolute inset-0 bg-gradient-to-t from-violet-950/40 via-transparent to-black/60 pointer-events-none"></div>
+
+                        <div id="stage-text-container" class="relative z-10 max-w-full px-2 transition-all duration-200">
+                            <span id="stage-active-tag" class="neon-pill-purple text-[9px] font-bold px-2 py-0.5 rounded mb-1 inline-block uppercase">AMAZING GRACE • VERSE 1</span>
+                            <h3 id="stage-main-text" class="text-xs font-extrabold text-white tracking-wide drop-shadow-md leading-relaxed">
+                                Amazing grace! How sweet the sound<br>That saved a wretch like me!
+                            </h3>
+                        </div>
+
+                        <span class="absolute top-2 left-2.5 text-[9px] font-mono text-zinc-500">NDI OUT 1 • 1080p60</span>
+                    </div>
+
+                    <!-- Live Control Action Buttons -->
+                    <div class="grid grid-cols-3 gap-1.5 shrink-0 pt-1">
+                        <button onclick="triggerStageAction('clear')" class="bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 py-1.5 rounded-xl text-[10px] font-extrabold transition">
+                            CLEAR
+                        </button>
+                        <button onclick="triggerStageAction('hold')" class="bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 py-1.5 rounded-xl text-[10px] font-extrabold transition">
+                            HOLD
+                        </button>
+                        <button onclick="triggerStageAction('transparent')" class="bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-300 py-1.5 rounded-xl text-[10px] font-extrabold transition">
+                            ALPHA
+                        </button>
+                    </div>
+                </div>
+
+                <!-- BENTO WIDGET 4: AI Speech Recognition Feed -->
+                <div class="bento-card p-3.5 flex flex-col justify-between h-[50%] min-h-0 overflow-hidden">
+                    <div class="flex items-center justify-between pb-1.5 border-b border-white/5 shrink-0">
+                        <div class="flex items-center gap-1.5">
+                            <i data-lucide="sparkles" class="w-4 h-4 text-emerald-400"></i>
+                            <h3 class="font-bold text-xs uppercase tracking-wider text-zinc-200">AI Speech Engine</h3>
+                        </div>
+                        <span class="neon-pill-green text-[9px] px-2 py-0.5 rounded-full font-bold">LISTENING</span>
+                    </div>
+
+                    <!-- Audio Transcript Banner -->
+                    <div class="bg-[#1f1b38] border border-violet-500/30 rounded-xl p-2 my-1.5 flex items-center gap-2 shrink-0">
+                        <div class="w-6 h-6 rounded-lg gradient-btn-purple flex items-center justify-center text-white shrink-0">
+                            <i data-lucide="activity" class="w-3.5 h-3.5 animate-pulse"></i>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <p class="text-[9px] text-zinc-400 uppercase font-bold">Live Stage Audio Transcript</p>
+                            <p id="speech-transcript-text" class="text-[11px] text-zinc-200 italic truncate">"...and for God so loved the world..."</p>
+                        </div>
+                    </div>
+
+                    <!-- AI Scripture/Song Suggestions -->
+                    <div class="flex-1 overflow-y-auto space-y-1.5 pr-1 custom-scrollbar min-h-0">
+                        <span class="text-[9px] font-extrabold text-zinc-500 uppercase tracking-widest block">Auto Suggestions</span>
+
+                        <div class="bg-[#19162c] border border-emerald-500/30 rounded-xl p-2 flex items-center justify-between">
+                            <div class="min-w-0 flex-1">
+                                <h5 class="text-xs font-bold text-white flex items-center gap-1">
+                                    <i data-lucide="book-open" class="w-3 h-3 text-emerald-400"></i> John 3:16
+                                </h5>
+                                <p class="text-[10px] text-zinc-400 truncate">Match Confidence: 98%</p>
+                            </div>
+                            <button onclick="projectSlide('John 3:16', 'KJV', 'For God so loved the world, that he gave his only begotten Son...', 'ai-j316')" class="gradient-btn-purple text-white text-[10px] font-bold px-2.5 py-1 rounded-lg shrink-0">
+                                Project
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Telemetry -->
+                    <div class="pt-1.5 border-t border-white/5 flex items-center justify-between text-[10px] text-zinc-500 shrink-0">
+                        <span>Latency: <strong class="text-zinc-300 font-mono">18ms</strong></span>
+                        <span>Accuracy: <strong class="text-emerald-400 font-mono">99.2%</strong></span>
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+
+        <!-- FOOTER BAR -->
+        <footer class="w-full h-7 min-h-[28px] mt-2 px-4 bg-[#151226] border border-white/5 rounded-xl flex items-center justify-between text-[10px] text-zinc-400 shrink-0">
+            <div class="flex items-center gap-4">
+                <span class="flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                    <strong class="text-zinc-200">NDI Stream Active</strong>
+                </span>
+                <span class="hidden sm:inline">• Stage Confidence Monitor: Connected</span>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <span class="text-zinc-500">ScriptureFlow Engine v4.5</span>
+                <button onclick="triggerStageAction('clear')" class="text-rose-400 hover:text-rose-300 font-bold uppercase">
+                    Blackout
+                </button>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- MODAL 1: BROADCAST HUB -->
+    <div id="broadcast-modal" class="fixed inset-0 glass-modal z-50 hidden flex items-center justify-center p-4">
+        <div class="bento-card max-w-lg w-full p-5 flex flex-col gap-4 relative border-violet-500/40">
+            <button onclick="closeModal('broadcast-modal')" class="absolute top-4 right-4 text-zinc-400 hover:text-white">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+
+            <div class="flex items-center gap-3">
+                <div class="p-2.5 bg-violet-600/30 text-violet-300 rounded-xl border border-violet-500/40">
+                    <i data-lucide="radio" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-bold text-white">Broadcast & Remote Hub</h3>
+                    <p class="text-xs text-zinc-400">Route displays, mobile remotes, and OBS sources</p>
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <div class="bg-[#120f21] border border-white/5 rounded-xl p-3">
+                    <span class="text-xs font-bold text-violet-300">OBS Lower-Third Browser Source URL</span>
+                    <div class="flex items-center gap-2 mt-1">
+                        <input type="text" readonly value="http://localhost:8080/stage?mode=l3&alpha=true" class="flex-1 bg-[#19162c] border border-white/5 rounded-lg px-2.5 py-1 text-xs text-zinc-300 font-mono">
+                        <button onclick="copyToClipboard('http://localhost:8080/stage?mode=l3&alpha=true')" class="gradient-btn-purple text-white px-3 py-1 rounded-lg text-xs font-bold">Copy</button>
+                    </div>
+                </div>
+
+                <div class="bg-[#120f21] border border-white/5 rounded-xl p-3 flex items-center gap-4">
+                    <div class="w-16 h-16 bg-white rounded-xl p-1.5 flex items-center justify-center shrink-0">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://scriptureflow.app/remote/demo" alt="QR Code" class="w-full h-full">
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-bold text-white">Wireless Mobile Co-Pilot Remote</h4>
+                        <p class="text-[11px] text-zinc-400 mt-0.5">Scan to switch slides wirelessly from iPad or phone.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: LIBRARY MANAGER -->
+    <div id="editor-modal" class="fixed inset-0 glass-modal z-50 hidden flex items-center justify-center p-4">
+        <div class="bento-card max-w-xl w-full p-5 flex flex-col gap-4 relative border-violet-500/40">
+            <button onclick="closeModal('editor-modal')" class="absolute top-4 right-4 text-zinc-400 hover:text-white">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+
+            <div class="flex items-center gap-3">
+                <div class="p-2.5 bg-violet-600/30 text-violet-300 rounded-xl border border-violet-500/40">
+                    <i data-lucide="folder-open" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-bold text-white">Library Manager & Lyric Author</h3>
+                    <p class="text-xs text-zinc-400">Import (.txt, .json, .xml, .usfm, .csv) or author new songs</p>
+                </div>
+            </div>
+
+            <div class="border-2 border-dashed border-white/10 hover:border-violet-500/60 rounded-2xl p-4 text-center bg-[#120f21] cursor-pointer transition">
+                <i data-lucide="upload-cloud" class="w-8 h-8 text-violet-400 mx-auto mb-1"></i>
+                <h4 class="text-xs font-bold text-white">Drag & Drop Song or Scripture Files Here</h4>
+            </div>
+
+            <div class="flex justify-end gap-2">
+                <button onclick="closeModal('editor-modal')" class="bg-[#1f1b38] hover:bg-[#282347] text-zinc-300 px-4 py-1.5 rounded-xl text-xs font-bold">Cancel</button>
+                <button onclick="closeModal('editor-modal')" class="gradient-btn-purple text-white px-4 py-1.5 rounded-xl text-xs font-bold">Save To Library</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- INTERACTIVE STATE ENGINE & REACTIVE SCRIPT -->
+    <script>
+        lucide.createIcons();
+
+        // FULL REACTIVE SONGS DATABASE
+        const SONG_DATABASE = {
+            "Amazing Grace": {
+                title: "Amazing Grace",
+                author: "John Newton • Hymn",
+                key: "G",
+                slides: [
+                    { tag: "VERSE 1", text: "Amazing grace! How sweet the sound\nThat saved a wretch like me!\nI once was lost, but now am found;\nWas blind, but now I see." },
+                    { tag: "VERSE 2", text: "'Twas grace that taught my heart to fear,\nAnd grace my fears relieved;\nHow precious did that grace appear\nThe hour I first believed." },
+                    { tag: "VERSE 3", text: "Through many dangers, toils and snares,\nI have already come;\n'Tis grace hath brought me safe thus far,\nAnd grace will lead me home." },
+                    { tag: "VERSE 4", text: "When we've been there ten thousand years,\nBright shining as the sun,\nWe've no less days to sing God's praise\nThan when we'd first begun." }
+                ]
+            },
+            "How Great Thou Art": {
+                title: "How Great Thou Art",
+                author: "Carl Boberg • Hymn",
+                key: "A",
+                slides: [
+                    { tag: "CHORUS", text: "Then sings my soul, my Savior God, to Thee,\nHow great Thou art, how great Thou art!\nThen sings my soul, my Savior God, to Thee,\nHow great Thou art, how great Thou art!" },
+                    { tag: "VERSE 1", text: "O Lord my God, when I in awesome wonder,\nConsider all the worlds Thy hands have made;\nI see the stars, I hear the rolling thunder,\nThy power throughout the universe displayed." },
+                    { tag: "VERSE 2", text: "When through the woods and forest glades I wander,\nAnd hear the birds sing sweetly in the trees;\nWhen I look down from lofty mountain grandeur,\nAnd hear the brook and feel the gentle breeze." },
+                    { tag: "VERSE 3", text: "And when I think that God, His Son not sparing,\nSent Him to die, I scarce can take it in;\nThat on the cross, my burden gladly bearing,\nHe bled and died to take away my sin." }
+                ]
+            },
+            "10,000 Reasons": {
+                title: "10,000 Reasons",
+                author: "Matt Redman • Contemporary",
+                key: "D",
+                slides: [
+                    { tag: "CHORUS", text: "Bless the Lord, O my soul, O my soul;\nWorship His holy name.\nSing like never before, O my soul;\nI'll worship Your holy name." },
+                    { tag: "VERSE 1", text: "The sun comes up, it's a new day dawning,\nIt's time to sing Your song again.\nWhatever may pass, and whatever lies before me,\nLet me be singing when the evening comes." },
+                    { tag: "VERSE 2", text: "You're rich in love, and You're slow to anger;\nYour name is great, and Your heart is kind.\nFor all Your goodness, I will keep on singing;\nTen thousand reasons for my heart to find." },
+                    { tag: "VERSE 3", text: "And on that day when my strength is failing,\nThe end draws near and my time has come;\nStill my soul will sing Your praise unending,\nTen thousand years and then forevermore." }
+                ]
+            },
+            "Way Maker": {
+                title: "Way Maker",
+                author: "Sinach • Contemporary",
+                key: "E",
+                slides: [
+                    { tag: "VERSE 1", text: "You are here, moving in our midst;\nI worship You, I worship You.\nYou are here, working in this place;\nI worship You, I worship You." },
+                    { tag: "CHORUS", text: "Way Maker, Miracle Worker, Promise Keeper,\nLight in the darkness, my God, that is who You are!\nWay Maker, Miracle Worker, Promise Keeper,\nLight in the darkness, my God, that is who You are!" },
+                    { tag: "VERSE 2", text: "You are here, touching every heart;\nI worship You, I worship You.\nYou are here, healing every heart;\nI worship You, I worship You." }
+                ]
+            },
+            "Goodness of God": {
+                title: "Goodness of God",
+                author: "Bethel Music • Contemporary",
+                key: "G",
+                slides: [
+                    { tag: "VERSE 1", text: "I love You Lord, for Your mercy never fails me;\nAll my days, I've been held in Your hands.\nFrom the moment that I wake up until I lay my head,\nOh, I will sing of the goodness of God." },
+                    { tag: "CHORUS", text: "All my life You have been faithful,\nAll my life You have been so, so good;\nWith every breath that I am able,\nOh, I will sing of the goodness of God." }
+                ]
+            },
+            "Great Is Thy Faithfulness": {
+                title: "Great Is Thy Faithfulness",
+                author: "Thomas Chisholm • Hymn",
+                key: "D",
+                slides: [
+                    { tag: "VERSE 1", text: "Great is Thy faithfulness, O God my Father,\nThere is no shadow of turning with Thee;\nThou changest not, Thy compassions, they fail not;\nAs Thou hast been Thou forever wilt be." },
+                    { tag: "CHORUS", text: "Great is Thy faithfulness! Great is Thy faithfulness!\nMorning by morning new mercies I see;\nAll I have needed Thy hand hath provided;\nGreat is Thy faithfulness, Lord, unto me!" }
+                ]
+            }
+        };
+
+        // APPLICATION STATE MANAGEMENT
+        let currentDeckView = 'medley';
+        let currentDisplayMode = '169';
+        let linesPerSlide = '3L';
+        let activeSingleSlot = 'S1';
+        let activeSlideId = 'Amazing Grace-VERSE 1';
+
+        let slotSongs = {
+            S1: "Amazing Grace",
+            S2: "How Great Thou Art",
+            S3: "10,000 Reasons"
+        };
+
+        // INITIALIZATION
+        window.addEventListener('DOMContentLoaded', () => {
+            renderSongsList();
+            renderMedleyDeck();
+            renderSingleDeck();
+        });
+
+
+        // 1. RENDER SONGS IN LIBRARY LIST
+        function renderSongsList(query = '') {
+            const container = document.getElementById('songs-list-container');
+            if (!container) return;
+
+            const q = query.toLowerCase().trim();
+            const songKeys = Object.keys(SONG_DATABASE).filter(key => {
+                const song = SONG_DATABASE[key];
+                return song.title.toLowerCase().includes(q) || 
+                       song.author.toLowerCase().includes(q) ||
+                       song.slides.some(s => s.text.toLowerCase().includes(q));
+            });
+
+            container.innerHTML = '';
+
+            if (songKeys.length === 0) {
+                container.innerHTML = `<div class="text-center text-xs text-zinc-500 py-4">No matching songs found</div>`;
+                return;
+            }
+
+            songKeys.forEach(key => {
+                const song = SONG_DATABASE[key];
+                const isS1 = slotSongs.S1 === key;
+                const isS2 = slotSongs.S2 === key;
+                const isS3 = slotSongs.S3 === key;
+
+                const card = document.createElement('div');
+                card.className = `${isS1 || isS2 || isS3 ? 'bg-[#1f1b38] border-violet-500/40' : 'bg-[#19162c] hover:bg-[#201c38] border-white/5'} border rounded-xl p-2 flex items-center justify-between transition cursor-pointer`;
+                
+                card.innerHTML = `
+                    <div class="min-w-0 flex-1 pr-2" onclick="selectSongDirect('${key}')">
+                        <h4 class="text-xs font-bold ${isS1 || isS2 || isS3 ? 'text-white' : 'text-zinc-200'} truncate">${song.title}</h4>
+                        <p class="text-[10px] text-zinc-400 truncate">${song.author}</p>
+                    </div>
+                    <div class="flex items-center gap-1 shrink-0">
+                        <button onclick="assignSongToSlot('${key}', 'S1')" class="${isS1 ? 'gradient-btn-purple text-white' : 'bg-[#2a244a] hover:bg-violet-600 text-zinc-300'} px-2 py-0.5 rounded-lg text-[10px] font-bold transition">S1</button>
+                        <button onclick="assignSongToSlot('${key}', 'S2')" class="${isS2 ? 'gradient-btn-purple text-white' : 'bg-[#2a244a] hover:bg-violet-600 text-zinc-300'} px-2 py-0.5 rounded-lg text-[10px] font-bold transition">S2</button>
+                        <button onclick="assignSongToSlot('${key}', 'S3')" class="${isS3 ? 'gradient-btn-purple text-white' : 'bg-[#2a244a] hover:bg-violet-600 text-zinc-300'} px-2 py-0.5 rounded-lg text-[10px] font-bold transition">S3</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            document.getElementById('song-count-label').innerText = `${songKeys.length} Songs`;
+        }
+
+        function filterSongs(val) {
+            renderSongsList(val);
+        }
+
+        // 2. ASSIGN SONG TO SLOT & UPDATE DECKS
+        function assignSongToSlot(songName, slot) {
+            slotSongs[slot] = songName;
+            
+            // Update Headers
+            document.getElementById(`medley-col-${slot.toLowerCase()}-title`).innerText = songName;
+            document.getElementById(`slot-${slot.toLowerCase()}-label`).innerText = songName;
+
+            renderSongsList(document.getElementById('song-search-input').value);
+            renderMedleyDeck();
+            renderSingleDeck();
+
+            // Auto-project first slide of assigned song
+            const song = SONG_DATABASE[songName];
+            if (song && song.slides.length > 0) {
+                projectSlide(songName, song.slides[0].tag, song.slides[0].text, `${songName}-${song.slides[0].tag}`);
+            }
+        }
+
+        function selectSongDirect(songName) {
+            assignSongToSlot(songName, activeSingleSlot);
+            setDeckViewMode('single');
+        }
+
+        // 3. RENDER MEDLEY DECK COLUMNS
+        function renderMedleyDeck() {
+            ['S1', 'S2', 'S3'].forEach(slotKey => {
+                const colEl = document.getElementById(`col-${slotKey.toLowerCase()}-slides`);
+                if (!colEl) return;
+
+                const songName = slotSongs[slotKey];
+                const song = SONG_DATABASE[songName];
+
+                colEl.innerHTML = '';
+                if (!song) return;
+
+                const formattedSlides = getFormattedSlides(song.slides, linesPerSlide);
+
+                formattedSlides.forEach(slide => {
+                    const slideId = `${songName}-${slide.tag}`;
+                    const isActive = activeSlideId === slideId;
+
+                    const card = document.createElement('div');
+                    card.className = isActive 
+                        ? "gradient-card-dark-glow p-2.5 rounded-xl cursor-pointer hover:scale-[1.01] transition border-violet-500/60 ring-1 ring-violet-500/40"
+                        : "bg-[#19162c] hover:bg-[#201c38] border border-white/5 p-2.5 rounded-xl cursor-pointer transition";
+
+                    card.onclick = () => projectSlide(songName, slide.tag, slide.text, slideId);
+
+                    card.innerHTML = `
+                        <span class="${isActive ? 'neon-pill-purple' : 'text-zinc-400'} text-[9px] font-extrabold px-1.5 py-0.5 rounded uppercase">${slide.tag} ${isActive ? '(ACTIVE)' : ''}</span>
+                        <p class="slide-text text-xs ${isActive ? 'text-white' : 'text-zinc-300'} font-medium mt-1.5 leading-snug">
+                            ${slide.text.replace(/\n/g, '<br>')}
+                        </p>
+                    `;
+                    colEl.appendChild(card);
+                });
+            });
+        }
+
+        // 4. RENDER SINGLE VIEW DECK
+        function renderSingleDeck() {
+            const container = document.getElementById('deck-container-single');
+            if (!container) return;
+
+            const songName = slotSongs[activeSingleSlot];
+            const song = SONG_DATABASE[songName];
+
+            container.innerHTML = '';
+            if (!song) return;
+
+            const formattedSlides = getFormattedSlides(song.slides, linesPerSlide);
+
+            formattedSlides.forEach(slide => {
+                const slideId = `${songName}-${slide.tag}`;
+                const isActive = activeSlideId === slideId;
+
+                const card = document.createElement('div');
+                card.className = isActive 
+                    ? "gradient-card-dark-glow p-3.5 rounded-2xl cursor-pointer transition border-violet-500/60 ring-1 ring-violet-500/40"
+                    : "bg-[#19162c] hover:bg-[#201c38] border border-white/5 p-3.5 rounded-2xl cursor-pointer transition";
+
+                card.onclick = () => projectSlide(songName, slide.tag, slide.text, slideId);
+
+                card.innerHTML = `
+                    <span class="${isActive ? 'neon-pill-purple' : 'text-zinc-400'} text-xs font-bold px-2 py-0.5 rounded uppercase">${slide.tag} ${isActive ? '(ACTIVE)' : ''}</span>
+                    <p class="text-xs ${isActive ? 'text-white' : 'text-zinc-200'} font-medium mt-2 leading-relaxed">
+                        ${slide.text.replace(/\n/g, '<br>')}
+                    </p>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // 5. PROJECT SLIDE TO LIVE MONITOR WITH VISUAL HIGHLIGHT
+        function projectSlide(title, tag, text, slideId = null) {
+            if (slideId) {
+                activeSlideId = slideId;
+            } else {
+                activeSlideId = `${title}-${tag}`;
+            }
+
+            // Update Stage Text & Tag
+            const tagEl = document.getElementById('stage-active-tag');
+            const mainTextEl = document.getElementById('stage-main-text');
+
+            tagEl.innerText = `${title.toUpperCase()} • ${tag.toUpperCase()}`;
+            mainTextEl.innerHTML = text.replace(/\n/g, '<br>');
+
+            // Flash Stage Screen Pulse Accent
+            const previewBox = document.getElementById('stage-preview-box');
+            previewBox.classList.add('ring-2', 'ring-purple-400');
+            setTimeout(() => previewBox.classList.remove('ring-2', 'ring-purple-400'), 300);
+
+            // Re-render deck cards to reflect active slide card highlight
+            renderMedleyDeck();
+            renderSingleDeck();
+        }
+
+        // 6. SINGLE VIEW SLOT SWITCHER (S1 / S2 / S3)
+        function switchSingleSlot(slot) {
+            activeSingleSlot = slot;
+            
+            ['s1', 's2', 's3'].forEach(s => {
+                const tab = document.getElementById(`slot-tab-${s}`);
+                if (!tab) return;
+
+                if (s.toUpperCase() === slot) {
+                    tab.className = "gradient-btn-purple text-white px-3 py-1 rounded-xl text-xs font-bold flex items-center gap-2 shrink-0 shadow-md";
+                } else {
+                    tab.className = "bg-[#19162c] border border-white/5 text-zinc-300 px-3 py-1 rounded-xl text-xs font-medium flex items-center gap-2 shrink-0";
+                }
+            });
+
+            const songName = slotSongs[slot];
+            document.getElementById('active-deck-title').innerText = songName.toUpperCase();
+            document.getElementById('active-deck-sub').innerText = `Single Song Deck • ${slot} Active`;
+
+            renderSingleDeck();
+        }
+
+
+        /* Theme Switcher Handler */
+        function setTheme(mode) {
+            const btnLight = document.getElementById('theme-btn-light');
+            const btnDark = document.getElementById('theme-btn-dark');
+
+            if (mode === 'light') {
+                document.body.classList.add('light-theme');
+                btnLight.className = "p-1.5 rounded-full bg-violet-600 text-white shadow-md transition";
+                btnDark.className = "p-1.5 rounded-full text-zinc-500 hover:text-zinc-900 transition";
+            } else {
+                document.body.classList.remove('light-theme');
+                btnDark.className = "p-1.5 rounded-full bg-violet-600 text-white shadow-md transition";
+                btnLight.className = "p-1.5 rounded-full text-zinc-400 hover:text-white transition";
+            }
+        }
+
+        /* Custom Bento Dropdown Dialog Handlers */
+        function toggleAudioDropdown() {
+            const menu = document.getElementById('audio-dropdown-menu');
+            const arrow = document.getElementById('audio-dropdown-arrow');
+            const isHidden = menu.classList.contains('hidden');
+
+            closeAllDropdowns();
+
+            if (isHidden) {
+                menu.classList.remove('hidden');
+                if (arrow) arrow.style.transform = 'rotate(180deg)';
+            }
+        }
+
+        function selectAudioDevice(deviceName) {
+            document.getElementById('selected-audio-device').innerText = deviceName;
+
+            const items = document.querySelectorAll('.audio-option-item');
+            items.forEach(item => {
+                const check = item.querySelector('.check-icon');
+                const titleText = item.querySelector('.truncate').innerText;
+                if (titleText === deviceName) {
+                    item.className = "audio-option-item w-full px-2.5 py-2 rounded-xl text-xs flex items-center justify-between bg-violet-600/20 text-white border border-violet-500/40 font-semibold group transition";
+                    if (check) check.classList.remove('opacity-0');
+                } else {
+                    item.className = "audio-option-item w-full px-2.5 py-2 rounded-xl text-xs flex items-center justify-between text-zinc-300 hover:bg-[#231d3d] hover:text-white border border-transparent transition group";
+                    if (check) check.classList.add('opacity-0');
+                }
+            });
+
+            closeAllDropdowns();
+        }
+
+        function toggleBibleTransDropdown() {
+            const menu = document.getElementById('bible-trans-dropdown-menu');
+            const arrow = document.getElementById('bible-trans-arrow');
+            const isHidden = menu.classList.contains('hidden');
+
+            closeAllDropdowns();
+
+            if (isHidden) {
+                menu.classList.remove('hidden');
+                if (arrow) arrow.style.transform = 'rotate(180deg)';
+            }
+        }
+
+        function selectBibleTrans(transName) {
+            document.getElementById('selected-bible-trans').innerText = transName;
+            
+            const options = document.querySelectorAll('.trans-option');
+            options.forEach(opt => {
+                const label = opt.querySelector('span').innerText;
+                if (label === transName) {
+                    opt.className = "trans-option w-full px-2.5 py-1.5 rounded-xl text-xs flex items-center justify-between bg-violet-600/20 text-white border border-violet-500/40 font-semibold transition";
+                } else {
+                    opt.className = "trans-option w-full px-2.5 py-1.5 rounded-xl text-xs flex items-center justify-between text-zinc-300 hover:bg-[#231d3d] hover:text-white transition";
+                }
+            });
+
+            closeAllDropdowns();
+        }
+
+        function closeAllDropdowns() {
+            const audioMenu = document.getElementById('audio-dropdown-menu');
+            const audioArrow = document.getElementById('audio-dropdown-arrow');
+            if (audioMenu) audioMenu.classList.add('hidden');
+            if (audioArrow) audioArrow.style.transform = 'rotate(0deg)';
+
+            const bibleMenu = document.getElementById('bible-trans-dropdown-menu');
+            const bibleArrow = document.getElementById('bible-trans-arrow');
+            if (bibleMenu) bibleMenu.classList.add('hidden');
+            if (bibleArrow) bibleArrow.style.transform = 'rotate(0deg)';
+        }
+
+        // Dismiss dropdowns when clicking outside
+        document.addEventListener('click', function(e) {
+            const audioBtn = document.getElementById('audio-dropdown-btn');
+            const audioMenu = document.getElementById('audio-dropdown-menu');
+            const bibleBtn = document.getElementById('bible-trans-dropdown-btn');
+            const bibleMenu = document.getElementById('bible-trans-dropdown-menu');
+
+            if (audioBtn && audioMenu && !audioBtn.contains(e.target) && !audioMenu.contains(e.target)) {
+                audioMenu.classList.add('hidden');
+                document.getElementById('audio-dropdown-arrow').style.transform = 'rotate(0deg)';
+            }
+
+            if (bibleBtn && bibleMenu && !bibleBtn.contains(e.target) && !bibleMenu.contains(e.target)) {
+                bibleMenu.classList.add('hidden');
+                document.getElementById('bible-trans-arrow').style.transform = 'rotate(0deg)';
+            }
+        });
+
+        function switchLibraryTab(tab) {
+            const btnBible = document.getElementById('lib-tab-bible');
+            const btnSongs = document.getElementById('lib-tab-songs');
+            const panelBible = document.getElementById('panel-bible');
+            const panelSongs = document.getElementById('panel-songs');
+
+            if (tab === 'bible') {
+                btnBible.className = "flex-1 py-1 text-xs font-bold rounded-xl gradient-btn-purple text-white shadow-md transition";
+                btnSongs.className = "flex-1 py-1 text-xs font-bold rounded-xl text-zinc-400 hover:text-white transition";
+                panelBible.classList.remove('hidden');
+                panelSongs.classList.add('hidden');
+            } else {
+                btnSongs.className = "flex-1 py-1 text-xs font-bold rounded-xl gradient-btn-purple text-white shadow-md transition";
+                btnBible.className = "flex-1 py-1 text-xs font-bold rounded-xl text-zinc-400 hover:text-white transition";
+                panelSongs.classList.remove('hidden');
+                panelBible.classList.add('hidden');
+            }
+        }
+
+        function setDeckViewMode(mode) {
+            currentDeckView = mode;
+            const singleBtn = document.getElementById('view-single-btn');
+            const medleyBtn = document.getElementById('view-medley-btn');
+            const singleNav = document.getElementById('single-slot-nav');
+            
+            const deckSingle = document.getElementById('deck-container-single');
+            const deckMedley = document.getElementById('deck-container-medley');
+            const deckCompare = document.getElementById('deck-container-compare');
+            
+            const deckTitle = document.getElementById('active-deck-title');
+            const deckSub = document.getElementById('active-deck-sub');
+
+            if (mode === 'single') {
+                singleBtn.className = "px-2.5 py-0.5 rounded-lg gradient-btn-purple text-white shadow-md transition";
+                medleyBtn.className = "px-2.5 py-0.5 rounded-lg text-zinc-400 hover:text-white transition";
+                
+                singleNav.classList.remove('hidden');
+                deckSingle.classList.remove('hidden');
+                deckMedley.classList.add('hidden');
+                deckCompare.classList.add('hidden');
+
+                switchSingleSlot(activeSingleSlot);
+            } else if (mode === 'medley') {
+                medleyBtn.className = "px-2.5 py-0.5 rounded-lg gradient-btn-purple text-white shadow-md transition";
+                singleBtn.className = "px-2.5 py-0.5 rounded-lg text-zinc-400 hover:text-white transition";
+
+                singleNav.classList.add('hidden');
+                deckMedley.classList.remove('hidden');
+                deckSingle.classList.add('hidden');
+                deckCompare.classList.add('hidden');
+
+                deckTitle.innerText = "WORSHIP MEDLEY DECK";
+                deckSub.innerText = "Multi-Slot Medley Mode Active • 3 Column Switcher";
+            } else if (mode === 'compare') {
+                deckCompare.classList.remove('hidden');
+                deckSingle.classList.add('hidden');
+                deckMedley.classList.add('hidden');
+                singleNav.classList.add('hidden');
+
+                deckTitle.innerText = "JOHN 3:16-18 (DUAL COMPARE)";
+                deckSub.innerText = "Side-by-Side KJV & NIV Scripture Comparison";
+            }
+        }
+
+        function setLinesPerSlide(lps) {
+            linesPerSlide = lps;
+            ['2l', '3l', '4l', 'full'].forEach(id => {
+                const el = document.getElementById('lps-' + id);
+                if (el) {
+                    if (id.toLowerCase() === lps.toLowerCase()) {
+                        el.className = "px-2 py-0.5 bg-violet-600 text-white rounded-lg font-bold shadow transition";
+                    } else {
+                        el.className = "px-2 py-0.5 hover:text-white rounded-lg text-zinc-400 transition";
+                    }
+                }
+            });
+
+            // Re-render decks instantly with re-chunked slides
+            renderMedleyDeck();
+            renderSingleDeck();
+        }
+
+        // Helper to dynamically chunk slides based on Lines Per Slide (2L, 3L, 4L, Full)
+        function getFormattedSlides(slides, lps) {
+            if (!lps || lps === 'Full' || lps === 'full') return slides;
+            let lineLimit = 3;
+            if (lps === '2L' || lps === '2l') lineLimit = 2;
+            if (lps === '3L' || lps === '3l') lineLimit = 3;
+            if (lps === '4L' || lps === '4l') lineLimit = 4;
+
+            const formatted = [];
+            slides.forEach(slide => {
+                const lines = slide.text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+                if (lines.length <= lineLimit) {
+                    formatted.push(slide);
+                } else {
+                    let partIndex = 1;
+                    const totalParts = Math.ceil(lines.length / lineLimit);
+                    for (let i = 0; i < lines.length; i += lineLimit) {
+                        const chunkLines = lines.slice(i, i + lineLimit);
+                        formatted.push({
+                            tag: `${slide.tag} (${partIndex}/${totalParts})`,
+                            text: chunkLines.join('\n')
+                        });
+                        partIndex++;
+                    }
+                }
+            });
+            return formatted;
+        }
+
+        function triggerStageAction(action) {
+            const mainTextEl = document.getElementById('stage-main-text');
+            const previewBox = document.getElementById('stage-preview-box');
+
+            if (action === 'clear') {
+                mainTextEl.innerHTML = '<span class="text-zinc-600 italic">[ STAGE BLACKOUT CLEAR ]</span>';
+            } else if (action === 'hold') {
+                alert('Live output screen locked in FREEZE state.');
+            } else if (action === 'transparent') {
+                previewBox.classList.toggle('bg-[#090812]');
+                previewBox.classList.toggle('bg-emerald-950/40');
+            }
+        }
+
+        function setStageDisplayMode(mode) {
+            currentDisplayMode = mode;
+            const btn169 = document.getElementById('mode-169-btn');
+            const btnL3 = document.getElementById('mode-l3-btn');
+            const textContainer = document.getElementById('stage-text-container');
+
+            if (mode === 'l3') {
+                btnL3.className = "px-2 py-0.5 gradient-btn-purple text-white rounded";
+                btn169.className = "px-2 py-0.5 text-zinc-400 hover:text-white rounded";
+                textContainer.className = "relative z-10 max-w-full px-2 transition-all duration-200 mt-auto bg-black/80 p-2 rounded-xl border border-violet-500/30 w-full";
+            } else {
+                btn169.className = "px-2 py-0.5 gradient-btn-purple text-white rounded";
+                btnL3.className = "px-2 py-0.5 text-zinc-400 hover:text-white rounded";
+                textContainer.className = "relative z-10 max-w-full px-2 transition-all duration-200 my-auto";
+            }
+        }
+
+        function adjustTextScale(val) {
+            document.getElementById('text-scale-val').innerText = val + '%';
+            const stageText = document.getElementById('stage-main-text');
+            stageText.style.fontSize = (val / 100 * 0.75) + 'rem';
+        }
+
+        function toggleCompareMode(enabled) {
+            if (enabled) {
+                setDeckViewMode('compare');
+            } else {
+                setDeckViewMode('medley');
+            }
+        }
+
+        function loadBiblePassage() {
+            const input = document.getElementById('bible-passage-input').value || 'John 3';
+            projectSlide(input, 'VERSE 16', 'For God so loved the world, that he gave his only begotten Son...', 'bible-custom');
+        }
+
+        function selectScriptureShortcut(ref) {
+            projectSlide(ref, 'KJV', 'For God so loved the world, that he gave his only begotten Son...', 'bible-shortcut');
+        }
+
+        function openModal(id) {
+            document.getElementById(id).classList.remove('hidden');
+        }
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function copyToClipboard(text) {
+            document.execCommand('copy');
+            alert('Copied URL to clipboard: ' + text);
+        }
+
+        function loadAgendaItem(title, type) {
+            if (type === 'song') {
+                if (SONG_DATABASE[title]) {
+                    assignSongToSlot(title, 'S1');
+                    setDeckViewMode('single');
+                }
+            } else {
+                setDeckViewMode('compare');
+            }
+        }
+    </script>
+</body>
+</html>

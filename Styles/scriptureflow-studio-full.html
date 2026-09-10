@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ScriptureFlow Studio Pro — dashboard concept</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#08080c;
+    --card:#131218;
+    --card-2:#1a1920;
+    --card-3:#201f28;
+    --border:rgba(255,255,255,0.07);
+    --border-strong:rgba(255,255,255,0.14);
+    --text:#f3f2f7;
+    --dim:#a3a1ae;
+    --mute:#696773;
+    --purple:#8a6dff;
+    --purple-dim:rgba(138,109,255,0.16);
+    --purple-text:#c3b6ff;
+    --green:#3ecf7e;
+    --green-dim:rgba(62,207,126,0.15);
+    --amber:#f2b93b;
+    --amber-dim:rgba(242,185,59,0.15);
+    --blue:#5fa8f5;
+    --blue-dim:rgba(95,168,245,0.15);
+    --red:#f2554b;
+    --red-dim:rgba(242,85,75,0.15);
+    --pink:#f178b6;
+    --teal:#2ecfc0;
+    --orange:#f2954b;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;margin:0;overflow:hidden;}
+  body{
+    background:
+      radial-gradient(circle at 96% 4%, rgba(138,109,255,0.14), transparent 38%),
+      radial-gradient(circle at 100% 100%, rgba(46,207,192,0.09), transparent 34%),
+      var(--bg);
+    font-family:'Inter', -apple-system, sans-serif;
+    color:var(--text);
+  }
+  .app{height:100vh;display:flex;flex-direction:column;padding:16px 18px;gap:12px;}
+  a{color:inherit;text-decoration:none;}
+  svg{display:block;}
+
+  /* ============ TOP BAR ============ */
+  .topbar{flex:0 0 auto;height:48px;display:flex;align-items:center;gap:14px;}
+  .brand{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+  .logo{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#8a6dff,#f178b6 55%,#5fa8f5);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;}
+  .brand-name{font-weight:600;font-size:13.5px;}
+  .pro-badge{font-size:9px;font-weight:700;letter-spacing:.05em;color:var(--dim);background:var(--card-2);border:1px solid var(--border);padding:2px 6px;border-radius:5px;}
+  .cmdk{display:flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--border);border-radius:9px;padding:7px 10px;font-size:11px;color:var(--mute);flex-shrink:0;}
+  .cmdk kbd{font-size:9.5px;font-weight:600;background:var(--card-2);border:1px solid var(--border-strong);border-radius:4px;padding:1px 5px;color:var(--dim);}
+
+  .tb-center{flex:1;display:flex;justify-content:center;min-width:0;}
+  .mic-cluster{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);border-radius:11px;padding:6px 8px;}
+  .mic-toggle{display:flex;align-items:center;gap:5px;background:var(--purple);color:#fff;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:600;flex-shrink:0;}
+  .vu{display:flex;align-items:flex-end;gap:2px;height:16px;padding:0 2px;}
+  .vu i{width:3px;border-radius:1px;background:var(--green);display:block;}
+  .vu i:nth-child(1){height:40%;} .vu i:nth-child(2){height:75%;} .vu i:nth-child(3){height:100%;background:var(--amber);} .vu i:nth-child(4){height:55%;}
+  .device-sel{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--dim);background:var(--card-2);border:1px solid var(--border);border-radius:8px;padding:6px 9px;white-space:nowrap;}
+  .autoproj{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--dim);font-weight:600;padding:0 4px;white-space:nowrap;}
+  .switch{width:28px;height:16px;border-radius:999px;background:var(--green);position:relative;flex-shrink:0;}
+  .switch i{position:absolute;top:2px;right:2px;width:12px;height:12px;border-radius:50%;background:#fff;display:block;}
+
+  .tb-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+  .op-pill{display:flex;align-items:center;gap:7px;background:var(--card);border:1px solid var(--border);border-radius:999px;padding:5px 6px 5px 6px;}
+  .op-pill .av{width:22px;height:22px;font-size:9px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;font-weight:700;color:#100f14;}
+  .op-pill .name{font-size:11px;font-weight:600;}
+  .op-pill .push{background:var(--purple-dim);color:var(--purple-text);font-size:10px;font-weight:700;border-radius:999px;padding:5px 9px;}
+  .icon-btn{width:32px;height:32px;border-radius:9px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--dim);flex-shrink:0;}
+
+  /* ============ GRID ============ */
+  .grid{flex:1;min-height:0;display:grid;grid-template-columns:236px 1fr 284px;gap:12px;}
+  .col{display:flex;flex-direction:column;gap:12px;min-height:0;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:13px;display:flex;flex-direction:column;min-height:0;}
+  .card-head{display:flex;align-items:center;justify-content:space-between;flex:0 0 auto;margin-bottom:9px;}
+  .card-title{font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px;}
+  .card-title svg{color:var(--purple-text);}
+  .count-badge{font-size:9.5px;font-weight:700;color:var(--dim);background:var(--card-2);border:1px solid var(--border-strong);border-radius:999px;padding:2px 7px;}
+  .list{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:6px;}
+  .list::-webkit-scrollbar{width:4px;}
+  .list::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:4px;}
+
+  /* Agenda */
+  .agenda-row{display:flex;align-items:center;gap:7px;background:var(--card-2);border:1px solid var(--border);border-radius:9px;padding:7px 8px;}
+  .drag{color:var(--mute);flex-shrink:0;}
+  .type-ico{width:20px;height:20px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .type-ico.scr{background:var(--blue-dim);color:var(--blue);}
+  .type-ico.song{background:var(--purple-dim);color:var(--purple-text);}
+  .type-ico.serm{background:var(--amber-dim);color:var(--amber);}
+  .agenda-row .t{flex:1;min-width:0;font-size:11px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .agenda-row .go{width:18px;height:18px;border-radius:5px;background:var(--card-3);color:var(--dim);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .resizer{flex:0 0 auto;display:flex;justify-content:center;gap:3px;padding-top:8px;}
+  .resizer i{width:3px;height:3px;border-radius:50%;background:var(--border-strong);display:block;}
+
+  /* Library */
+  .tabs2{display:flex;background:var(--card-2);border:1px solid var(--border);border-radius:9px;padding:2px;font-size:10.5px;}
+  .tabs2 span{padding:5px 11px;border-radius:7px;color:var(--mute);font-weight:600;}
+  .tabs2 span.active{background:var(--purple);color:#fff;}
+  .trans-sel{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--dim);background:var(--card-2);border:1px solid var(--border);border-radius:7px;padding:4px 8px;}
+  .searchbox{display:flex;align-items:center;gap:6px;background:var(--card-2);border:1px solid var(--border);border-radius:9px;padding:7px 9px;margin:8px 0;font-size:11px;color:var(--mute);flex:0 0 auto;}
+  .song-row{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:5px 2px;border-bottom:1px solid var(--border);}
+  .song-row:last-child{border-bottom:none;}
+  .song-row .info{min-width:0;flex:1;}
+  .song-row .n{font-size:11px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .song-row .a{font-size:9.5px;color:var(--mute);}
+  .slotbtns{display:flex;gap:3px;flex-shrink:0;}
+  .slotbtns span{width:17px;height:17px;border-radius:5px;background:var(--card-3);border:1px solid var(--border-strong);color:var(--mute);font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+
+  /* Center deck */
+  .deck-card{flex:1;}
+  .deck-toolbar{flex:0 0 auto;display:flex;align-items:center;gap:8px;margin-bottom:11px;flex-wrap:nowrap;}
+  .deck-title-wrap{margin-right:auto;min-width:0;}
+  .deck-title-wrap .t{font-size:13px;font-weight:600;}
+  .deck-title-wrap .s{font-size:10px;color:var(--mute);}
+  .tbtn{font-size:10px;font-weight:600;color:var(--dim);background:var(--card-2);border:1px solid var(--border);border-radius:8px;padding:6px 9px;display:flex;align-items:center;gap:5px;white-space:nowrap;flex-shrink:0;}
+  .seg{display:flex;background:var(--card-2);border:1px solid var(--border);border-radius:8px;padding:2px;flex-shrink:0;}
+  .seg span{font-size:10px;font-weight:700;color:var(--mute);padding:5px 8px;border-radius:6px;}
+  .seg span.active{background:var(--purple);color:#fff;}
+  .zoom{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--dim);background:var(--card-2);border:1px solid var(--border);border-radius:8px;padding:5px 8px;flex-shrink:0;}
+  .zoom b{color:var(--dim);}
+
+  .medley{flex:1;min-height:0;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+  .slot-col{background:var(--card-2);border:1px solid var(--border);border-radius:12px;padding:9px;display:flex;flex-direction:column;min-height:0;}
+  .slot-col-head{flex:0 0 auto;display:flex;align-items:center;gap:6px;margin-bottom:8px;}
+  .slot-badge{font-size:9px;font-weight:800;color:#fff;background:var(--purple);border-radius:5px;padding:2px 5px;flex-shrink:0;}
+  .slot-col-head .t{font-size:11px;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .slot-col-head .change{font-size:9px;color:var(--mute);font-weight:600;flex-shrink:0;}
+  .slides{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:6px;}
+  .slides::-webkit-scrollbar{width:3px;}
+  .slides::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:3px;}
+  .slide-card{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:8px;}
+  .slide-card.live{border-color:var(--green);background:var(--green-dim);}
+  .slide-card .tag{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
+  .slide-card .tag span{font-size:8.5px;font-weight:800;letter-spacing:.03em;color:var(--purple-text);}
+  .slide-card.live .tag span{color:var(--green);}
+  .live-badge{font-size:7.5px;font-weight:800;background:var(--green);color:#06210f;border-radius:4px;padding:1px 5px;}
+  .slide-card .ln{font-size:10px;line-height:1.45;color:var(--dim);}
+  .slide-card.live .ln{color:var(--text);}
+
+  /* Right col */
+  .prev-card{flex:0 0 auto;}
+  .live-cluster{display:flex;align-items:center;gap:5px;font-size:9.5px;font-weight:700;color:var(--green);}
+  .live-cluster i{width:6px;height:6px;border-radius:50%;background:var(--green);display:block;}
+  .mode-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex:0 0 auto;}
+  .prev-box{aspect-ratio:16/9;border-radius:11px;background:#000;border:1px solid var(--border);position:relative;margin-bottom:10px;flex:0 0 auto;overflow:hidden;}
+  .prev-box .res-tag{position:absolute;top:7px;right:8px;font-size:8px;color:#4b4a54;font-weight:700;}
+  .prev-box .lt{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(0deg,rgba(0,0,0,.85),transparent);padding:16px 12px 9px;}
+  .prev-box .lt .l1{font-size:11px;font-weight:600;color:#fff;}
+  .prev-box .lt .l2{font-size:8.5px;color:#8f8d99;}
+  .stage-actions{display:flex;gap:6px;flex:0 0 auto;}
+  .sbtn{flex:1;text-align:center;font-size:10px;font-weight:700;border-radius:9px;padding:8px 4px;}
+  .sbtn.clear{background:var(--red-dim);color:var(--red);}
+  .sbtn.hold{background:var(--amber-dim);color:var(--amber);}
+  .sbtn.trans{background:var(--card-2);color:var(--dim);border:1px solid var(--border-strong);}
+
+  .feed-card{flex:1;}
+  .transcript{flex:0 0 auto;display:flex;align-items:flex-start;gap:7px;background:var(--card-2);border:1px solid var(--border);border-radius:9px;padding:8px 9px;margin-bottom:9px;font-size:10px;color:var(--dim);font-style:italic;line-height:1.4;}
+  .transcript svg{flex-shrink:0;margin-top:1px;color:var(--purple-text);}
+  .ai-card{background:var(--card-2);border:1px solid var(--border);border-radius:10px;padding:8px 9px;}
+  .ai-card .ref-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;}
+  .ai-card .ref{font-size:10.5px;font-weight:700;color:var(--purple-text);}
+  .ai-card .ver{font-size:8.5px;color:var(--mute);font-weight:700;}
+  .ai-card .snip{font-size:10px;color:var(--dim);line-height:1.4;margin-bottom:7px;}
+  .ai-card .proj{display:inline-flex;align-items:center;gap:4px;background:var(--purple);color:#fff;font-size:9.5px;font-weight:700;border-radius:7px;padding:5px 9px;}
+
+  /* Empty Unit Guide Styles */
+  .bento-empty-unit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 16px 12px;
+    border-radius: 12px;
+    border: 1px dashed var(--border);
+    background: rgba(255, 255, 255, 0.015);
+    margin: 0;
+    box-sizing: border-box;
+    user-select: none;
+    gap: 3px;
+  }
+  .bento-empty-unit.compact { padding: 12px 8px; border-radius: 10px; margin: 0; }
+  .bento-empty-unit.hero { grid-column: 1 / -1; padding: 36px 20px; margin: auto; max-width: 380px; background: var(--card-2); border: 1px dashed var(--border-strong); border-radius: 16px; }
+  .bento-empty-unit .empty-icon { display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 6px; background: var(--card-3); color: var(--dim); margin-bottom: 4px; opacity: 0.85; }
+  .bento-empty-unit.hero .empty-icon { width: 34px; height: 34px; border-radius: 9px; margin-bottom: 7px; background: var(--card-3); color: var(--purple-text); }
+  .bento-empty-unit .empty-title { font-size: 11px; font-weight: 600; color: var(--text); letter-spacing: 0.01em; }
+  .bento-empty-unit.hero .empty-title { font-size: 12.5px; font-weight: 700; margin-bottom: 2px; }
+  .bento-empty-unit .empty-desc { font-size: 9.5px; color: var(--mute); line-height: 1.4; max-width: 200px; }
+  .bento-empty-unit.hero .empty-desc { font-size: 10.5px; max-width: 280px; line-height: 1.45; }
+  .bento-prev-idle { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 3px; padding: 12px; pointer-events: none; background: transparent; user-select: none; z-index: 1; }
+  .bento-prev-idle .empty-icon { display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 6px; background: rgba(255, 255, 255, 0.05); color: var(--dim); opacity: 0.6; margin-bottom: 2px; }
+  .bento-prev-idle .empty-title { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--dim); opacity: 0.7; }
+  .bento-prev-idle .empty-desc { font-size: 8.5px; color: var(--mute); opacity: 0.7; max-width: 160px; line-height: 1.3; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">S</div>
+      <div class="brand-name">ScriptureFlow</div>
+      <div class="pro-badge">STUDIO PRO</div>
+    </div>
+    <div class="cmdk">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      Jump to verse or song <kbd>&#8984;K</kbd>
+    </div>
+
+    <div class="tb-center">
+      <div class="mic-cluster">
+        <div class="mic-toggle">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
+          AI mic on
+        </div>
+        <div class="vu"><i></i><i></i><i></i><i></i></div>
+        <div class="device-sel">
+          Default — USB interface
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="autoproj">Auto-project<div class="switch"><i></i></div></div>
+      </div>
+    </div>
+
+    <div class="tb-right">
+      <div class="op-pill">
+        <div class="av">YN</div>
+        <div class="name">Yaya · remote</div>
+        <div class="push">Push</div>
+      </div>
+      <div class="icon-btn" title="Library manager &amp; song editor">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      </div>
+      <div class="icon-btn" title="Broadcast &amp; remote hub">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4.9 19.1a10 10 0 0 1 0-14.2"/><path d="M19.1 4.9a10 10 0 0 1 0 14.2"/><path d="M7.8 16.2a5 5 0 0 1 0-8.4"/><path d="M16.2 7.8a5 5 0 0 1 0 8.4"/><circle cx="12" cy="12" r="1.5"/></svg>
+      </div>
+      <div class="icon-btn" title="Desktop projector">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="13" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      </div>
+      <div class="icon-btn" title="Studio settings">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="grid">
+
+    <!-- LEFT: Agenda + Library -->
+    <div class="col">
+      <div class="card" style="flex:1;">
+        <div class="card-head">
+          <div class="card-title">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            Service agenda
+          </div>
+          <div class="count-badge">5</div>
+        </div>
+        <div class="list">
+          <div class="agenda-row">
+            <svg class="drag" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><circle cx="8" cy="6" r="1.6"/><circle cx="16" cy="6" r="1.6"/><circle cx="8" cy="12" r="1.6"/><circle cx="16" cy="12" r="1.6"/><circle cx="8" cy="18" r="1.6"/><circle cx="16" cy="18" r="1.6"/></svg>
+            <div class="type-ico scr"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+            <div class="t">Call to worship — John 4:23</div>
+            <div class="go"><svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+          </div>
+          <div class="agenda-row">
+            <svg class="drag" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><circle cx="8" cy="6" r="1.6"/><circle cx="16" cy="6" r="1.6"/><circle cx="8" cy="12" r="1.6"/><circle cx="16" cy="12" r="1.6"/><circle cx="8" cy="18" r="1.6"/><circle cx="16" cy="18" r="1.6"/></svg>
+            <div class="type-ico song"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
+            <div class="t">Amazing Grace</div>
+            <div class="go"><svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+          </div>
+          <div class="agenda-row">
+            <svg class="drag" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><circle cx="8" cy="6" r="1.6"/><circle cx="16" cy="6" r="1.6"/><circle cx="8" cy="12" r="1.6"/><circle cx="16" cy="12" r="1.6"/><circle cx="8" cy="18" r="1.6"/><circle cx="16" cy="18" r="1.6"/></svg>
+            <div class="type-ico serm"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg></div>
+            <div class="t">Sermon — Faith over fear</div>
+            <div class="go"><svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+          </div>
+          <div class="agenda-row">
+            <svg class="drag" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><circle cx="8" cy="6" r="1.6"/><circle cx="16" cy="6" r="1.6"/><circle cx="8" cy="12" r="1.6"/><circle cx="16" cy="12" r="1.6"/><circle cx="8" cy="18" r="1.6"/><circle cx="16" cy="18" r="1.6"/></svg>
+            <div class="type-ico song"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
+            <div class="t">How Great Thou Art</div>
+            <div class="go"><svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+          </div>
+          <div class="agenda-row">
+            <svg class="drag" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><circle cx="8" cy="6" r="1.6"/><circle cx="16" cy="6" r="1.6"/><circle cx="8" cy="12" r="1.6"/><circle cx="16" cy="12" r="1.6"/><circle cx="8" cy="18" r="1.6"/><circle cx="16" cy="18" r="1.6"/></svg>
+            <div class="type-ico scr"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+            <div class="t">Benediction — Numbers 6:24</div>
+            <div class="go"><svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+          </div>
+        </div>
+        <div class="resizer"><i></i><i></i><i></i></div>
+      </div>
+
+      <div class="card" style="flex:1.35;">
+        <div class="card-head">
+          <div class="tabs2"><span>Bible</span><span class="active">Songs</span></div>
+          <div class="trans-sel">NIV<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></div>
+        </div>
+        <div class="searchbox">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          Search title, artist, lyric line
+        </div>
+        <div class="list">
+          <div class="song-row"><div class="info"><div class="n">Amazing Grace</div><div class="a">John Newton</div></div><div class="slotbtns"><span>1</span><span>2</span><span>3</span></div></div>
+          <div class="song-row"><div class="info"><div class="n">How Great Thou Art</div><div class="a">Boberg · Hine</div></div><div class="slotbtns"><span>1</span><span>2</span><span>3</span></div></div>
+          <div class="song-row"><div class="info"><div class="n">10,000 Reasons</div><div class="a">Redman · Myrin</div></div><div class="slotbtns"><span>1</span><span>2</span><span>3</span></div></div>
+          <div class="song-row"><div class="info"><div class="n">Way Maker</div><div class="a">Sinach</div></div><div class="slotbtns"><span>1</span><span>2</span><span>3</span></div></div>
+          <div class="song-row"><div class="info"><div class="n">Goodness of God</div><div class="a">Bethel Music</div></div><div class="slotbtns"><span>1</span><span>2</span><span>3</span></div></div>
+          <div class="song-row"><div class="info"><div class="n">Great Is Thy Faithfulness</div><div class="a">T. Chisholm</div></div><div class="slotbtns"><span>1</span><span>2</span><span>3</span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CENTER: Deck workspace -->
+    <div class="col">
+      <div class="card deck-card">
+        <div class="deck-toolbar">
+          <div class="deck-title-wrap">
+            <div class="t">Worship medley</div>
+            <div class="s">3 songs loaded · lyrics view</div>
+          </div>
+          <div class="tbtn">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="18" rx="1"/></svg>
+            Compare
+          </div>
+          <div class="tbtn">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg>
+            Edit song
+          </div>
+          <div class="seg"><span>2L</span><span>3L</span><span class="active">4L</span><span>Full</span></div>
+          <div class="zoom"><b>−</b>100%<b>+</b></div>
+          <div class="seg"><span>Single</span><span class="active">Medley</span></div>
+        </div>
+
+        <div class="medley">
+          <div class="slot-col">
+            <div class="slot-col-head"><div class="slot-badge">S1</div><div class="t">Amazing Grace</div><div class="change">Change</div></div>
+            <div class="slides">
+              <div class="slide-card live"><div class="tag"><span>VERSE 1</span><span class="live-badge">LIVE</span></div><div class="ln">Amazing grace, how sweet the sound<br>That saved a wretch like me</div></div>
+              <div class="slide-card"><div class="tag"><span>VERSE 2</span></div><div class="ln">'Twas grace that taught my heart to fear<br>And grace my fears relieved</div></div>
+              <div class="slide-card"><div class="tag"><span>VERSE 3</span></div><div class="ln">Through many dangers, toils and snares<br>I have already come</div></div>
+              <div class="slide-card"><div class="tag"><span>VERSE 4</span></div><div class="ln">When we've been there ten thousand years<br>Bright shining as the sun</div></div>
+            </div>
+          </div>
+          <div class="slot-col">
+            <div class="slot-col-head"><div class="slot-badge">S2</div><div class="t">How Great Thou Art</div><div class="change">Change</div></div>
+            <div class="slides">
+              <div class="slide-card"><div class="tag"><span>VERSE 1</span></div><div class="ln">O Lord my God, when I in awesome wonder<br>Consider all the worlds Thy hands have made</div></div>
+              <div class="slide-card"><div class="tag"><span>CHORUS</span></div><div class="ln">Then sings my soul, my Savior God, to Thee<br>How great Thou art, how great Thou art</div></div>
+              <div class="slide-card"><div class="tag"><span>VERSE 2</span></div><div class="ln">When through the woods and forest glades I wander<br>And hear the birds sing sweetly in the trees</div></div>
+            </div>
+          </div>
+          <div class="slot-col">
+            <div class="slot-col-head"><div class="slot-badge">S3</div><div class="t">10,000 Reasons</div><div class="change">Change</div></div>
+            <div class="slides">
+              <div class="slide-card"><div class="tag"><span>CHORUS</span></div><div class="ln">Bless the Lord, O my soul<br>O my soul, worship His holy name</div></div>
+              <div class="slide-card"><div class="tag"><span>VERSE 1</span></div><div class="ln">The sun comes up, it's a new day dawning<br>It's time to sing Your song again</div></div>
+              <div class="slide-card"><div class="tag"><span>VERSE 2</span></div><div class="ln">You're rich in love, and You're slow to anger<br>Your name is great, and Your heart is kind</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Preview + AI feed -->
+    <div class="col">
+      <div class="card prev-card">
+        <div class="mode-row">
+          <div class="card-title">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            Stage preview
+          </div>
+          <div class="live-cluster"><i></i>LIVE</div>
+        </div>
+        <div class="row-modes" style="display:flex;gap:6px;margin-bottom:9px;">
+          <div class="seg" style="flex:1;"><span class="active" style="flex:1;text-align:center;">Full display</span><span style="flex:1;text-align:center;">Lower-third</span></div>
+          <div class="zoom">−1.0x+</div>
+        </div>
+        <div class="prev-box">
+          <span class="res-tag">1080p</span>
+          <div class="lt"><div class="l1">Amazing grace, how sweet the sound</div><div class="l2">That saved a wretch like me</div></div>
+        </div>
+        <div class="stage-actions">
+          <div class="sbtn clear">Clear</div>
+          <div class="sbtn hold">Hold</div>
+          <div class="sbtn trans">Transparent</div>
+        </div>
+      </div>
+
+      <div class="card feed-card">
+        <div class="card-head">
+          <div class="card-title">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+            AI Detection Feed
+          </div>
+          <div class="tabs2"><span class="active">Scriptures</span><span>Songs</span></div>
+        </div>
+        <div class="transcript">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>
+          "...for God so loved the world that He gave His only begotten Son..."
+        </div>
+        <div class="list">
+          <div class="ai-card">
+            <div class="ref-row"><span class="ref">John 3:16</span><span class="ver">NIV</span></div>
+            <div class="snip">For God so loved the world that He gave His one and only Son...</div>
+            <div class="proj">Project<svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+          </div>
+          <div class="ai-card">
+            <div class="ref-row"><span class="ref">Romans 8:28</span><span class="ver">KJV</span></div>
+            <div class="snip">And we know that all things work together for good...</div>
+            <div class="proj">Project<svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+          </div>
+          <div class="ai-card">
+            <div class="ref-row"><span class="ref">Psalm 23:1</span><span class="ver">AMP</span></div>
+            <div class="snip">The Lord is my Shepherd, I shall not want...</div>
+            <div class="proj">Project<svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

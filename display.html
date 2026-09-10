@@ -1,0 +1,1496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ScriptureFlow Live - Display Output</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=David+Libre:wght@500;700&family=GFS+Didot&family=Noto+Serif+Hebrew:wght@600;800&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root, html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: transparent !important;
+      background-color: transparent !important;
+      color: #FFFFFF;
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    /* Background Layer for Sanctuary HDMI Mode */
+    #bg-layer {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      background-color: #0A0E18;
+      background-image: none;
+      transition: opacity 0.4s ease;
+      z-index: 1;
+      display: none;
+      pointer-events: none;
+    }
+
+    /* Standby Idle State Placeholder (Clean Minimalist Live Preview Text) */
+    .standby-container {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 5;
+      text-align: center;
+      padding: 60px;
+      transition: opacity 0.2s ease;
+      opacity: 1;
+      pointer-events: none;
+      background: transparent !important;
+    }
+
+    .standby-container.hidden {
+      opacity: 0 !important;
+      display: none !important;
+    }
+
+    .standby-title {
+      font-size: 76px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: rgba(255, 255, 255, 0.65);
+      text-shadow: 0 6px 24px rgba(0, 0, 0, 0.8);
+      max-width: 1400px;
+    }
+
+    :root {
+      --sf-trans-duration: 300ms;
+      --sf-trans-ease: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Display Layout Root Container (Native 1920x1080 Canvas Scale) */
+    #display-container {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      transition: opacity 0.15s ease;
+      opacity: 0;
+      background: transparent !important;
+      pointer-events: none;
+    }
+
+    #display-container.visible {
+      opacity: 1;
+    }
+
+    /* Slide Slots Engine for Transitions */
+    .slide-slot {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      padding: 40px;
+      opacity: 0;
+      visibility: hidden;
+      will-change: transform, opacity;
+      transform-origin: center center;
+      pointer-events: none;
+      background: transparent !important;
+    }
+
+    #display-container.mode-full .slide-slot {
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 40px;
+    }
+
+    #display-container.mode-lt .slide-slot {
+      justify-content: flex-end;
+      align-items: center;
+      padding-bottom: 60px;
+      padding-left: 40px;
+      padding-right: 40px;
+    }
+
+    .slide-slot.active {
+      opacity: 1;
+      visibility: visible;
+      transform: none;
+    }
+
+    .full-card-wrapper {
+      background: transparent !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      border: none !important;
+      border-radius: 0;
+      padding: 40px;
+      width: 96%;
+      max-width: 1760px;
+      min-height: 520px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      box-shadow: none !important;
+    }
+
+    .full-card-wrapper .reference-line {
+      font-size: 42px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #EAB308;
+      margin-bottom: 24px;
+      text-shadow: 0 4px 14px rgba(0, 0, 0, 0.95), 0 2px 4px rgba(0, 0, 0, 0.9);
+    }
+
+    .full-card-wrapper .content-line {
+      font-size: 64px;
+      font-weight: 800;
+      line-height: 1.35;
+      color: #FFFFFF;
+      text-shadow: 0 4px 16px rgba(0, 0, 0, 0.95), 0 2px 6px rgba(0, 0, 0, 0.9);
+      word-break: break-word;
+      max-width: 1500px;
+    }
+
+    /* Dual Version Compare Grid */
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 36px;
+      width: 100%;
+      margin-top: 10px;
+      text-align: left;
+    }
+
+    .compare-box {
+      background: transparent;
+      border: none;
+      border-radius: 0;
+      padding: 20px;
+    }
+
+    .compare-tag {
+      font-size: 24px;
+      font-weight: 900;
+      color: #EAB308;
+      margin-bottom: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .compare-text {
+      font-size: 42px;
+      font-weight: 700;
+      line-height: 1.35;
+      color: #FFFFFF;
+      text-shadow: 0 4px 14px rgba(0, 0, 0, 0.95);
+    }
+
+    /* Lower Third Mode (Livestream / OBS / vMix) */
+    .lt-card-wrapper {
+      background: rgba(15, 23, 42, 0.94);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-left: 6px solid #3B82F6;
+      border-radius: 16px;
+      padding: 24px 40px;
+      width: 94%;
+      max-width: 1600px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Transparent / Remove Background Overlay Mode */
+    .transparent-bg {
+      background: transparent !important;
+      background-color: transparent !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      border: none !important;
+      box-shadow: none !important;
+    }
+
+    .transparent-bg .reference-line {
+      text-shadow: 0 4px 14px rgba(0, 0, 0, 0.95), 0 2px 4px rgba(0, 0, 0, 0.9) !important;
+    }
+
+    .transparent-bg .content-line {
+      text-shadow: 0 4px 16px rgba(0, 0, 0, 0.95), 0 2px 6px rgba(0, 0, 0, 0.9) !important;
+    }
+
+    .lt-card-wrapper .reference-line {
+      font-size: 28px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #F59E0B;
+      margin-bottom: 8px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    }
+
+    .lt-card-wrapper .content-line {
+      font-size: 40px;
+      font-weight: 800;
+      line-height: 1.3;
+      color: #FFFFFF;
+      text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
+      word-break: break-word;
+    }
+
+    /* Blackout / Hide Overlay */
+    body.blackout {
+      background: #000000 !important;
+      background-color: #000000 !important;
+    }
+    body.blackout #bg-layer, body.blackout #display-container {
+      display: none !important;
+    }
+
+    /* =====================================================
+       TRANSITION ANIMATION SUITE (GPU Accelerated)
+       ===================================================== */
+
+    /* 1. Cut / Instant */
+    .slide-slot.trans-in-cut {
+      opacity: 1 !important;
+      visibility: visible !important;
+      transform: none !important;
+      animation: none !important;
+    }
+    .slide-slot.trans-out-cut {
+      opacity: 0 !important;
+      visibility: hidden !important;
+      transform: none !important;
+      animation: none !important;
+    }
+
+    /* 2. Crossfade */
+    .slide-slot.trans-in-fade {
+      visibility: visible;
+      animation: sfFadeIn var(--sf-trans-duration) var(--sf-trans-ease) forwards;
+    }
+    .slide-slot.trans-out-fade {
+      visibility: visible;
+      animation: sfFadeOut var(--sf-trans-duration) var(--sf-trans-ease) forwards;
+    }
+    @keyframes sfFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes sfFadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+
+    /* 3. Zoom In (Zoom Through / Push Forward) */
+    .slide-slot.trans-in-zoom-in,
+    .slide-slot.trans-in-zoom {
+      visibility: visible;
+      animation: sfZoomInEntry var(--sf-trans-duration) var(--sf-trans-ease) forwards;
+    }
+    .slide-slot.trans-out-zoom-in,
+    .slide-slot.trans-out-zoom {
+      visibility: visible;
+      animation: sfZoomInExit var(--sf-trans-duration) var(--sf-trans-ease) forwards;
+    }
+    @keyframes sfZoomInEntry {
+      from { opacity: 0; transform: scale3d(0.85, 0.85, 1); }
+      to { opacity: 1; transform: scale3d(1, 1, 1); }
+    }
+    @keyframes sfZoomInExit {
+      from { opacity: 1; transform: scale3d(1, 1, 1); }
+      to { opacity: 0; transform: scale3d(1.15, 1.15, 1); }
+    }
+
+    /* 4. Zoom Out */
+    .slide-slot.trans-in-zoom-out {
+      visibility: visible;
+      animation: sfZoomOutEntry var(--sf-trans-duration) var(--sf-trans-ease) forwards;
+    }
+    .slide-slot.trans-out-zoom-out {
+      visibility: visible;
+      animation: sfZoomOutExit var(--sf-trans-duration) var(--sf-trans-ease) forwards;
+    }
+    @keyframes sfZoomOutEntry {
+      from { opacity: 0; transform: scale3d(1.15, 1.15, 1); }
+      to { opacity: 1; transform: scale3d(1, 1, 1); }
+    }
+    @keyframes sfZoomOutExit {
+      from { opacity: 1; transform: scale3d(1, 1, 1); }
+      to { opacity: 0; transform: scale3d(0.85, 0.85, 1); }
+    }
+
+    /* 5. Slide Left (Push Right-to-Left) */
+    .slide-slot.trans-in-slide-left,
+    .slide-slot.trans-in-slide_left {
+      visibility: visible;
+      animation: sfSlideLeftIn var(--sf-trans-duration) var(--sf-trans-ease) forwards;
+    }
+    .slide-slot.trans-out-slide-left,
+    .slide-slot.trans-out-slide_left {
+      visibility: visible;
+      animation: sfSlideLeftOut var(--sf-trans-duration) var(--sf-trans-ease) forwards;
+    }
+    @keyframes sfSlideLeftIn {
+      from { opacity: 0; transform: translate3d(120px, 0, 0); }
+      to { opacity: 1; transform: translate3d(0, 0, 0); }
+    }
+    @keyframes sfSlideLeftOut {
+      from { opacity: 1; transform: translate3d(0, 0, 0); }
+      to { opacity: 0; transform: translate3d(-120px, 0, 0); }
+    }
+
+    /* 6. Slide Right (Push Left-to-Right) */
+    .slide-slot.trans-in-slide-right,
+    .slide-slot.trans-in-slide_right {
+      visibility: visible;
+      animation: sfSlideRightIn var(--sf-trans-duration) var(--sf-trans-ease) forwards;
+    }
+    .slide-slot.trans-out-slide-right,
+    .slide-slot.trans-out-slide_right {
+      visibility: visible;
+      animation: sfSlideRightOut var(--sf-trans-duration) var(--sf-trans-ease) forwards;
+    }
+    @keyframes sfSlideRightIn {
+      from { opacity: 0; transform: translate3d(-120px, 0, 0); }
+      to { opacity: 1; transform: translate3d(0, 0, 0); }
+    }
+    @keyframes sfSlideRightOut {
+      from { opacity: 1; transform: translate3d(0, 0, 0); }
+      to { opacity: 0; transform: translate3d(120px, 0, 0); }
+    }
+
+    /* 7. Slide Up (Push Bottom-to-Top) */
+    .slide-slot.trans-in-slide-up,
+    .slide-slot.trans-in-slide_up {
+      visibility: visible;
+      animation: sfSlideUpIn var(--sf-trans-duration) var(--sf-trans-ease) forwards;
+    }
+    .slide-slot.trans-out-slide-up,
+    .slide-slot.trans-out-slide_up {
+      visibility: visible;
+      animation: sfSlideUpOut var(--sf-trans-duration) var(--sf-trans-ease) forwards;
+    }
+    @keyframes sfSlideUpIn {
+      from { opacity: 0; transform: translate3d(0, 80px, 0); }
+      to { opacity: 1; transform: translate3d(0, 0, 0); }
+    }
+    @keyframes sfSlideUpOut {
+      from { opacity: 1; transform: translate3d(0, 0, 0); }
+      to { opacity: 0; transform: translate3d(0, -80px, 0); }
+    }
+
+    /* 8. Slide Down (Push Top-to-Bottom) */
+    .slide-slot.trans-in-slide-down,
+    .slide-slot.trans-in-slide_down {
+      visibility: visible;
+      animation: sfSlideDownIn var(--sf-trans-duration) var(--sf-trans-ease) forwards;
+    }
+    .slide-slot.trans-out-slide-down,
+    .slide-slot.trans-out-slide_down {
+      visibility: visible;
+      animation: sfSlideDownOut var(--sf-trans-duration) var(--sf-trans-ease) forwards;
+    }
+    @keyframes sfSlideDownIn {
+      from { opacity: 0; transform: translate3d(0, -80px, 0); }
+      to { opacity: 1; transform: translate3d(0, 0, 0); }
+    }
+    @keyframes sfSlideDownOut {
+      from { opacity: 1; transform: translate3d(0, 0, 0); }
+      to { opacity: 0; transform: translate3d(0, 80px, 0); }
+    }
+
+    /* 9. Concordance Directional Slide Animations */
+    .slide-slot.trans-in-lex-right {
+      visibility: visible;
+      animation: sfLexSlideRightIn var(--sf-trans-duration, 300ms) cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .slide-slot.trans-out-lex-right {
+      visibility: visible;
+      animation: sfLexSlideRightOut var(--sf-trans-duration, 260ms) cubic-bezier(0.7, 0, 0.84, 0) forwards;
+    }
+    @keyframes sfLexSlideRightIn {
+      from { opacity: 0; transform: translate3d(120%, 0, 0); }
+      to { opacity: 1; transform: translate3d(0, 0, 0); }
+    }
+    @keyframes sfLexSlideRightOut {
+      from { opacity: 1; transform: translate3d(0, 0, 0); }
+      to { opacity: 0; transform: translate3d(120%, 0, 0); }
+    }
+
+    .slide-slot.trans-in-lex-left {
+      visibility: visible;
+      animation: sfLexSlideLeftIn var(--sf-trans-duration, 300ms) cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .slide-slot.trans-out-lex-left {
+      visibility: visible;
+      animation: sfLexSlideLeftOut var(--sf-trans-duration, 260ms) cubic-bezier(0.7, 0, 0.84, 0) forwards;
+    }
+    @keyframes sfLexSlideLeftIn {
+      from { opacity: 0; transform: translate3d(-120%, 0, 0); }
+      to { opacity: 1; transform: translate3d(0, 0, 0); }
+    }
+    @keyframes sfLexSlideLeftOut {
+      from { opacity: 1; transform: translate3d(0, 0, 0); }
+      to { opacity: 0; transform: translate3d(-120%, 0, 0); }
+    }
+
+    .slide-slot.trans-in-lex-up {
+      visibility: visible;
+      animation: sfLexSlideUpIn var(--sf-trans-duration, 300ms) cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .slide-slot.trans-out-lex-down {
+      visibility: visible;
+      animation: sfLexSlideDownOut var(--sf-trans-duration, 260ms) cubic-bezier(0.7, 0, 0.84, 0) forwards;
+    }
+    @keyframes sfLexSlideUpIn {
+      from { opacity: 0; transform: translate3d(0, 100px, 0); }
+      to { opacity: 1; transform: translate3d(0, 0, 0); }
+    }
+    @keyframes sfLexSlideDownOut {
+      from { opacity: 1; transform: translate3d(0, 0, 0); }
+      to { opacity: 0; transform: translate3d(0, 100px, 0); }
+    }
+
+    /* ─── Lexicon / Word Study Presentation Slide Styles ─── */
+    
+    /* STYLE 1: Focus Hero Flashcard */
+    .lexicon-focus-card {
+      width: 100%;
+      max-width: 1320px;
+      min-height: 500px;
+      background: #FFFFFF;
+      border-radius: 28px;
+      padding: clamp(32px, 4.5vh, 52px) clamp(28px, 4vw, 56px);
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.4), 0 4px 16px rgba(0, 0, 0, 0.15);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: clamp(10px, 1.8vh, 18px);
+      color: #0F172A;
+      margin: 0 auto;
+      box-sizing: border-box;
+    }
+
+    .lexicon-focus-card,
+    .lexicon-focus-card * {
+      text-shadow: none !important;
+    }
+
+    .lexicon-meta-strip {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 6px 20px;
+      background: rgba(124, 58, 237, 0.08);
+      border: 1px solid rgba(124, 58, 237, 0.22);
+      border-radius: 9999px;
+      font-size: 20px;
+      font-weight: 700;
+      color: #6B21A8;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .lexicon-strong-pill {
+      background: #7C3AED;
+      color: #FFFFFF;
+      padding: 3px 14px;
+      border-radius: 6px;
+      font-weight: 800;
+      font-size: 18px;
+      letter-spacing: 0.04em;
+    }
+
+    .lexicon-lang-tag {
+      font-weight: 600;
+      color: #475569;
+    }
+
+    .lexicon-pos-tag {
+      color: #7C3AED;
+      font-size: 18px;
+      font-weight: 600;
+      text-transform: none;
+    }
+
+    /* Translation Hero: Major Emphasis, Bold, Biggest Element */
+    .lexicon-translation-hero {
+      font-size: clamp(48px, 6vw, 92px);
+      font-weight: 900;
+      color: #0F172A;
+      line-height: 1.08;
+      letter-spacing: -0.02em;
+      word-break: break-word;
+      text-align: center;
+      margin: 4px 0 6px;
+    }
+
+    .lexicon-details-strip {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      font-size: clamp(22px, 2.4vw, 34px);
+      color: #334155;
+      font-weight: 500;
+    }
+
+    .lexicon-orig-label {
+      color: #64748B;
+      font-weight: 600;
+    }
+
+    .lexicon-details-strip .orig-val {
+      font-weight: 800;
+      color: #0F172A;
+    }
+
+    .lexicon-details-strip .orig-val.hebrew {
+      font-family: 'David Libre', 'Noto Serif Hebrew', serif;
+      direction: rtl;
+      display: inline-block;
+    }
+
+    .lexicon-details-strip .orig-val.greek {
+      font-family: 'GFS Didot', serif;
+    }
+
+    .lexicon-translit-val {
+      font-style: italic;
+      font-weight: 700;
+      color: #6B21A8;
+    }
+
+    .lexicon-trans-val {
+      font-weight: 700;
+      color: #6B21A8;
+    }
+
+    .lexicon-pron-val {
+      color: #2563EB;
+      font-weight: 600;
+    }
+
+    .lexicon-dot-sep {
+      color: #CBD5E1;
+    }
+
+    .lexicon-definition-sub {
+      font-size: clamp(20px, 2vw, 28px);
+      color: #475569;
+      font-weight: 500;
+      max-width: 1200px;
+      line-height: 1.35;
+      background: #F8FAFC;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      padding: 10px 24px;
+      border-radius: 12px;
+      margin-top: 4px;
+    }
+
+    /* STYLE 2: Classic Detailed Study Card */
+    .lexicon-slide-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      max-width: 1560px;
+      margin: 0 auto;
+      text-align: center;
+      gap: 16px;
+      background: #FFFFFF;
+      border-radius: 24px;
+      padding: clamp(28px, 4vh, 48px) clamp(24px, 3.5vw, 48px);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      box-shadow: 0 20px 56px rgba(0, 0, 0, 0.35);
+      color: #0F172A;
+      box-sizing: border-box;
+    }
+
+    .lexicon-slide-card,
+    .lexicon-slide-card * {
+      text-shadow: none !important;
+    }
+
+    .lexicon-lemma-hero {
+      font-size: 72px;
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: 0.01em;
+      color: #1E293B;
+      margin: 2px 0;
+    }
+
+    .lexicon-lemma-hero.hebrew {
+      font-family: 'David Libre', 'Noto Serif Hebrew', 'Ezra SIL', 'Times New Roman', serif;
+      direction: rtl;
+    }
+
+    .lexicon-lemma-hero.greek {
+      font-family: 'GFS Didot', 'Times New Roman', 'Outfit', serif;
+    }
+
+    .lexicon-phonetics-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      font-size: 32px;
+      font-weight: 600;
+      color: #2563EB;
+    }
+
+    .lexicon-translit {
+      font-style: italic;
+      color: #0F172A;
+    }
+
+    .lexicon-pronunciation {
+      color: #2563EB;
+    }
+
+    .lexicon-definition-box {
+      font-size: 28px;
+      font-weight: 500;
+      line-height: 1.35;
+      color: #334155;
+      max-width: 1400px;
+      background: #F8FAFC;
+      padding: 14px 32px;
+      border-radius: 14px;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .lexicon-origin-line {
+      font-size: 22px;
+      color: #64748B;
+      font-weight: 500;
+      margin-top: 4px;
+    }
+
+    /* ─── Adaptive Card Background for Concordance (Livestream / OBS / Broadcast) ─── */
+    .card-box.lexicon-lt-wrapper,
+    .card-box.lexicon-lt-wrapper.transparent-bg,
+    .slide-slot .card-box.lexicon-lt-wrapper,
+    .slide-slot .card-box.lexicon-lt-wrapper.transparent-bg,
+    .mode-lt .lexicon-lt-wrapper {
+      background: #FFFFFF !important;
+      background-color: #FFFFFF !important;
+      border: 1px solid rgba(0, 0, 0, 0.12) !important;
+      border-left: 8px solid #7C3AED !important;
+      border-radius: 18px !important;
+      padding: 22px 34px !important;
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.45), 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+      color: #0F172A !important;
+      width: auto !important;
+      box-sizing: border-box !important;
+      pointer-events: none;
+      display: flex !important;
+      flex-direction: column !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      text-shadow: none !important;
+    }
+
+    .lexicon-lt-wrapper.pos-right {
+      max-width: clamp(420px, 42vw, 680px) !important;
+      margin-left: auto !important;
+      margin-right: 0 !important;
+      align-self: flex-end !important;
+    }
+
+    .lexicon-lt-wrapper.pos-left {
+      max-width: clamp(420px, 42vw, 680px) !important;
+      margin-right: auto !important;
+      margin-left: 0 !important;
+      align-self: flex-start !important;
+    }
+
+    .lexicon-lt-wrapper.pos-center {
+      max-width: clamp(520px, 55vw, 840px) !important;
+      margin-left: auto !important;
+      margin-right: auto !important;
+      align-self: center !important;
+    }
+
+    /* Inner card styling when enclosed in the outer adaptive lower-third card */
+    .lexicon-lt-wrapper .lexicon-focus-card,
+    .lexicon-lt-wrapper .lexicon-slide-card,
+    .mode-lt .lexicon-lt-wrapper .lexicon-focus-card,
+    .mode-lt .lexicon-lt-wrapper .lexicon-slide-card {
+      align-items: flex-start;
+      text-align: left;
+      width: 100%;
+      max-width: 100%;
+      min-height: auto;
+      padding: 0;
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      gap: 5px;
+      color: inherit;
+    }
+
+    /* Solid adaptive card surface when displayed in full-card-wrapper (Sanctuary / Full Canvas) */
+    .full-card-wrapper .lexicon-focus-card,
+    .full-card-wrapper .lexicon-slide-card,
+    .mode-lt .full-card-wrapper .lexicon-focus-card,
+    .mode-lt .full-card-wrapper .lexicon-slide-card {
+      background: #FFFFFF !important;
+      background-color: #FFFFFF !important;
+      border: 1px solid rgba(0, 0, 0, 0.1) !important;
+      border-radius: 28px !important;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45), 0 4px 16px rgba(0, 0, 0, 0.15) !important;
+      color: #0F172A !important;
+    }
+
+    /* Optional Dark Adaptive Card Theme */
+    .card-box.lexicon-lt-wrapper.theme-dark,
+    .card-box.lexicon-lt-wrapper[data-card-theme="dark"],
+    .full-card-wrapper .lexicon-focus-card.theme-dark,
+    .full-card-wrapper .lexicon-focus-card[data-card-theme="dark"] {
+      background: rgba(15, 23, 42, 0.96) !important;
+      background-color: rgba(15, 23, 42, 0.96) !important;
+      border: 1px solid rgba(255, 255, 255, 0.16) !important;
+      border-left: 8px solid #A855F7 !important;
+      color: #F8FAFC !important;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75), 0 2px 10px rgba(0, 0, 0, 0.3) !important;
+    }
+    .theme-dark .lexicon-translation-hero,
+    [data-card-theme="dark"] .lexicon-translation-hero {
+      color: #FFFFFF !important;
+    }
+    .theme-dark .lexicon-details-strip,
+    [data-card-theme="dark"] .lexicon-details-strip {
+      color: #CBD5E1 !important;
+    }
+    .theme-dark .orig-val,
+    [data-card-theme="dark"] .orig-val {
+      color: #FFFFFF !important;
+    }
+    .theme-dark .lexicon-pron-val,
+    [data-card-theme="dark"] .lexicon-pron-val {
+      color: #60A5FA !important;
+    }
+    .theme-dark .lexicon-trans-val,
+    [data-card-theme="dark"] .lexicon-trans-val {
+      color: #C084FC !important;
+    }
+    .theme-dark .lexicon-definition-sub,
+    [data-card-theme="dark"] .lexicon-definition-sub {
+      background: rgba(30, 41, 59, 0.8) !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important;
+      color: #E2E8F0 !important;
+    }
+
+
+    .mode-lt .lexicon-translation-hero {
+      font-size: clamp(34px, 4vw, 54px);
+      font-weight: 900;
+      color: #0F172A;
+      line-height: 1.12;
+      text-align: left;
+      margin: 1px 0 4px;
+      letter-spacing: -0.015em;
+    }
+
+    .mode-lt .lexicon-meta-strip {
+      padding: 3px 12px;
+      font-size: 14px;
+      gap: 8px;
+      background: rgba(124, 58, 237, 0.08);
+      border: 1px solid rgba(124, 58, 237, 0.2);
+      color: #6B21A8;
+    }
+
+    .mode-lt .lexicon-strong-pill {
+      font-size: 13px;
+      padding: 2px 8px;
+    }
+
+    .mode-lt .lexicon-pos-tag {
+      font-size: 14px;
+    }
+
+    .mode-lt .lexicon-details-strip {
+      justify-content: flex-start;
+      font-size: 22px;
+      gap: 8px;
+    }
+
+    .mode-lt .lexicon-definition-sub {
+      font-size: 17px;
+      padding: 6px 16px;
+      margin-top: 2px;
+      color: #334155;
+    }
+
+    .mode-lt .lexicon-lemma-hero {
+      font-size: 30px;
+      color: #0F172A;
+      margin: 2px 0;
+      text-shadow: none !important;
+    }
+
+    .mode-lt .lexicon-phonetics-bar {
+      font-size: 19px;
+      justify-content: flex-start;
+      color: #2563EB;
+      text-shadow: none !important;
+    }
+
+    .mode-lt .lexicon-definition-box {
+      font-size: 18px;
+      padding: 6px 14px;
+      background: #F8FAFC;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      color: #334155;
+      text-shadow: none !important;
+    }
+
+    .mode-lt .lexicon-origin-line {
+      font-size: 15px;
+      color: #64748B;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background layer (Sanctuary Mode) -->
+  <div id="bg-layer"></div>
+
+  <!-- Standby Idle State Placeholder (when no slide is on air) -->
+  <div id="standby-container" class="standby-container">
+    <div class="standby-title">This is your live preview</div>
+  </div>
+
+  <!-- Dual-Buffered Content Display Container for Seamless Transitions -->
+  <div id="display-container" class="mode-full">
+    <div id="slot-0" class="slide-slot active">
+      <div class="card-box full-card-wrapper">
+        <div class="reference-line"></div>
+        <div class="content-line"></div>
+      </div>
+    </div>
+    <div id="slot-1" class="slide-slot">
+      <div class="card-box full-card-wrapper">
+        <div class="reference-line"></div>
+        <div class="content-line"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    'use strict';
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const isPreview = urlParams.has('preview') || urlParams.get('mode') === 'preview';
+    const rawTarget = (urlParams.get('target') || urlParams.get('mode') || '').toLowerCase();
+    const isExplicitLt = rawTarget === 'livestream' || rawTarget === 'lt' || rawTarget === 'lowerthird' || rawTarget === 'obs';
+    const isSanctuary = rawTarget === 'sanctuary' || rawTarget === 'full' || rawTarget === 'projector' || rawTarget === 'hdmi';
+    const targetType = isExplicitLt ? 'livestream' : (isSanctuary ? 'sanctuary' : 'auto');
+
+    // Try BroadcastChannel (works for same-origin tabs, NOT for OBS)
+    let syncChannel = null;
+    try { syncChannel = new BroadcastChannel('scriptureflow_sync'); } catch (e) {}
+
+    const bgLayer = document.getElementById('bg-layer');
+    const container = document.getElementById('display-container');
+    const standbyEl = document.getElementById('standby-container');
+
+    const slots = [
+      {
+        el: document.getElementById('slot-0'),
+        box: document.getElementById('slot-0').querySelector('.card-box'),
+        ref: document.getElementById('slot-0').querySelector('.reference-line'),
+        content: document.getElementById('slot-0').querySelector('.content-line')
+      },
+      {
+        el: document.getElementById('slot-1'),
+        box: document.getElementById('slot-1').querySelector('.card-box'),
+        ref: document.getElementById('slot-1').querySelector('.reference-line'),
+        content: document.getElementById('slot-1').querySelector('.content-line')
+      }
+    ];
+
+    let activeSlotIndex = 0;
+    let transitionTimer = null;
+    let lastRenderedKey = '';
+    let lastProcessedTimestamp = 0;
+
+    function ensureAlphaTransparent() {
+      if (isPreview || targetType === 'sanctuary' || (!isExplicitLt && window.CURRENT_DISPLAY_MODE === 'full')) {
+        const bg = (window.LATEST_STATE && window.LATEST_STATE.bg) || '#0A0E18';
+        document.documentElement.style.setProperty('background', bg, 'important');
+        document.documentElement.style.setProperty('background-color', bg, 'important');
+        document.body.style.setProperty('background', bg, 'important');
+        document.body.style.setProperty('background-color', bg, 'important');
+        return;
+      }
+      document.documentElement.style.setProperty('background', 'transparent', 'important');
+      document.documentElement.style.setProperty('background-color', 'transparent', 'important');
+      document.body.style.setProperty('background', 'transparent', 'important');
+      document.body.style.setProperty('background-color', 'transparent', 'important');
+    }
+
+    if (isPreview) {
+      document.body.classList.add('is-preview');
+    }
+    ensureAlphaTransparent();
+
+    function applyTargetMode(mode) {
+      window.CURRENT_DISPLAY_MODE = mode;
+      const isLt = (targetType === 'livestream') || (!isSanctuary && (mode === 'lt' || mode === 'lowerthird'));
+      if (isLt) {
+        container.className = 'mode-lt visible';
+        bgLayer.style.display = 'none';
+        if (standbyEl) standbyEl.classList.add('hidden');
+      } else {
+        container.className = 'mode-full visible';
+        if (targetType === 'sanctuary' || !isExplicitLt) {
+          bgLayer.style.display = 'block';
+        } else {
+          bgLayer.style.display = 'none';
+        }
+      }
+      ensureAlphaTransparent();
+    }
+
+    applyTargetMode(targetType === 'livestream' ? 'lt' : 'full');
+
+    // =====================================================
+    // SYNC STRATEGY
+    // =====================================================
+    function fetchInitialState() {
+      const loadSaved = () => {
+        try {
+          const saved = localStorage.getItem('scriptureflow_live_state');
+          if (saved) applyState(JSON.parse(saved));
+        } catch (e) {}
+      };
+
+      if (window.location.protocol === 'file:') {
+        loadSaved();
+        return;
+      }
+
+      const apiBase = window.location.origin;
+      fetch(apiBase + '/api/state')
+        .then(r => r.json())
+        .then(data => {
+          if (data && (data.text || data.reference || data.isLexicon || data.dashboard)) {
+            applyState(data);
+          } else {
+            loadSaved();
+          }
+        })
+        .catch(() => {
+          loadSaved();
+        });
+    }
+    fetchInitialState();
+
+    let sseRetryTimer = null;
+    function connectSSE() {
+      const apiBase = window.location.origin;
+      const evtSource = new EventSource(apiBase + '/api/events');
+
+      evtSource.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          applyState(data);
+        } catch (e) {}
+      };
+
+      evtSource.onerror = () => {
+        evtSource.close();
+        if (sseRetryTimer) clearTimeout(sseRetryTimer);
+        sseRetryTimer = setTimeout(connectSSE, 3000);
+      };
+    }
+
+    if (window.location.protocol !== 'file:') {
+      connectSSE();
+    }
+
+    if (syncChannel) {
+      try { syncChannel.postMessage({ type: 'REQUEST_STATE' }); } catch (e) {}
+      syncChannel.onmessage = (event) => {
+        if (event.data && event.data.type === 'REQUEST_STATE') return;
+        applyState(event.data);
+      };
+    }
+
+    window.addEventListener('storage', (event) => {
+      if (event.key === 'scriptureflow_live_state' && event.newValue) {
+        try { applyState(JSON.parse(event.newValue)); } catch (e) {}
+      }
+    });
+
+    window.DISPLAY_LEXICON_CACHE = {};
+
+    async function ensureLexiconData(strongId) {
+      if (!strongId) return null;
+      const id = String(strongId).toUpperCase().trim();
+      const normId = id.replace(/^([GH])0+(\d+)/, '$1$2');
+      if (window.DISPLAY_LEXICON_CACHE[id]) return window.DISPLAY_LEXICON_CACHE[id];
+      if (window.DISPLAY_LEXICON_CACHE[normId]) return window.DISPLAY_LEXICON_CACHE[normId];
+      try {
+        const res = await fetch(`/api/lexicon/${normId}`);
+        if (res.ok) {
+          const entry = await res.json();
+          window.DISPLAY_LEXICON_CACHE[id] = entry;
+          window.DISPLAY_LEXICON_CACHE[normId] = entry;
+          return entry;
+        }
+      } catch (e) {}
+      return null;
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // Render slide payload content into a specific slot
+    function populateSlot(slot, data) {
+      const isLt = (targetType === 'livestream') || (!isSanctuary && (data.mode === 'lt' || data.mode === 'lowerthird'));
+      
+      let boxClass = isLt ? 'lt-card-wrapper' : 'full-card-wrapper';
+      if (data.transparentBg) boxClass += ' transparent-bg';
+      slot.box.className = 'card-box ' + boxClass;
+      slot.el.removeAttribute('data-lex-pos');
+
+      const isLex = Boolean(data.isLexicon || data.contentType === 'lexicon' || (data.slideId && data.slideId.startsWith('lexicon_')));
+      if (isLex) {
+        let lex = data.lexiconData || {};
+        let strongId = lex.id || lex.strongId || '';
+        if (!strongId && data.slideId && data.slideId.startsWith('lexicon_')) {
+          strongId = data.slideId.replace('lexicon_', '').trim().toUpperCase();
+        }
+        if (!strongId && data.reference) {
+          const m = data.reference.match(/[HG]\d+/i);
+          if (m) strongId = m[0].toUpperCase();
+        }
+
+        if ((!lex.lemma || !lex.transliteration) && strongId) {
+          const normStrongId = strongId.replace(/^([GH])0+(\d+)/, '$1$2');
+          if (window.DISPLAY_LEXICON_CACHE && (window.DISPLAY_LEXICON_CACHE[strongId] || window.DISPLAY_LEXICON_CACHE[normStrongId])) {
+            lex = { ...(window.DISPLAY_LEXICON_CACHE[strongId] || window.DISPLAY_LEXICON_CACHE[normStrongId]), ...lex };
+          } else {
+            ensureLexiconData(strongId).then(fetched => {
+              if (fetched) {
+                data.lexiconData = { ...fetched, ...data.lexiconData };
+                populateSlot(slot, data);
+              }
+            });
+          }
+        }
+
+        const isHebrew = lex.lang === 'Hebrew' || (strongId && strongId.startsWith('H'));
+        const lemma = lex.lemma || '';
+        const translit = lex.transliteration || '';
+        const pron = lex.pronunciation || '';
+        const pos = lex.part_of_speech || '';
+        const def = lex.short_definition || lex.definition || data.text || '';
+        const derivation = lex.derivation || lex.origin || '';
+        const englishWord = lex.englishWord || data.englishWord || def || strongId;
+        const heroTranslit = translit ? (translit.charAt(0).toUpperCase() + translit.slice(1)) : (lemma || englishWord);
+        const style = data.lexiconStyle || lex.style || 'hero';
+        const displayMode = data.lexiconDisplayMode || (data.lexiconData && data.lexiconData.displayMode) || data.mode || 'full';
+        const position = data.concordancePosition || (data.lexiconData && data.lexiconData.position) || data.lexiconPosition || 'right';
+        const posClass = (position === 'left' ? 'pos-left' : (position === 'center' ? 'pos-center' : 'pos-right'));
+
+        const slotLexKey = `LEX|${strongId}|${heroTranslit}|${englishWord}|${lemma}|${style}|${displayMode}|${position}|${data.transparentBg ? 1 : 0}`;
+        if (slot._renderedKey === slotLexKey && slot.content.children.length > 0) {
+          return;
+        }
+        slot._renderedKey = slotLexKey;
+
+        // Apply adaptive card wrapper for livestream lower-third or fullscreen presentation
+        const isLexLt = (targetType === 'livestream') || isExplicitLt || (displayMode !== 'full') || (data.mode === 'lt' || data.mode === 'lowerthird');
+        const cardThemeClass = (data.cardTheme === 'dark' || (data.lexiconData && data.lexiconData.cardTheme === 'dark')) ? ' theme-dark' : '';
+        if (isLexLt) {
+          slot.box.className = `card-box lt-card-wrapper lexicon-lt-wrapper ${posClass}${cardThemeClass}`;
+          slot.el.setAttribute('data-lex-pos', position);
+        } else {
+          slot.box.className = `card-box full-card-wrapper${cardThemeClass}`;
+          slot.el.removeAttribute('data-lex-pos');
+        }
+
+        slot.ref.style.display = 'none';
+
+        if (style === 'classic') {
+          slot.content.innerHTML = `
+            <div class="lexicon-slide-card">
+              ${strongId || pos ? `
+              <div class="lexicon-meta-strip">
+                ${strongId ? `<span class="lexicon-strong-pill">${escapeHtml(strongId)}</span>` : ''}
+                ${pos ? `<span class="lexicon-pos-tag">${escapeHtml(pos)}</span>` : ''}
+              </div>` : ''}
+              <div class="lexicon-translation-hero">${escapeHtml(heroTranslit)}</div>
+              <div class="lexicon-lemma-hero ${isHebrew ? 'hebrew' : 'greek'}">${escapeHtml(lemma || '')}</div>
+              <div class="lexicon-phonetics-bar">
+                <span class="lexicon-translit">${escapeHtml(englishWord || '')}</span>
+                ${pron ? `<span class="lexicon-dot-sep">•</span><span class="lexicon-pronunciation">/${escapeHtml(pron)}/</span>` : ''}
+              </div>
+              ${def && def.toLowerCase() !== englishWord.toLowerCase() ? `<div class="lexicon-definition-box">${escapeHtml(def)}</div>` : ''}
+              ${derivation ? `<div class="lexicon-origin-line">Root: ${escapeHtml(derivation)}</div>` : ''}
+            </div>
+          `;
+        } else {
+          // STYLE 1: Focus Hero Flashcard (Bold Transliteration as Biggest Element)
+          slot.content.innerHTML = `
+            <div class="lexicon-focus-card">
+              ${strongId || pos ? `
+              <div class="lexicon-meta-strip">
+                ${strongId ? `<span class="lexicon-strong-pill">${escapeHtml(strongId)}</span>` : ''}
+                ${pos ? `<span class="lexicon-pos-tag">${escapeHtml(pos)}</span>` : ''}
+              </div>` : ''}
+              <div class="lexicon-translation-hero">${escapeHtml(heroTranslit)}</div>
+              <div class="lexicon-details-strip">
+                <span class="lexicon-orig-label">Original:</span>
+                <span class="orig-val ${isHebrew ? 'hebrew' : 'greek'}">${escapeHtml(lemma || strongId)}</span>
+                ${pron ? `<span class="lexicon-dot-sep">•</span><span class="lexicon-pron-val">/${escapeHtml(pron)}/</span>` : ''}
+                ${englishWord ? `<span class="lexicon-dot-sep">•</span><span class="lexicon-trans-val">${escapeHtml(englishWord)}</span>` : ''}
+              </div>
+              ${def && def.toLowerCase() !== englishWord.toLowerCase() ? `<div class="lexicon-definition-sub">${escapeHtml(def)}</div>` : ''}
+            </div>
+          `;
+        }
+        return;
+      }
+
+      let isBibleRef = false;
+      if (data.contentType) {
+        isBibleRef = (data.contentType === 'bible');
+      } else if (data.isBible !== undefined) {
+        isBibleRef = Boolean(data.isBible);
+      } else if (data.slideId) {
+        if (data.slideId.startsWith('song_') || data.slideId.startsWith('medley_song_') || data.slideId.startsWith('ai_song_')) {
+          isBibleRef = false;
+        } else if (data.slideId.startsWith('bible_') || data.slideId.startsWith('medley_bible_') || data.slideId.startsWith('para_') || data.slideId.startsWith('hist_')) {
+          isBibleRef = true;
+        } else if (data.slideId.startsWith('ai_')) {
+          isBibleRef = /\b\d+\s*:\s*\d+/.test(data.reference || '');
+        } else {
+          isBibleRef = /\b\d+\s*:\s*\d+/.test(data.reference || '');
+        }
+      } else {
+        isBibleRef = /\b\d+\s*:\s*\d+/.test(data.reference || '');
+      }
+
+      if (isBibleRef) {
+        // Scripture references (e.g. Genesis 1:1) always display
+        slot.ref.textContent = data.reference || '';
+        slot.ref.style.display = 'block';
+      } else if (Boolean(data.showSongTitleInDisplay)) {
+        // Song titles only display if explicitly enabled in Settings
+        slot.ref.textContent = data.reference || '';
+        slot.ref.style.display = 'block';
+      } else {
+        // Disabled by default: NO song title in Sanctuary, OBS, or Preview
+        slot.ref.textContent = '';
+        slot.ref.style.display = 'none';
+      }
+
+      const stdSlotKey = `STD|${data.slideId || ''}|${data.text || ''}|${data.reference || ''}|${data.compare ? JSON.stringify(data.compareData) : ''}|${data.mode}|${data.transparentBg ? 1 : 0}|${data.textSize || 1}|${data.showSongTitleInDisplay ? 1 : 0}`;
+      if (slot._renderedKey !== stdSlotKey) {
+        slot._renderedKey = stdSlotKey;
+        if (data.compare) {
+          const v1 = (data.compareData && data.compareData.ver1) ? data.compareData.ver1 : { code: data.version || 'Version 1', text: data.text || '' };
+          const v2 = (data.compareData && data.compareData.ver2) ? data.compareData.ver2 : { code: data.compareVersion || 'Version 2', text: data.text || '' };
+          slot.content.innerHTML = `
+            <div class="compare-grid">
+              <div class="compare-box">
+                <div class="compare-tag">${escapeHtml(v1.code)}</div>
+                <div class="compare-text">${(v1.text || '').replace(/\n/g, '<br>')}</div>
+              </div>
+              <div class="compare-box">
+                <div class="compare-tag">${escapeHtml(v2.code)}</div>
+                <div class="compare-text">${(v2.text || '').replace(/\n/g, '<br>')}</div>
+              </div>
+            </div>
+          `;
+        } else {
+          slot.content.innerHTML = (data.text || '').replace(/\n/g, '<br>');
+        }
+      }
+
+      const typo = data.typography || {};
+      if (typo.fontFamily) {
+        document.body.style.fontFamily = `'${typo.fontFamily}', Outfit, sans-serif`;
+      }
+      if (typo.textAlign) {
+        slot.box.style.textAlign = typo.textAlign;
+        if (typo.textAlign === 'center') slot.box.style.alignItems = 'center';
+        else if (typo.textAlign === 'left') slot.box.style.alignItems = 'flex-start';
+        else if (typo.textAlign === 'right') slot.box.style.alignItems = 'flex-end';
+      }
+      if (typo.lineHeight) {
+        slot.content.style.lineHeight = typo.lineHeight;
+      }
+
+      const shadowLvl = typo.shadowLevel ?? 1;
+      if (shadowLvl === 0) {
+        slot.content.style.textShadow = 'none';
+      } else if (shadowLvl === 1) {
+        slot.content.style.textShadow = '0 2px 6px rgba(0,0,0,0.75), 0 1px 2px rgba(0,0,0,0.8)';
+      } else if (shadowLvl === 2) {
+        slot.content.style.textShadow = '0 4px 12px rgba(0,0,0,0.85), 0 2px 4px rgba(0,0,0,0.9)';
+      } else if (shadowLvl >= 3) {
+        slot.content.style.textShadow = '0 6px 18px rgba(0,0,0,0.95), 0 3px 6px rgba(0,0,0,0.95), 0 0 20px rgba(0,0,0,0.8)';
+      }
+
+      const scale = data.textSize || 1.0;
+      const textLen = (data.text || '').length;
+
+      if (data.textAutoScale !== false) {
+        let basePx = typo.fontSize || 64;
+        if (textLen > 240) basePx = Math.round(basePx * 0.72);
+        else if (textLen > 140) basePx = Math.round(basePx * 0.82);
+        else if (textLen < 60) basePx = Math.round(basePx * 1.12);
+        slot.content.style.fontSize = `${basePx * scale}px`;
+      } else {
+        slot.content.style.fontSize = `${(typo.fontSize || 60) * scale}px`;
+      }
+    }
+
+    // =====================================================
+    // Apply State to Display with Universal Transitions
+    // =====================================================
+    function applyState(raw) {
+      if (!raw) return;
+      let data = raw;
+
+      // Automatically unwrap dashboard snapshots if received
+      if (data.dashboard && (!data.text && !data.reference && !data.isLexicon)) {
+        data = {
+          ...data,
+          text: data.dashboard.activeLiveText || '',
+          reference: data.dashboard.activeLiveRef || '',
+          slideId: data.dashboard.activeLiveSlideId || '',
+          mode: data.dashboard.currentMode || data.mode,
+          transparentBg: data.dashboard.transparentBg !== undefined ? data.dashboard.transparentBg : data.transparentBg,
+          typography: data.dashboard.typography || data.typography,
+          textSize: data.dashboard.textSize || data.textSize,
+          ...data.dashboard
+        };
+      }
+
+      const isLex = Boolean(data.isLexicon || data.contentType === 'lexicon' || (data.slideId && data.slideId.startsWith('lexicon_')));
+      const lexId = (data.lexiconData && (data.lexiconData.id || data.lexiconData.strongId)) || data.slideId || '';
+      const lexWord = (data.lexiconData && data.lexiconData.englishWord) || data.englishWord || '';
+      const lexStyle = data.lexiconStyle || (data.lexiconData && data.lexiconData.style) || 'hero';
+      const lexMode = data.lexiconDisplayMode || (data.lexiconData && data.lexiconData.displayMode) || data.mode || 'full';
+      const lexPos = data.concordancePosition || (data.lexiconData && data.lexiconData.position) || data.lexiconPosition || 'right';
+
+      const contentKey = isLex 
+        ? `LEX|${lexId}|${lexWord}|${lexStyle}|${lexMode}|${lexPos}|${data.transparentBg ? 1 : 0}`
+        : `${data.slideId || ''}|${data.text || ''}|${data.reference || ''}|${data.compare ? JSON.stringify(data.compareData) : ''}|${data.mode}|${data.transparentBg ? 1 : 0}|${data.textSize || 1}|${data.showSongTitleInDisplay ? 1 : 0}`;
+
+      // Drop stale out-of-order or duplicate broadcast messages
+      if (data._timestamp && typeof data._timestamp === 'number') {
+        if (data._timestamp < lastProcessedTimestamp) {
+          return;
+        }
+        if (data._timestamp === lastProcessedTimestamp && lastRenderedKey === contentKey && container.classList.contains('visible')) {
+          return;
+        }
+        lastProcessedTimestamp = data._timestamp;
+      }
+
+      // If content is already rendered and visible, do nothing (prevents re-render blinking)
+      if (contentKey === lastRenderedKey && container.classList.contains('visible')) {
+        return;
+      }
+
+      ensureAlphaTransparent();
+
+      if (targetType === 'sanctuary' && data.projectorActive === false) {
+        container.classList.remove('visible');
+        if (standbyEl && !data.transparentBg) standbyEl.classList.remove('hidden');
+        else if (standbyEl) standbyEl.classList.add('hidden');
+        lastRenderedKey = '';
+        return;
+      }
+      if (targetType === 'livestream' && data.livestreamActive === false) {
+        container.classList.remove('visible');
+        if (standbyEl) standbyEl.classList.add('hidden');
+        lastRenderedKey = '';
+        return;
+      }
+
+      if (data.blackout) {
+        document.body.classList.add('blackout');
+        if (standbyEl) standbyEl.classList.add('hidden');
+        lastRenderedKey = '';
+        return;
+      } else {
+        document.body.classList.remove('blackout');
+      }
+
+      const currentActiveSlot = slots[activeSlotIndex];
+      const nextSlotIndex = activeSlotIndex === 0 ? 1 : 0;
+      const incomingSlot = slots[nextSlotIndex];
+
+      if (data.clear || (!isLex && !data.text && !data.reference)) {
+        const activeLexPos = currentActiveSlot ? currentActiveSlot.el.getAttribute('data-lex-pos') : null;
+        if (activeLexPos && container.classList.contains('visible')) {
+          let clearTransOut = 'trans-out-lex-right';
+          if (activeLexPos === 'left') clearTransOut = 'trans-out-lex-left';
+          else if (activeLexPos === 'center') clearTransOut = 'trans-out-lex-down';
+
+          currentActiveSlot.el.className = `slide-slot ${clearTransOut}`;
+          setTimeout(() => {
+            container.classList.remove('visible');
+            slots[0].el.className = 'slide-slot';
+            slots[1].el.className = 'slide-slot';
+            slots[0].el.removeAttribute('data-lex-pos');
+            slots[1].el.removeAttribute('data-lex-pos');
+          }, 260);
+          lastRenderedKey = '';
+          return;
+        }
+
+        container.classList.remove('visible');
+        if (standbyEl && targetType === 'sanctuary' && !data.transparentBg) {
+          standbyEl.classList.remove('hidden');
+        } else if (standbyEl) {
+          standbyEl.classList.add('hidden');
+        }
+        slots[0].el.className = 'slide-slot';
+        slots[1].el.className = 'slide-slot';
+        slots[0].el.removeAttribute('data-lex-pos');
+        slots[1].el.removeAttribute('data-lex-pos');
+        lastRenderedKey = '';
+        return;
+      }
+
+      if (standbyEl) {
+        standbyEl.classList.add('hidden');
+      }
+
+      window.LATEST_STATE = data;
+      applyTargetMode(data.mode);
+
+      if (targetType === 'sanctuary' || (!isExplicitLt && data.mode !== 'lt')) {
+        bgLayer.style.display = 'block';
+        if (data.clearBg) {
+          bgLayer.style.backgroundImage = 'none';
+          bgLayer.style.backgroundColor = '#0A0E18';
+        } else if (data.bg) {
+          bgLayer.style.backgroundColor = data.bg;
+        } else {
+          bgLayer.style.backgroundColor = '#0A0E18';
+        }
+      } else {
+        bgLayer.style.display = 'none';
+      }
+
+      const transitionType = String(data.transitionType || 'fade').toLowerCase().replace(/[\s_]+/g, '-');
+      const durationMs = parseInt(data.transitionDuration ?? 300, 10);
+      document.documentElement.style.setProperty('--sf-trans-duration', `${Math.max(50, durationMs)}ms`);
+
+      if (transitionTimer) {
+        clearTimeout(transitionTimer);
+        transitionTimer = null;
+      }
+
+      const isTargetLt = (targetType === 'livestream') || data.mode === 'lt' || isExplicitLt;
+      const isIncomingLexLt = isLex && (isTargetLt || lexMode !== 'full');
+
+      let transInClass = `trans-in-${transitionType}`;
+      let transOutClass = `trans-out-${transitionType}`;
+
+      if (isIncomingLexLt) {
+        if (lexPos === 'left') transInClass = 'trans-in-lex-left';
+        else if (lexPos === 'center') transInClass = 'trans-in-lex-up';
+        else transInClass = 'trans-in-lex-right';
+      }
+
+      const activeLexPos = currentActiveSlot.el.getAttribute('data-lex-pos');
+      if (activeLexPos) {
+        if (activeLexPos === 'left') transOutClass = 'trans-out-lex-left';
+        else if (activeLexPos === 'center') transOutClass = 'trans-out-lex-down';
+        else transOutClass = 'trans-out-lex-right';
+      }
+
+      const isInitialAppearance = !lastRenderedKey || !container.classList.contains('visible');
+
+      if (isInitialAppearance || transitionType === 'cut' || durationMs <= 0) {
+        populateSlot(currentActiveSlot, data);
+        if (isIncomingLexLt && transitionType !== 'cut') {
+          currentActiveSlot.el.className = `slide-slot ${transInClass}`;
+          setTimeout(() => {
+            currentActiveSlot.el.className = 'slide-slot active';
+          }, durationMs + 30);
+        } else {
+          currentActiveSlot.el.className = 'slide-slot active';
+        }
+        incomingSlot.el.className = 'slide-slot';
+        container.classList.add('visible');
+        lastRenderedKey = contentKey;
+        return;
+      }
+
+      populateSlot(incomingSlot, data);
+
+      currentActiveSlot.el.className = `slide-slot ${transOutClass}`;
+      incomingSlot.el.className = `slide-slot ${transInClass}`;
+      container.classList.add('visible');
+
+      activeSlotIndex = nextSlotIndex;
+      lastRenderedKey = contentKey;
+
+      transitionTimer = setTimeout(() => {
+        currentActiveSlot.el.className = 'slide-slot';
+        incomingSlot.el.className = 'slide-slot active';
+        transitionTimer = null;
+      }, durationMs + 30);
+    }
+
+    // High-Frequency Realtime Watchdog for OBS Browser Sources & Output Displays
+    setInterval(() => {
+      if (window.location.protocol === 'file:') {
+        try {
+          const saved = localStorage.getItem('scriptureflow_live_state');
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            if (parsed && (parsed._timestamp > lastProcessedTimestamp || !lastRenderedKey)) {
+              applyState(parsed);
+            }
+          }
+        } catch (e) {}
+      } else {
+        fetch(window.location.origin + '/api/state')
+          .then(r => r.json())
+          .then(data => {
+            if (data && (data._timestamp > lastProcessedTimestamp || !lastRenderedKey)) {
+              applyState(data);
+            }
+          })
+          .catch(() => {});
+      }
+    }, 500);
+
+    window.applyState = applyState;
+  </script>
+</body>
+</html>
