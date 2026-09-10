@@ -565,23 +565,23 @@
 
   <!-- Broadcast & Remote Hub Modal (Wide & Minimalist) -->
   <div id="links-modal-backdrop" class="modal-backdrop">
-    <div class="links-modal" style="padding:22px 26px; max-width:660px; width:92%; background:#0B0E17; border:1px solid rgba(255,255,255,0.09); border-radius:16px; box-shadow:0 24px 70px rgba(0,0,0,0.9);">
+    <div class="links-modal" style="padding:22px 26px; max-width:660px; width:92%; border-radius:16px;">
       
       <!-- Top Header (Single Clean Eyebrow Header like SERVICE AGENDA) -->
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.06);">
+      <div class="links-modal-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; padding-bottom:10px;">
         <div style="display:flex; align-items:center; gap:8px;">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#60A5FA" stroke-width="2.5"><path d="M2 16.1A5 5 0 0 1 5.9 20"/><path d="M2 12.05A9 9 0 0 1 9.95 20"/><path d="M2 8V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-6"/><line x1="2" y1="20" x2="2.01" y2="20"/></svg>
-          <span style="font-size:10.5px; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-starlight);">BROADCAST & REMOTE HUB</span>
+          <span class="links-modal-title" style="font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em;">BROADCAST & REMOTE HUB</span>
         </div>
 
         <div style="display:flex; align-items:center; gap:8px;">
           <span id="hub-operators-badge" style="display:none; font-family:var(--font-mono); font-size:9.5px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; color:#86EFAC; background:rgba(34,197,94,0.12); padding:2px 8px; border-radius:var(--radius-pill);">0 ONLINE</span>
 
-          <div style="display:flex; align-items:center; gap:5px; font-family:var(--font-mono); font-size:10.5px; color:rgba(255,255,255,0.6); background:rgba(255,255,255,0.03); padding:2px 9px; border-radius:var(--radius-pill); border:1px solid rgba(255,255,255,0.06);">
+          <div class="links-modal-ip-pill" style="display:flex; align-items:center; gap:5px; font-family:var(--font-mono); font-size:10.5px; padding:2px 9px; border-radius:var(--radius-pill);">
             <span style="width:5px; height:5px; border-radius:50%; background:#10B981; flex-shrink:0;"></span>
-            <span style="font-size:9.5px; font-weight:600; letter-spacing:0.04em; color:rgba(255,255,255,0.4);">IP</span>
-            <input type="text" id="lan-ip-input" placeholder="192.168.x.x" style="width:96px; font-size:10.5px; font-weight:450; font-family:var(--font-mono); background:transparent; border:none; color:#F8FAFC; outline:none;" oninput="updateLanIpHost(this.value.trim())">
-            <span style="cursor:pointer; opacity:0.5; font-size:11px;" onclick="resetLanIpHost()" title="Reset to auto-detected IP">↺</span>
+            <span class="links-modal-ip-label" style="font-size:9.5px; font-weight:600; letter-spacing:0.04em;">IP</span>
+            <input type="text" id="lan-ip-input" class="links-modal-ip-input" placeholder="192.168.x.x" style="width:96px; font-size:10.5px; font-weight:500; font-family:var(--font-mono); background:transparent; border:none; outline:none;" oninput="updateLanIpHost(this.value.trim())">
+            <span class="links-modal-ip-reset" style="cursor:pointer; font-size:11px;" onclick="resetLanIpHost()" title="Reset to auto-detected IP">↺</span>
           </div>
           <button class="settings-close-btn" onclick="document.getElementById('links-modal-backdrop').classList.remove('open')" title="Close" style="width:26px; height:26px; border-radius:6px;">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -590,13 +590,13 @@
       </div>
 
       <!-- Native Desktop Multi-Monitor Projector Card (Electron Only) -->
-      <div id="desktop-monitor-card" style="display:none; background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.18); border-radius:10px; padding:10px 12px; margin-bottom:10px;">
+      <div id="desktop-monitor-card" class="links-desktop-monitor-card" style="display:none; border-radius:10px; padding:10px 12px; margin-bottom:10px;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-          <span style="font-weight:500; font-size:12px; color:#ECFDF5;">Desktop Multi-Monitor Projector</span>
+          <span class="links-desktop-monitor-title" style="font-weight:600; font-size:12px;">Desktop Multi-Monitor Projector</span>
           <span id="desktop-projector-modal-status" style="font-family:var(--font-mono); font-size:9.5px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; color:#94A3B8;">OFFLINE</span>
         </div>
         <div style="display:flex; gap:6px; align-items:center;">
-          <select id="desktop-display-select" style="flex:1; background:#0B0F19; border:1px solid rgba(16,185,129,0.25); color:#E2E8F0; font-size:11px; font-weight:450; border-radius:6px; padding:4px 8px; outline:none; cursor:pointer;">
+          <select id="desktop-display-select" class="links-desktop-display-select" style="flex:1; font-size:11px; font-weight:450; border-radius:6px; padding:4px 8px; outline:none; cursor:pointer;">
             <option value="">Detecting screens...</option>
           </select>
           <button id="desktop-projector-toggle-btn" class="hub-action-btn status-live" onclick="toggleDesktopProjector()" style="font-weight:500;">
@@ -609,12 +609,12 @@
       <div style="display:flex; flex-direction:column;">
         
         <!-- 1. Sanctuary HDMI Output -->
-        <div style="padding:11px 4px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.04); gap:12px;">
+        <div class="links-row" style="padding:11px 4px; display:flex; align-items:center; justify-content:space-between; gap:12px;">
           <div style="display:flex; align-items:center; gap:12px; min-width:0;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#34D399" stroke-width="2" style="flex-shrink:0;"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
             <div style="min-width:0;">
-              <div style="font-weight:500; font-size:12.5px; color:#F8FAFC; letter-spacing:-0.005em;">Sanctuary Projector</div>
-              <div style="font-size:11px; font-weight:400; color:rgba(255,255,255,0.45); line-height:1.4; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Full 16:9 output for house displays & sanctuary screens</div>
+              <div class="links-row-title" style="font-weight:600; font-size:12.5px; letter-spacing:-0.005em;">Sanctuary Projector</div>
+              <div class="links-row-desc" style="font-size:11px; font-weight:400; line-height:1.4; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Full 16:9 output for house displays & sanctuary screens</div>
             </div>
           </div>
           <div style="display:flex; gap:6px; align-items:center; flex-shrink:0;">
@@ -626,12 +626,12 @@
         </div>
 
         <!-- 2. Livestream OBS Output -->
-        <div style="padding:11px 4px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.04); gap:12px;">
+        <div class="links-row" style="padding:11px 4px; display:flex; align-items:center; justify-content:space-between; gap:12px;">
           <div style="display:flex; align-items:center; gap:12px; min-width:0;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F472B6" stroke-width="2" style="flex-shrink:0;"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"/></svg>
             <div style="min-width:0;">
-              <div style="font-weight:500; font-size:12.5px; color:#F8FAFC; letter-spacing:-0.005em;">Livestream Overlay</div>
-              <div style="font-size:11px; font-weight:400; color:rgba(255,255,255,0.45); line-height:1.4; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Transparent lower-third browser source for OBS & vMix</div>
+              <div class="links-row-title" style="font-weight:600; font-size:12.5px; letter-spacing:-0.005em;">Livestream Overlay</div>
+              <div class="links-row-desc" style="font-size:11px; font-weight:400; line-height:1.4; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Transparent lower-third browser source for OBS & vMix</div>
             </div>
           </div>
           <div style="display:flex; gap:6px; align-items:center; flex-shrink:0;">
@@ -643,15 +643,15 @@
         </div>
 
         <!-- 3. Remote Co-Pilot Controller -->
-        <div id="hub-remote-row" style="padding:11px 4px; display:flex; align-items:center; justify-content:space-between; gap:12px;">
+        <div id="hub-remote-row" class="links-row" style="padding:11px 4px; display:flex; align-items:center; justify-content:space-between; gap:12px;">
           <div style="display:flex; align-items:center; gap:12px; min-width:0;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#60A5FA" stroke-width="2" style="flex-shrink:0;"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
             <div style="min-width:0;">
               <div style="display:flex; align-items:center; gap:6px;">
-                <span style="font-weight:500; font-size:12.5px; color:#F8FAFC; letter-spacing:-0.005em;">Remote Co-Pilot</span>
-                <span id="hub-remote-status-pill" style="font-family:var(--font-mono); font-size:9.5px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-muted);">○ PAUSED</span>
+                <span class="links-row-title" style="font-weight:600; font-size:12.5px; letter-spacing:-0.005em;">Remote Co-Pilot</span>
+                <span id="hub-remote-status-pill" class="hub-remote-status-pill" style="font-family:var(--font-mono); font-size:9.5px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase;">○ PAUSED</span>
               </div>
-              <div id="hub-remote-desc" style="font-size:11px; font-weight:400; color:rgba(255,255,255,0.45); line-height:1.4; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Wireless control for smartphones, iPads, and operators</div>
+              <div id="hub-remote-desc" class="links-row-desc" style="font-size:11px; font-weight:400; line-height:1.4; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Wireless control for smartphones, iPads, and operators</div>
             </div>
           </div>
           <div id="hub-remote-actions" style="display:flex; gap:6px; align-items:center; flex-shrink:0;">
@@ -668,21 +668,21 @@
         </div>
 
         <!-- Inline QR Code Card (Collapsible) -->
-        <div id="hub-qr-card" style="display:none; margin-top:10px; padding:12px 14px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:10px; align-items:center; gap:16px;">
+        <div id="hub-qr-card" class="links-qr-card" style="display:none; margin-top:10px; padding:12px 14px; border-radius:10px; align-items:center; gap:16px;">
           <div style="background:#FFFFFF; padding:6px; border-radius:8px; flex-shrink:0;">
             <img id="hub-qr-img" src="" alt="Remote QR Code" width="92" height="92" style="display:block; border-radius:4px;">
           </div>
           <div style="flex:1; min-width:0;">
-            <div style="font-size:12px; font-weight:550; color:#FFFFFF; margin-bottom:3px;">Scan with Smartphone Camera</div>
-            <div style="font-size:11px; font-weight:400; color:rgba(255,255,255,0.5); line-height:1.4; margin-bottom:6px;">Connect your phone to the same Wi-Fi to control live slides wirelessly.</div>
-            <div id="hub-qr-url-text" style="font-family:var(--font-mono); font-size:10px; font-weight:450; color:#60A5FA; word-break:break-all; background:rgba(0,0,0,0.3); padding:4px 8px; border-radius:4px;"></div>
+            <div class="links-qr-title" style="font-size:12px; font-weight:600; margin-bottom:3px;">Scan with Smartphone Camera</div>
+            <div class="links-qr-desc" style="font-size:11px; font-weight:400; line-height:1.4; margin-bottom:6px;">Connect your phone to the same Wi-Fi to control live slides wirelessly.</div>
+            <div id="hub-qr-url-text" class="links-qr-url" style="font-family:var(--font-mono); font-size:10px; font-weight:450; word-break:break-all; padding:4px 8px; border-radius:4px;"></div>
           </div>
         </div>
 
         <!-- Connected Operators List -->
-        <div id="hub-operators-card" style="display:none; margin-top:10px; padding:10px 12px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px;">
+        <div id="hub-operators-card" class="links-operators-card" style="display:none; margin-top:10px; padding:10px 12px; border-radius:8px;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-            <span style="font-size:10px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:rgba(255,255,255,0.45);">Connected Operators</span>
+            <span class="links-operators-title" style="font-size:10px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase;">Connected Operators</span>
             <span id="hub-operators-count-pill" style="font-family:var(--font-mono); font-size:9.5px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; color:#34D399;">0 ACTIVE</span>
           </div>
           <div id="hub-operators-list" style="display:flex; flex-direction:column; gap:4px;">
@@ -703,7 +703,7 @@
       <input type="hidden" id="url-auto">
 
       <!-- Lightweight OBS Tip Footer -->
-      <div style="margin-top:16px; font-size:10.5px; font-weight:400; color:rgba(255,255,255,0.4); text-align:center; letter-spacing:0.02em;">
+      <div class="links-modal-tip" style="margin-top:16px; font-size:10.5px; font-weight:400; text-align:center; letter-spacing:0.02em;">
         OBS TIP: Add Browser Source • 1920×1080 • Paste copied link
       </div>
     </div>
@@ -720,12 +720,12 @@
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
           </div>
           <div>
-            <div style="font-weight:600; font-size:15px; color:#F8FAFC; letter-spacing:-0.01em;">Library Manager</div>
-            <div style="font-size:11px; font-weight:400; color:#94A3B8; margin-top:1px;">Import files, create songs, or install cloud content</div>
+            <div class="modal-main-title" style="font-weight:700; font-size:15px; letter-spacing:-0.01em;">Library Manager</div>
+            <div class="modal-sub-title" style="font-size:11px; margin-top:1px;">Import files, create songs, or install cloud content</div>
           </div>
         </div>
         <div style="display:flex; align-items:center; gap:8px;">
-          <button type="button" class="mode-toggle-btn" onclick="window.libraryImporter.exportCustomLibrary()" title="Backup My Entire Custom Library as JSON" style="font-size:11px; padding:6px 12px; border-radius:7px; border:1px solid rgba(255,255,255,0.12); color:#F8FAFC; background:rgba(255,255,255,0.04); display:flex; align-items:center; gap:6px;">
+          <button type="button" class="mode-toggle-btn" onclick="window.libraryImporter.exportCustomLibrary()" title="Backup My Entire Custom Library as JSON" style="font-size:11px; padding:6px 12px; border-radius:7px; display:flex; align-items:center; gap:6px;">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
             <span>Backup</span>
           </button>
@@ -900,7 +900,7 @@
   <div id="auto-lyrics-modal-backdrop" class="modal-backdrop">
     <div class="settings-modal-card auto-lyrics-dialog" style="max-width:680px; padding:24px; border-radius:18px;">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-        <span style="font-weight:600; font-size:15px; color:var(--text-starlight); letter-spacing:-0.01em;">Auto-Lyrics Search</span>
+        <span class="modal-main-title" style="font-weight:700; font-size:15px; letter-spacing:-0.01em;">Auto-Lyrics Search</span>
         <button type="button" class="settings-close-btn" style="padding:4px 14px; border-radius:8px; font-size:12px; font-weight:600;" onclick="document.getElementById('auto-lyrics-modal-backdrop').classList.remove('open')">Close</button>
       </div>
 
@@ -912,7 +912,7 @@
 
       <div style="font-size:11.5px; color:var(--text-muted); margin-bottom:16px;">Continue your last search or run a new one.</div>
 
-      <div id="auto-lyrics-results-box" style="border:1px solid rgba(255,255,255,0.06); border-radius:10px; min-height:180px; max-height:260px; overflow-y:auto; padding:16px; color:var(--text-muted); font-size:12px;">
+      <div id="auto-lyrics-results-box" class="auto-lyrics-results-box" style="border-radius:10px; min-height:180px; max-height:260px; overflow-y:auto; padding:16px; font-size:12px;">
         No results yet.
       </div>
     </div>
@@ -2078,8 +2078,8 @@ My chains are gone, I've been set free..."></textarea>
         </svg>
       </div>
 
-      <div id="operator-modal-title" style="font-size:18px; font-weight:700; color:#FFFFFF; margin-bottom:6px; letter-spacing:-0.01em;">Join as Operator</div>
-      <div id="operator-modal-desc" style="font-size:12.5px; color:var(--text-muted); line-height:1.5; margin-bottom:22px;">Enter your name so the Studio Pro host can identify your console.</div>
+      <div id="operator-modal-title" class="modal-main-title" style="font-size:18px; font-weight:700; margin-bottom:6px; letter-spacing:-0.01em;">Join as Operator</div>
+      <div id="operator-modal-desc" class="modal-sub-title" style="font-size:12.5px; line-height:1.5; margin-bottom:22px;">Enter your name so the Studio Pro host can identify your console.</div>
 
       <!-- Input Field -->
       <div style="margin-bottom:18px; text-align:left;">
