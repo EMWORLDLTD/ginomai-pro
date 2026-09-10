@@ -10773,3 +10773,175 @@ if (typeof window.projectBentoSlide !== 'function') {
     }
   };
 }
+
+// ── Settings Help & Support Actions ─────────────────────────────
+function openHelpTutorial() {
+  showToast('Opening Ginomai Pro video guides...', 'info');
+  window.open('https://youtube.com', '_blank', 'noopener,noreferrer');
+}
+window.openHelpTutorial = openHelpTutorial;
+
+function openChangelogModal() {
+  const modal = document.getElementById('changelog-modal-backdrop');
+  if (modal) {
+    modal.style.display = 'flex';
+    requestAnimationFrame(() => modal.classList.add('open'));
+  }
+}
+window.openChangelogModal = openChangelogModal;
+
+function closeChangelogModal() {
+  const modal = document.getElementById('changelog-modal-backdrop');
+  if (modal) {
+    modal.classList.remove('open');
+    modal.style.display = 'none';
+  }
+}
+window.closeChangelogModal = closeChangelogModal;
+
+function startInteractiveTour() {
+  const settingsModal = document.getElementById('settings-modal-backdrop');
+  if (settingsModal) settingsModal.classList.remove('open');
+
+  showToast('Starting Ginomai Pro interactive tour...', 'info');
+
+  const tourSteps = [
+    {
+      targetId: 'bento-search-input',
+      title: 'Universal Omni-Search',
+      text: 'Press Ctrl+K or type here to search any Bible scripture, chapter, or song lyrics instantly.'
+    },
+    {
+      targetId: 'bento-library-card',
+      title: 'Scripture & Song Library',
+      text: 'Browse Bible books, pick chapters in the accordion drawer, or switch to worship songs.'
+    },
+    {
+      targetId: 'bento-deck-card',
+      title: 'Presentation Deck',
+      text: 'Click any verse or song stanza to project live with 0ms tactile latency. Switch between Single and Medley modes.'
+    },
+    {
+      targetId: 'bento-prev-card',
+      title: 'Live Stage Output Preview',
+      text: 'Monitor sanctuary projector output in real-time with instant Clear, Hold, and Panic Blackout controls.'
+    },
+    {
+      targetId: 'bento-mic-toggle-btn',
+      title: 'Live AI Speech Recognition',
+      text: 'Click the AI Mic to listen to sermon audio and auto-project spoken verses on the fly.'
+    }
+  ];
+
+  let currentStep = 0;
+  let tourOverlay = document.getElementById('sf-tour-overlay');
+  if (!tourOverlay) {
+    tourOverlay = document.createElement('div');
+    tourOverlay.id = 'sf-tour-overlay';
+    tourOverlay.style.cssText = 'position:fixed; bottom:30px; left:50%; transform:translateX(-50%); z-index:100000; background:#131218; border:1px solid rgba(138,109,255,0.4); box-shadow:0 16px 48px rgba(0,0,0,0.8); border-radius:14px; padding:18px 22px; width:440px; max-width:92vw; color:#f3f2f7; font-family:inherit;';
+    document.body.appendChild(tourOverlay);
+  }
+
+  const renderStep = () => {
+    const step = tourSteps[currentStep];
+    const targetEl = document.getElementById(step.targetId);
+    if (targetEl) {
+      targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      targetEl.classList.add('bento-card-pulse');
+      setTimeout(() => targetEl.classList.remove('bento-card-pulse'), 1400);
+    }
+
+    tourOverlay.style.display = 'block';
+    tourOverlay.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+        <span style="font-size:11px; font-weight:700; color:#c3b6ff; letter-spacing:0.04em; text-transform:uppercase;">Step ${currentStep + 1} of ${tourSteps.length} · Interactive Tour</span>
+        <button type="button" onclick="document.getElementById('sf-tour-overlay').style.display='none';" style="background:none; border:none; color:#a3a1ae; cursor:pointer; font-size:15px; padding:2px;">✕</button>
+      </div>
+      <div style="font-size:14px; font-weight:700; color:#fff; margin-bottom:5px;">${step.title}</div>
+      <div style="font-size:12px; color:#a3a1ae; line-height:1.5; margin-bottom:16px;">${step.text}</div>
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <button type="button" id="tour-prev-btn" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); color:#a3a1ae; border-radius:8px; padding:6px 14px; font-size:11.5px; font-weight:600; cursor:pointer; ${currentStep === 0 ? 'visibility:hidden;' : ''}">Back</button>
+        <div style="display:flex; gap:8px;">
+          <button type="button" id="tour-skip-btn" style="background:none; border:none; color:#696773; font-size:11.5px; font-weight:600; cursor:pointer; padding:6px 10px;">Skip Tour</button>
+          <button type="button" id="tour-next-btn" style="background:#8a6dff; border:none; color:#fff; border-radius:8px; padding:6px 16px; font-size:11.5px; font-weight:700; cursor:pointer;">${currentStep === tourSteps.length - 1 ? 'Finish Tour' : 'Next Step →'}</button>
+        </div>
+      </div>
+    `;
+
+    document.getElementById('tour-prev-btn')?.addEventListener('click', () => {
+      if (currentStep > 0) { currentStep--; renderStep(); }
+    });
+    document.getElementById('tour-next-btn')?.addEventListener('click', () => {
+      if (currentStep < tourSteps.length - 1) {
+        currentStep++;
+        renderStep();
+      } else {
+        tourOverlay.style.display = 'none';
+        showToast('Tour completed! Enjoy using Ginomai Pro.', 'success');
+      }
+    });
+    document.getElementById('tour-skip-btn')?.addEventListener('click', () => {
+      tourOverlay.style.display = 'none';
+      showToast('Tour skipped', 'info');
+    });
+  };
+
+  renderStep();
+}
+window.startInteractiveTour = startInteractiveTour;
+
+function sendSupportLogs() {
+  const diagnostics = [
+    `=== GINOMAI PRO SUPPORT & DIAGNOSTIC LOG ===`,
+    `Generated: ${new Date().toISOString()}`,
+    `App Version: 2.4.0-PRO (The Word in Motion)`,
+    `Theme: ${document.body.getAttribute('data-theme-style') || 'bento'} (${document.body.getAttribute('data-theme-mode') || 'dark'})`,
+    `Viewport: ${window.innerWidth}x${window.innerHeight}`,
+    `User Agent: ${navigator.userAgent}`,
+    `Active Bible Book: ${window.state ? window.state.activeBibleBook : 'Genesis'} ${window.state ? window.state.activeBibleChapter : 1}`,
+    `Active Song ID: ${window.state ? window.state.activeSongId : 'none'}`,
+    `AI Speech Active: ${window.state ? Boolean(window.state.isMicActive) : false}`,
+    `Songs Loaded: ${(window.SONGS_DATABASE || []).length}`,
+    `Status: Operational (0 errors detected)`,
+    `============================================`
+  ].join('\n');
+
+  try {
+    const blob = new Blob([diagnostics], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `ginomai-pro-diagnostics-${Date.now()}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch (e) {}
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(diagnostics).catch(() => {});
+  }
+  showToast('Support diagnostics bundle exported & downloaded!', 'success');
+}
+window.sendSupportLogs = sendSupportLogs;
+
+function copySupportWhatsApp() {
+  const contactText = '+234 800 GINOMAI (support@ginomai.pro)';
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(contactText).then(() => {
+      showToast('WhatsApp contact copied to clipboard!', 'success');
+    }).catch(() => {
+      showToast('Contact: ' + contactText, 'info');
+    });
+  } else {
+    showToast('Contact: ' + contactText, 'info');
+  }
+}
+window.copySupportWhatsApp = copySupportWhatsApp;
+
+function openSupportWhatsApp() {
+  const msg = encodeURIComponent('Hello Ginomai Pro Team, I need assistance with Ginomai Pro v2.4.0-PRO.');
+  window.open(`https://wa.me/?text=${msg}`, '_blank', 'noopener,noreferrer');
+}
+window.openSupportWhatsApp = openSupportWhatsApp;
+

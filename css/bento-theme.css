@@ -3011,6 +3011,90 @@ body[data-theme-style="bento"] #tab-shortcuts kbd {
   border-radius: 6px !important;
 }
 
+/* 13b. Settings Help & Support Tab */
+.settings-help-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 16px !important;
+}
+
+.settings-help-btn {
+  background: var(--card-3, #201f28);
+  border: 1px solid var(--border-strong, rgba(255, 255, 255, 0.14));
+  color: var(--text, #f3f2f7);
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 11.5px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  transition: opacity 0.04s ease, background 0.04s ease, border-color 0.04s ease, color 0.04s ease;
+  white-space: nowrap;
+  user-select: none;
+  font-family: inherit;
+}
+
+.settings-help-btn:hover {
+  background: var(--card-hover, #23222c);
+  border-color: var(--purple, #8a6dff);
+  color: #ffffff;
+}
+
+.settings-help-btn.settings-help-btn-green:hover {
+  border-color: var(--green, #3ecf7e);
+  color: #ffffff;
+}
+
+.settings-help-icon-btn {
+  background: var(--card-3, #201f28);
+  border: 1px solid var(--border-strong, rgba(255, 255, 255, 0.14));
+  color: var(--dim, #a3a1ae);
+  border-radius: 8px;
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: opacity 0.04s ease, background 0.04s ease, border-color 0.04s ease, color 0.04s ease;
+  flex-shrink: 0;
+}
+
+.settings-help-icon-btn:hover {
+  background: var(--card-hover, #23222c);
+  border-color: var(--border-strong, rgba(255, 255, 255, 0.28));
+  color: var(--text, #f3f2f7);
+}
+
+.settings-social-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.settings-social-card {
+  background: var(--card-2, #1a1920);
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.07));
+  border-radius: 12px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--dim, #a3a1ae);
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.04s ease, background 0.04s ease, border-color 0.04s ease, color 0.04s ease;
+}
+
+.settings-social-card:hover {
+  background: var(--card-hover, #23222c);
+  border-color: var(--purple, #8a6dff);
+  color: #ffffff;
+}
+
 /* 14. Bento Light Mode Overrides for All Modals & Controls */
 body[data-theme-style="bento"][data-theme-mode="light"] .modal-backdrop {
   background: rgba(243, 242, 248, 0.82) !important;
@@ -3179,6 +3263,32 @@ body[data-theme-style="bento"][data-theme-mode="light"] .repo-item-card:hover {
 body[data-theme-style="bento"][data-theme-mode="light"] #tab-shortcuts .settings-card-group > div {
   background: #ffffff !important;
   border-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .settings-help-btn,
+body[data-theme-style="bento"][data-theme-mode="light"] .settings-help-icon-btn {
+  background: #edeaf5 !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+  color: #1a1920 !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .settings-help-btn:hover,
+body[data-theme-style="bento"][data-theme-mode="light"] .settings-help-icon-btn:hover {
+  background: #e2def0 !important;
+  border-color: var(--purple, #8a6dff) !important;
+  color: #000000 !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .settings-social-card {
+  background: #edeaf5 !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  color: #4a4855 !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .settings-social-card:hover {
+  background: #e2def0 !important;
+  border-color: var(--purple, #8a6dff) !important;
+  color: #000000 !important;
 }
 
 /* ==========================================================================
