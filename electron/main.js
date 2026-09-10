@@ -79,7 +79,7 @@ function createMainWindow(port) {
     minHeight: 650,
     show: false, // Don't show until page is loaded so there is never an empty/blank window
     backgroundColor: '#0a0f1d',
-    title: 'Ginomai Pro — Presenter Studio',
+    title: 'Ginomai Pro — The Word in Motion',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
@@ -370,7 +370,7 @@ function setupAppMenu() {
               type: 'info',
               title: 'About Ginomai Pro',
               message: 'Ginomai Pro v' + app.getVersion(),
-              detail: 'Next-Gen Church Presentation, Multi-Monitor Projection & OBS Broadcast System.\n\nRunning as native desktop application with embedded broadcast server on port ' + serverPort + '.'
+              detail: 'The Word in Motion\n\nNext-Gen Church Presentation, Multi-Monitor Projection & OBS Broadcast System.\nRunning as native desktop application with embedded broadcast server on port ' + serverPort + '.'
             });
           }
         }
