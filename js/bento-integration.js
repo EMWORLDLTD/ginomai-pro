@@ -418,7 +418,13 @@
               if (currentList) {
                 const targetWrap = currentList.querySelector('.bento-bible-wrap.expanded');
                 if (targetWrap) {
-                  targetWrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                  const wrapRect = targetWrap.getBoundingClientRect();
+                  const listRect = currentList.getBoundingClientRect();
+                  if (wrapRect.top < listRect.top) {
+                    currentList.scrollTo({ top: Math.max(0, currentList.scrollTop + (wrapRect.top - listRect.top) - 8), behavior: 'smooth' });
+                  } else if (wrapRect.bottom > listRect.bottom) {
+                    currentList.scrollTo({ top: currentList.scrollTop + (wrapRect.bottom - listRect.bottom) + 8, behavior: 'smooth' });
+                  }
                 }
               }
             }, 30);
@@ -1926,10 +1932,36 @@
     const slideId = `bible_${book}_${ch}_${verseNum}`;
     const card = document.getElementById(`bento_card_${slideId}`);
     if (card) {
-      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      window._bentoVerseSelecting = true;
+      const scrollContainer = card.closest('.bento-single-deck, .bento-slides') || document.getElementById('bento-medley-container');
+      if (scrollContainer) {
+        const cardRect = card.getBoundingClientRect();
+        const containerRect = scrollContainer.getBoundingClientRect();
+        const offset = cardRect.top - containerRect.top;
+        const targetScrollTop = scrollContainer.scrollTop + offset - (containerRect.clientHeight / 2) + (cardRect.clientHeight / 2);
+        scrollContainer.scrollTo({
+          top: Math.max(0, targetScrollTop),
+          behavior: 'smooth'
+        });
+      }
+
+      // Guarantee outer deck card, center column, and page window never scroll or shift
+      const deckCard = document.getElementById('bento-deck-card');
+      if (deckCard && deckCard.scrollTop !== 0) deckCard.scrollTop = 0;
+      const colCenter = document.getElementById('bento-col-center');
+      if (colCenter && colCenter.scrollTop !== 0) colCenter.scrollTop = 0;
+      if (window.scrollY !== 0) window.scrollTo(0, 0);
+
       card.classList.add('bento-card-pulse');
       setTimeout(() => card.classList.remove('bento-card-pulse'), 1200);
       card.click();
+
+      setTimeout(() => {
+        window._bentoVerseSelecting = false;
+        if (deckCard && deckCard.scrollTop !== 0) deckCard.scrollTop = 0;
+        if (colCenter && colCenter.scrollTop !== 0) colCenter.scrollTop = 0;
+        if (window.scrollY !== 0) window.scrollTo(0, 0);
+      }, 400);
     } else {
       if (typeof window.projectSlide === 'function') {
         window.projectSlide(slideId);
@@ -2106,6 +2138,29 @@
       window.renderBentoDeck();
     }
   };
+
+  // Lock outer deck container and middle column against any inadvertent browser scroll
+  const setupDeckScrollGuards = () => {
+    const deckCard = document.getElementById('bento-deck-card');
+    if (deckCard) {
+      deckCard.addEventListener('scroll', () => {
+        if (deckCard.scrollTop !== 0) deckCard.scrollTop = 0;
+        if (deckCard.scrollLeft !== 0) deckCard.scrollLeft = 0;
+      }, { passive: true });
+    }
+    const colCenter = document.getElementById('bento-col-center');
+    if (colCenter) {
+      colCenter.addEventListener('scroll', () => {
+        if (colCenter.scrollTop !== 0) colCenter.scrollTop = 0;
+        if (colCenter.scrollLeft !== 0) colCenter.scrollLeft = 0;
+      }, { passive: true });
+    }
+  };
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupDeckScrollGuards);
+  } else {
+    setupDeckScrollGuards();
+  }
 
   // Export renderers to global window object
   window.setBentoSingleCols = setBentoSingleCols;

@@ -475,6 +475,7 @@ body[data-theme-style="bento"] #bento-layout-root {
   flex: 1;
   min-width: 260px;
   margin: 0;
+  overflow: hidden;
 }
 
 .bento-col-right {
@@ -992,10 +993,17 @@ body[data-theme-style="bento"] #bento-layout-root {
 /* ============ CENTER DECK ============ */
 .bento-deck-card {
   flex: 1;
+  overflow: hidden !important;
+  position: relative;
+  contain: paint;
 }
 
 .bento-deck-toolbar {
   flex: 0 0 auto;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--card);
   display: flex;
   align-items: center;
   gap: clamp(4px, 0.7vw, 8px);

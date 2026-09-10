@@ -1744,7 +1744,7 @@ function scrollActiveLibraryItemIntoView(itemId) {
 
   // If outside visible area of libraryList, smoothly bring it into view with nearest anchor
   if (itemRect.top < containerRect.top + 4 || itemRect.bottom > containerRect.bottom - 4) {
-    activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    scrollElementIntoContainerView(activeEl, libraryList, { padding: 4 });
   }
 }
 
@@ -1796,6 +1796,7 @@ function scrollElementIntoContainerView(element, container, options = {}) {
 }
 
 function scrollToActiveSlide() {
+  if (window._bentoVerseSelecting) return;
   requestAnimationFrame(() => {
     // 1. Classic Theme Deck Scroll
     const container = document.getElementById('deck-container');
