@@ -349,6 +349,28 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // GET /api/version — returns current software release and update metadata
+  if (pathname === '/api/version' && req.method === 'GET') {
+    json(200, {
+      appName: 'Ginomai Pro',
+      tagline: 'The Word in Motion',
+      version: '2.4.0-PRO',
+      build: '2.4.0-PRO',
+      releaseDate: '2026-09-10',
+      isLatest: true,
+      latestVersion: '2.4.0-PRO',
+      changelogUrl: 'https://github.com/EMWORLDLTD/ginomai-pro/releases',
+      features: [
+        'Bento Studio Pro modular 3-zone architecture',
+        '0ms tactile latency slide projection',
+        'Scoped container scrolling with non-GPU hardware acceleration',
+        'Integrated Deepgram Nova AI speech recognition',
+        'KJV Strong\'s Greek/Hebrew Concordance'
+      ]
+    });
+    return;
+  }
+
   // POST /api/session/shadow-deck — operator pushes loaded song to host for crash continuity
   if (pathname === '/api/session/shadow-deck' && req.method === 'POST') {
     readBody((err, payload) => {

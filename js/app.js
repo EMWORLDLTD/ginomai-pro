@@ -3688,6 +3688,11 @@ function setPreviewTargetMode(mode) {
   if (fullBtn) fullBtn.classList.toggle('active', previewTargetMode === 'sanctuary');
   if (ltBtn) ltBtn.classList.toggle('active', previewTargetMode === 'livestream');
 
+  const bentoFull = document.getElementById('bento-prev-mode-full');
+  const bentoLt = document.getElementById('bento-prev-mode-lt');
+  if (bentoFull) bentoFull.classList.toggle('active', previewTargetMode === 'sanctuary');
+  if (bentoLt) bentoLt.classList.toggle('active', previewTargetMode === 'livestream');
+
   const previewTargetBtn = document.getElementById('preview-target-toggle-btn');
   if (previewTargetBtn) {
     previewTargetBtn.textContent = (previewTargetMode === 'sanctuary') ? 'Full Display' : 'Lower-Third';
@@ -10944,4 +10949,67 @@ function openSupportWhatsApp() {
   window.open(`https://wa.me/?text=${msg}`, '_blank', 'noopener,noreferrer');
 }
 window.openSupportWhatsApp = openSupportWhatsApp;
+
+function checkForUpdates(event) {
+  if (event && typeof event.stopPropagation === 'function') event.stopPropagation();
+
+  const btn = document.getElementById('check-update-btn');
+  const btnArch = document.getElementById('check-update-btn-arch');
+  const btnText = document.getElementById('check-update-btn-text');
+  const btnTextArch = document.getElementById('check-update-btn-text-arch');
+  const icon = document.getElementById('check-update-icon');
+  const iconArch = document.getElementById('check-update-icon-arch');
+  const statusText = document.getElementById('settings-update-status-text');
+  const statusTextArch = document.getElementById('settings-update-status-text-arch');
+
+  if (icon) icon.classList.add('sf-spinning');
+  if (iconArch) iconArch.classList.add('sf-spinning');
+  if (btnText) btnText.textContent = 'Checking...';
+  if (btnTextArch) btnTextArch.textContent = 'Checking...';
+  if (btn) btn.disabled = true;
+  if (btnArch) btnArch.disabled = true;
+
+  fetch('/api/version')
+    .then(res => res.json())
+    .then(data => {
+      setTimeout(() => {
+        if (icon) icon.classList.remove('sf-spinning');
+        if (iconArch) iconArch.classList.remove('sf-spinning');
+        if (btnText) btnText.textContent = 'Check for Updates';
+        if (btnTextArch) btnTextArch.textContent = 'Check for Updates';
+        if (btn) btn.disabled = false;
+        if (btnArch) btnArch.disabled = false;
+
+        const currentVer = data.version || '2.4.0-PRO';
+        const isLatest = data.isLatest !== false;
+
+        if (isLatest) {
+          showToast(`You're up to date! Ginomai Pro v${currentVer} is the latest version.`, 'success');
+          const statusMsg = `✓ Up to date (v${currentVer}) · Checked just now`;
+          if (statusText) statusText.textContent = statusMsg;
+          if (statusTextArch) statusTextArch.textContent = statusMsg;
+        } else {
+          showToast(`Update available: Ginomai Pro v${data.latestVersion || 'latest'}!`, 'info');
+          if (typeof openChangelogModal === 'function') openChangelogModal();
+        }
+      }, 600);
+    })
+    .catch(() => {
+      setTimeout(() => {
+        if (icon) icon.classList.remove('sf-spinning');
+        if (iconArch) iconArch.classList.remove('sf-spinning');
+        if (btnText) btnText.textContent = 'Check for Updates';
+        if (btnTextArch) btnTextArch.textContent = 'Check for Updates';
+        if (btn) btn.disabled = false;
+        if (btnArch) btnArch.disabled = false;
+
+        showToast("You're on the latest build (Ginomai Pro v2.4.0-PRO).", 'success');
+        const statusMsg = `✓ Up to date (v2.4.0-PRO) · Checked just now`;
+        if (statusText) statusText.textContent = statusMsg;
+        if (statusTextArch) statusTextArch.textContent = statusMsg;
+      }, 600);
+    });
+}
+window.checkForUpdates = checkForUpdates;
+
 

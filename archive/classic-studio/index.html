@@ -1484,7 +1484,10 @@ My chains are gone, I've been set free..."></textarea>
 
           <div class="settings-version-tag">
             <div style="color:var(--text-starlight); font-weight:600;">GINOMAI PRO</div>
-            <div>Build 2.4.0-PRO</div>
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:6px; margin-top:2px;">
+              <span>Build 2.4.0-PRO</span>
+              <button type="button" onclick="checkForUpdates()" title="Check for software updates" style="background:none; border:none; color:var(--purple, #8a6dff); font-size:10px; font-weight:600; cursor:pointer; padding:0; text-decoration:underline;">Check</button>
+            </div>
           </div>
         </aside>
 
@@ -2154,6 +2157,18 @@ My chains are gone, I've been set free..."></textarea>
 
             <div class="settings-card-group settings-help-group">
               
+              <!-- Check for Updates -->
+              <div class="settings-field-row settings-help-row">
+                <div class="settings-field-info">
+                  <div class="settings-field-label">Check for Updates</div>
+                  <div class="settings-field-sub" id="settings-update-status-text-arch">Version 2.4.0-PRO · Check for the latest release & performance improvements</div>
+                </div>
+                <button type="button" class="settings-help-btn" id="check-update-btn-arch" onclick="checkForUpdates()">
+                  <svg id="check-update-icon-arch" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                  <span id="check-update-btn-text-arch">Check for Updates</span>
+                </button>
+              </div>
+
               <!-- YouTube Tutorial -->
               <div class="settings-field-row settings-help-row">
                 <div class="settings-field-info">

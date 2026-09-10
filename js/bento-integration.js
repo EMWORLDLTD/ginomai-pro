@@ -1380,8 +1380,19 @@
       }
     }
 
+    const isLt = state.currentMode === 'livestream' || state.currentMode === 'lt';
+
+    if (prevBox) {
+      prevBox.classList.toggle('mode-lt', isLt);
+      prevBox.classList.toggle('mode-full', !isLt);
+      prevBox.classList.toggle('trans-active', !!state.transparentBg);
+      const resTag = prevBox.querySelector('.res-tag');
+      if (resTag) {
+        resTag.textContent = isLt ? 'Lower-third • 1080p' : 'Full display • 1080p';
+      }
+    }
+
     if (modeFull && modeLt) {
-      const isLt = state.currentMode === 'livestream' || state.currentMode === 'lt';
       modeFull.classList.toggle('active', !isLt);
       modeLt.classList.toggle('active', isLt);
     }

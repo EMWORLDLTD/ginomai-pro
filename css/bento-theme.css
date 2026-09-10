@@ -1094,6 +1094,18 @@ body[data-theme-style="bento"] #bento-layout-root {
   color: #fff;
 }
 
+#bento-prev-mode-seg {
+  flex-shrink: 0;
+  max-width: fit-content;
+}
+
+#bento-prev-mode-seg span {
+  padding: 4px 9px;
+  font-size: 9.5px;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
 .bento-zoom {
   display: flex;
   align-items: center;
@@ -1662,6 +1674,92 @@ body[data-theme-mode="light"] .bento-corner-dock .play-circle-btn:hover {
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
   width: 100%;
   text-align: inherit;
+}
+
+/* Stage Preview Box: Modes (Full Display vs Lower-Third) */
+.bento-prev-box.mode-full {
+  background: #06080e;
+}
+
+.bento-prev-box.mode-full .lt:not(.is-lexicon) {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #06080e;
+  padding: 5cqw 6cqw;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: inherit;
+}
+
+.bento-prev-box.mode-full .lt.is-lyrics {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: inherit;
+  gap: 1.1cqw;
+}
+
+.bento-prev-box.mode-full .lt.is-bible {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: inherit;
+  gap: 1.2cqw;
+}
+
+.bento-prev-box.mode-full .lt .l1 {
+  font-size: calc(max(12px, 5cqw) * var(--user-scale, 1));
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 1.3;
+}
+
+.bento-prev-box.mode-full .lt .l2 {
+  font-size: calc(max(9px, 3.4cqw) * var(--user-scale, 1));
+  color: var(--purple-text, #c3b6ff);
+  font-weight: 600;
+  line-height: 1.3;
+  margin-top: 0.8cqw;
+}
+
+.bento-prev-box.mode-full .lt .lyric-line {
+  font-size: calc(max(10.5px, 4.4cqw) * var(--user-scale, 1));
+  line-height: 1.35;
+}
+
+/* Lower-third Mode: docked at the bottom with livestream broadcast overlay */
+.bento-prev-box.mode-lt .lt:not(.is-lexicon) {
+  top: auto;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(0deg, rgba(0,0,0,.92) 0%, rgba(0,0,0,.75) 70%, transparent 100%);
+  padding: 4cqw 3.5cqw 2.5cqw;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: inherit;
+}
+
+/* Transparent stage preview toggle (OBS overlay simulator) */
+.bento-prev-box.trans-active {
+  background-color: #07070a;
+  background-image: 
+    linear-gradient(45deg, #13131a 25%, transparent 25%), 
+    linear-gradient(-45deg, #13131a 25%, transparent 25%), 
+    linear-gradient(45deg, transparent 75%, #13131a 75%), 
+    linear-gradient(-45deg, transparent 75%, #13131a 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+}
+.bento-prev-box.mode-full.trans-active .lt:not(.is-lexicon) {
+  background: transparent;
+}
+.bento-prev-box.mode-lt.trans-active .lt:not(.is-lexicon) {
+  background: linear-gradient(0deg, rgba(0,0,0,.85) 0%, transparent 100%);
 }
 
 /* Concordance & Lexicon Word Study: Crisp White Card with Prominent Hero Translation */
@@ -3093,6 +3191,15 @@ body[data-theme-style="bento"] #tab-shortcuts kbd {
   background: var(--card-hover, #23222c);
   border-color: var(--purple, #8a6dff);
   color: #ffffff;
+}
+
+@keyframes sf-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.sf-spinning {
+  animation: sf-spin 0.8s linear infinite !important;
 }
 
 /* 14. Bento Light Mode Overrides for All Modals & Controls */
