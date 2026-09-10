@@ -1,4 +1,5 @@
-// ScriptureFlow Live - Native Broadcast & OBS Sync Server
+// Ginomai Pro - Native Broadcast & OBS Sync Server
+// The Word in Motion
 'use strict';
 
 const http = require('http');
@@ -379,7 +380,7 @@ const server = http.createServer((req, res) => {
         method: 'GET',
         headers: {
           'Authorization': `Token ${apiKey}`,
-          'User-Agent': 'ScriptureFlow-Live/1.0'
+          'User-Agent': 'Ginomai-Pro/1.0'
         },
         timeout: 8000
       }, (resDg) => {
@@ -900,7 +901,7 @@ const server = http.createServer((req, res) => {
       try {
         const searchUrl = `https://lrclib.net/api/search?q=${encodeURIComponent(queryTerm)}`;
         let response = await fetch(searchUrl, {
-          headers: { 'User-Agent': 'ScriptureFlowLive/3.0 (https://scriptureflow.live)' },
+          headers: { 'User-Agent': 'GinomaiPro/1.0' },
           signal: AbortSignal.timeout(5000)
         });
 
@@ -908,7 +909,7 @@ const server = http.createServer((req, res) => {
         if (response.status === 503 || response.status === 429 || response.status === 502) {
           await new Promise(r => setTimeout(r, 400));
           response = await fetch(searchUrl, {
-            headers: { 'User-Agent': 'ScriptureFlowLive/3.0 (https://scriptureflow.live)' },
+            headers: { 'User-Agent': 'GinomaiPro/1.0' },
             signal: AbortSignal.timeout(5000)
           });
         }
@@ -1001,7 +1002,7 @@ const server = http.createServer((req, res) => {
         json(200, { results: uniqueResults, count: uniqueResults.length, query: queryTerm });
       } else {
         if (lastErr) {
-          console.info(`[ScriptureFlow] Cloud lyrics provider info: ${lastErr.message}. Fallback attempted.`);
+          console.info(`[Ginomai Pro] Cloud lyrics provider info: ${lastErr.message}. Fallback attempted.`);
         }
         json(200, {
           results: [],
@@ -1142,15 +1143,15 @@ function startServer(port = PORT, callback) {
       if (err.code === 'EADDRINUSE') {
         attempts++;
         if (attempts < maxAttempts) {
-          console.warn(`[ScriptureFlow] Port ${attemptPort} in use, trying next port ${attemptPort + 1}...`);
+          console.warn(`[Ginomai Pro] Port ${attemptPort} in use, trying next port ${attemptPort + 1}...`);
           attemptPort++;
           setTimeout(tryListen, 50);
         } else {
-          console.error(`[ScriptureFlow] Could not bind after ${maxAttempts} attempts:`, err);
+          console.error(`[Ginomai Pro] Could not bind after ${maxAttempts} attempts:`, err);
           if (callback) callback(err, null, attemptPort);
         }
       } else {
-        console.error('[ScriptureFlow] Server error:', err);
+        console.error('[Ginomai Pro] Server error:', err);
         if (callback) callback(err, null, attemptPort);
       }
     });
@@ -1160,7 +1161,7 @@ function startServer(port = PORT, callback) {
       currentBoundPort = attemptPort;
       const lanIp = getLanAddresses()[0];
       console.log(`=======================================================`);
-      console.log(` ScriptureFlow Live — Studio Server`);
+      console.log(` Ginomai Pro — The Word in Motion (Studio Server)`);
       console.log(` Host Console:       http://localhost:${attemptPort}`);
       if (lanIp) {
         console.log(` Remote Operator:   http://${lanIp}:${attemptPort}/operator.html`);

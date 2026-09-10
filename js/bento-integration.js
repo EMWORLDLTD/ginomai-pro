@@ -1,4 +1,4 @@
-// ScriptureFlow Studio Pro - Bento Theme Interactive Controller
+// Ginomai Pro - Bento Theme Interactive Controller
 // Powers all buttons, slots, tabs, library items, medley deck columns, stage preview, and AI speech feed
 
 (function() {

@@ -1,4 +1,4 @@
-// ScriptureFlow Live - Theme & Display Customizer Engine
+// Ginomai Pro - Theme & Display Customizer Engine
 'use strict';
 
 // Early Theme Hydration (Prevents Layout Stacking and Flash of Unstyled Theme on Refresh)

@@ -1,4 +1,4 @@
-// ScriptureFlow Studio Pro - Master Control Engine
+// Ginomai Pro - Master Control Engine
 'use strict';
 
 const CHANNEL_NAME = 'scriptureflow_sync';
@@ -2945,7 +2945,7 @@ function togglePreviewTargetMode() {
 function openPopoutPreview() {
   const baseUrl = getBaseDisplayUrl();
   const popUrl = `${baseUrl}?target=${previewTargetMode}`;
-  window.open(popUrl, 'ScriptureFlowPreviewPopout', 'width=1280,height=720,menubar=no,toolbar=no,location=no,status=no');
+  window.open(popUrl, 'GinomaiProPreviewPopout', 'width=1280,height=720,menubar=no,toolbar=no,location=no,status=no');
 }
 
 // Global Toast Notification Engine
@@ -9695,7 +9695,7 @@ function updateDesktopProjectorUI(status) {
 
 async function toggleDesktopProjector() {
   if (!window.desktopApi) {
-    showToast('Desktop API only available in the ScriptureFlow desktop application.', 'info');
+    showToast('Desktop API only available in the Ginomai Pro desktop application.', 'info');
     return;
   }
 

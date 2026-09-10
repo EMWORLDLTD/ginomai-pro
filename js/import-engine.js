@@ -1,4 +1,4 @@
-// Import Engine & Online Repository Service for ScriptureFlow Live Pro
+// Import Engine & Online Repository Service for Ginomai Pro
 
 // Canonical Bible Books & Aliases Map
 const CANONICAL_BIBLE_BOOKS = [
@@ -490,7 +490,7 @@ class LibraryImportEngine {
     return Boolean(json.title && (json.stanzas || json.lyrics || json.author));
   }
 
-  // Universal Bible Parser: parses JSON, XML, USFM, CSV, or Text into normalized ScriptureFlow Bible object
+  // Universal Bible Parser: parses JSON, XML, USFM, CSV, or Text into normalized Ginomai Pro Bible object
   parseBibleContent(content, fileName = 'Imported Bible') {
     const rawTrimmed = typeof content === 'string' ? content.trim() : '';
     const defaultCode = (fileName || 'BIBLE').replace(/\.[^/.]+$/, "").toUpperCase().replace(/[^A-Z0-9_]/g, '_').slice(0, 10) || 'CUSTOM';
@@ -1334,7 +1334,7 @@ class LibraryImportEngine {
     try {
       const directUrl = `https://lrclib.net/api/search?q=${encodeURIComponent(qTerm)}`;
       const resp = await fetch(directUrl, {
-        headers: { 'User-Agent': 'ScriptureFlowLive/3.0' },
+        headers: { 'User-Agent': 'GinomaiPro/1.0' },
         signal: AbortSignal.timeout(5000)
       });
       if (resp.ok) {
@@ -1507,7 +1507,7 @@ class LibraryImportEngine {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `scriptureflow_library_backup_${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `ginomai_pro_library_backup_${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
   }

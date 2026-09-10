@@ -1,4 +1,4 @@
-// ScriptureFlow Live - Service Session Management & Persistence Engine
+// Ginomai Pro - Service Session Management & Persistence Engine
 'use strict';
 
 (function(window) {
@@ -78,7 +78,7 @@
         createdAt: now,
         updatedAt: now,
         version: '1.0',
-        app: 'ScriptureFlow Live',
+        app: 'Ginomai Pro',
         agendaItems: [],
         activeSongId: null,
         activeBibleBook: '',
@@ -309,7 +309,7 @@
 
       // Prepare portable package
       const exportPackage = {
-        app: 'ScriptureFlow Live',
+        app: 'Ginomai Pro',
         type: 'session_package',
         formatVersion: '1.0',
         exportedAt: new Date().toISOString(),
@@ -320,7 +320,7 @@
       const blob = new Blob([jsonStr], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
 
-      const safeFilename = (session.name || 'ScriptureFlow_Session')
+      const safeFilename = (session.name || 'GinomaiPro_Session')
         .replace(/[^a-zA-Z0-9_\-\s]/g, '')
         .trim()
         .replace(/\s+/g, '_');
@@ -354,7 +354,7 @@
             // Raw session object format
             importedSession = parsed;
           } else {
-            throw new Error('Unrecognized ScriptureFlow session file format');
+            throw new Error('Unrecognized Ginomai Pro session file format');
           }
 
           // Generate fresh unique ID to avoid overwriting existing

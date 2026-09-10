@@ -68,7 +68,7 @@
     "electron",
     "desktop"
   ],
-  "author": "ScriptureFlow Team",
+  "author": "Ginomai Pro Team",
   "license": "MIT",
   "devDependencies": {
     "electron": "^43.4.0",

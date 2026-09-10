@@ -1,4 +1,4 @@
-// Songbooks Database for ScriptureFlow Live Pro
+// Songbooks Database for Ginomai Pro
 const SONGBOOKS_DATABASE = [];
 
 const SONGS_DATABASE = [];

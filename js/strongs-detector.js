@@ -1,4 +1,4 @@
-// ScriptureFlow Live Pro - High-Speed Greek & Hebrew Concordance Lexicon Detector
+// Ginomai Pro - High-Speed Greek & Hebrew Concordance Lexicon Detector
 'use strict';
 
 (function() {

@@ -1,4 +1,4 @@
-﻿// ScriptureFlow Live Pro - High-Performance Custom Dialog System (Prompt & Confirm)
+// Ginomai Pro - High-Performance Custom Dialog System (Prompt & Confirm)
 'use strict';
 
 (function() {
