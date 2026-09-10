@@ -6939,6 +6939,8 @@ function openSettingsToTab(tabId) {
   const navItem = document.querySelector(`.settings-nav-item[onclick*="'${tabId}'"]`);
   switchSettingsTab(tabId, navItem);
   syncMedleySettingsUI();
+  const pane = document.querySelector('.settings-content-pane');
+  if (pane) pane.scrollTop = 0;
 }
 
 function switchSettingsTab(tabId, tabEl) {
@@ -6950,6 +6952,8 @@ function switchSettingsTab(tabId, tabEl) {
   if (targetPage) {
     targetPage.style.display = 'flex';
   }
+  const pane = document.querySelector('.settings-content-pane');
+  if (pane) pane.scrollTop = 0;
   initCustomSelects();
 
   if (tabId === 'speech') {
@@ -6964,6 +6968,8 @@ function switchSettingsTab(tabId, tabEl) {
 function openSettingsModal() {
   const modal = document.getElementById('settings-modal-backdrop');
   if (modal) modal.classList.add('open');
+  const pane = document.querySelector('.settings-content-pane');
+  if (pane) pane.scrollTop = 0;
   syncMedleySettingsUI();
   syncAiSettingsUI();
   syncTransitionSettingsUI();

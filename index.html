@@ -1642,7 +1642,7 @@ My chains are gone, I've been set free..."></textarea>
                 <div class="settings-field-row" style="align-items:flex-start;">
                   <div class="settings-field-info">
                     <div class="settings-field-label">Deepgram API Key</div>
-                    <div class="settings-field-sub">Your live streaming API token from <a href="https://console.deepgram.com" target="_blank" style="color:var(--purple-text, #C3B6FF); text-decoration:underline;">console.deepgram.com</a></div>
+                    <div class="settings-field-sub">Your live streaming API token from <a href="https://console.deepgram.com" target="_blank" class="settings-link">console.deepgram.com</a></div>
                   </div>
                   <div style="display:flex; flex-direction:column; gap:8px; width:320px;">
                     <div style="display:flex; gap:6px; position:relative;">
@@ -1696,19 +1696,19 @@ My chains are gone, I've been set free..."></textarea>
                     <select class="settings-select-custom" id="setting-audio-mic-select" style="flex:1; width:auto; text-overflow:ellipsis; overflow:hidden;" onchange="selectAudioInputDevice(this.value)">
                       <option value="default">Scanning audio devices...</option>
                     </select>
-                    <button type="button" onclick="refreshAudioInputDevices()" title="Refresh microphone list" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); color:var(--text-starlight); border-radius:8px; padding:6px 10px; cursor:pointer; font-size:12px; display:flex; align-items:center; justify-content:center;">
+                    <button type="button" onclick="refreshAudioInputDevices()" title="Refresh microphone list" class="audio-mic-refresh-btn">
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
                     </button>
                   </div>
 
                   <!-- Live Audio Level VU Meter -->
-                  <div style="background:#0D121D; border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:8px 10px;">
+                  <div class="audio-vu-meter-box">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
-                      <span style="font-size:10.5px; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em;">Input Level</span>
-                      <span id="mic-vu-level-text" style="font-family:var(--font-mono); font-size:10px; font-weight:700; color:#F8FAFC;">0%</span>
+                      <span class="audio-vu-label">Input Level</span>
+                      <span id="mic-vu-level-text" class="audio-vu-val">0%</span>
                     </div>
                     <!-- VU Level Bar Track -->
-                    <div style="width:100%; height:6px; background:rgba(255,255,255,0.06); border-radius:3px; overflow:hidden; position:relative;">
+                    <div class="audio-vu-track">
                       <div id="mic-vu-meter-bar" style="width:0%; height:100%; background:linear-gradient(90deg, #10B981, #22C55E); border-radius:3px; transition:width 0.05s ease-out;"></div>
                     </div>
                   </div>

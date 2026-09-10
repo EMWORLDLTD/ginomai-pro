@@ -2887,6 +2887,67 @@ body[data-theme-style="bento"] .settings-val-badge {
   padding: 2px 7px !important;
 }
 
+/* AI Speech Engine Base Elements */
+body[data-theme-style="bento"] .audio-mic-refresh-btn {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: var(--text-starlight, #f8fafc) !important;
+  border-radius: 8px !important;
+  padding: 6px 10px !important;
+  cursor: pointer !important;
+  font-size: 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: opacity 0.04s ease, background 0.04s ease, border-color 0.04s ease !important;
+}
+
+body[data-theme-style="bento"] .audio-mic-refresh-btn:hover {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border-color: rgba(255, 255, 255, 0.22) !important;
+}
+
+body[data-theme-style="bento"] .audio-vu-meter-box {
+  background: #0D121D !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 8px !important;
+  padding: 8px 10px !important;
+}
+
+body[data-theme-style="bento"] .audio-vu-label {
+  font-size: 10.5px !important;
+  font-weight: 600 !important;
+  color: var(--text-muted, #94a3b8) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.04em !important;
+}
+
+body[data-theme-style="bento"] .audio-vu-val {
+  font-family: var(--font-mono, monospace) !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  color: #F8FAFC !important;
+}
+
+body[data-theme-style="bento"] .audio-vu-track {
+  width: 100% !important;
+  height: 6px !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-radius: 3px !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+
+body[data-theme-style="bento"] .settings-link {
+  color: var(--purple-text, #C3B6FF) !important;
+  text-decoration: underline !important;
+  transition: opacity 0.04s ease, color 0.04s ease !important;
+}
+
+body[data-theme-style="bento"] .settings-link:hover {
+  color: #ffffff !important;
+}
+
 /* 7. Bento Custom Select Menus & Dropdowns */
 body[data-theme-style="bento"] select.settings-select-custom,
 body[data-theme-style="bento"] select#desktop-display-select {
@@ -3726,6 +3787,96 @@ body[data-theme-style="bento"][data-theme-mode="light"] .settings-social-card:ho
   background: #e2def0 !important;
   border-color: var(--purple, #8a6dff) !important;
   color: #000000 !important;
+}
+
+/* AI Speech Engine & Controls Bento Light Mode Overrides */
+body[data-theme-style="bento"][data-theme-mode="light"] .audio-mic-refresh-btn,
+:root[data-theme-mode="light"] .audio-mic-refresh-btn,
+body[data-theme-mode="light"] .audio-mic-refresh-btn {
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+  color: #14131c !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .audio-mic-refresh-btn:hover,
+:root[data-theme-mode="light"] .audio-mic-refresh-btn:hover,
+body[data-theme-mode="light"] .audio-mic-refresh-btn:hover {
+  background: #edeaf5 !important;
+  border-color: rgba(0, 0, 0, 0.22) !important;
+  color: #000000 !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .audio-vu-meter-box,
+:root[data-theme-mode="light"] .audio-vu-meter-box,
+body[data-theme-mode="light"] .audio-vu-meter-box {
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .audio-vu-label,
+:root[data-theme-mode="light"] .audio-vu-label,
+body[data-theme-mode="light"] .audio-vu-label {
+  color: #878496 !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .audio-vu-val,
+:root[data-theme-mode="light"] .audio-vu-val,
+body[data-theme-mode="light"] .audio-vu-val {
+  color: #14131c !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .audio-vu-track,
+:root[data-theme-mode="light"] .audio-vu-track,
+body[data-theme-mode="light"] .audio-vu-track {
+  background: rgba(0, 0, 0, 0.08) !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .settings-val-badge,
+:root[data-theme-mode="light"] .settings-val-badge,
+body[data-theme-mode="light"] .settings-val-badge {
+  background: rgba(120, 82, 255, 0.12) !important;
+  border: 1px solid rgba(120, 82, 255, 0.30) !important;
+  color: #6037e6 !important;
+  font-weight: 700 !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .settings-link,
+:root[data-theme-mode="light"] .settings-link,
+body[data-theme-mode="light"] .settings-link {
+  color: #6037e6 !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .settings-link:hover,
+:root[data-theme-mode="light"] .settings-link:hover,
+body[data-theme-mode="light"] .settings-link:hover {
+  color: #431fa6 !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .mode-toggle-btn,
+:root[data-theme-mode="light"] .mode-toggle-btn,
+body[data-theme-mode="light"] .mode-toggle-btn {
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+  color: #14131c !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .mode-toggle-btn:hover,
+:root[data-theme-mode="light"] .mode-toggle-btn:hover,
+body[data-theme-mode="light"] .mode-toggle-btn:hover {
+  background: #edeaf5 !important;
+  border-color: rgba(0, 0, 0, 0.20) !important;
+  color: #000000 !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .mode-toggle-btn.active,
+:root[data-theme-mode="light"] .mode-toggle-btn.active,
+body[data-theme-mode="light"] .mode-toggle-btn.active {
+  background: var(--purple, #7852ff) !important;
+  border-color: var(--purple, #7852ff) !important;
+  color: #ffffff !important;
 }
 
 /* ─── Song Editor Modal & Modal Headers Light Mode Overrides ─── */

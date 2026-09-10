@@ -3251,6 +3251,66 @@ input:checked+.settings-slider:before {
   font-weight: 600;
 }
 
+.settings-link {
+  color: var(--purple-text, #C3B6FF);
+  text-decoration: underline;
+  transition: opacity 0.04s ease, color 0.04s ease;
+}
+
+.settings-link:hover {
+  color: #FFFFFF;
+}
+
+.audio-mic-refresh-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text-starlight, #F8FAFC);
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.04s ease, background 0.04s ease, border-color 0.04s ease;
+}
+
+.audio-mic-refresh-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.audio-vu-meter-box {
+  background: #0D121D;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
+.audio-vu-label {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--text-muted, #94A3B8);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.audio-vu-val {
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  font-weight: 700;
+  color: #F8FAFC;
+}
+
+.audio-vu-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+}
+
 /* ==========================================================================
    Global Custom Floating Tooltip System (Top-Positioned Overlay)
    ========================================================================== */
