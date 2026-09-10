@@ -396,6 +396,7 @@
 
         row.onclick = () => {
           if (!window.state) window.state = {};
+          const isOpening = window.state.expandedBibleBook !== book;
           if (window.state.expandedBibleBook === book) {
             window.state.expandedBibleBook = null;
           } else {
@@ -410,6 +411,18 @@
             if (typeof window.syncDashboardWorkspace === 'function') window.syncDashboardWorkspace();
           }
           if (typeof window.renderLibrary === 'function') window.renderLibrary();
+
+          if (isOpening) {
+            setTimeout(() => {
+              const currentList = document.getElementById('bento-library-list');
+              if (currentList) {
+                const targetWrap = currentList.querySelector('.bento-bible-wrap.expanded');
+                if (targetWrap) {
+                  targetWrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+              }
+            }, 30);
+          }
         };
 
         wrap.appendChild(row);

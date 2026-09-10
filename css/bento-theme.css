@@ -677,6 +677,8 @@ body[data-theme-style="bento"] #bento-layout-root {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  padding-bottom: 32px;
+  scroll-behavior: smooth;
 }
 
 .bento-list::-webkit-scrollbar {
@@ -3856,7 +3858,7 @@ body[data-theme-style="bento"][data-theme-mode="light"] .custom-select-option.se
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(28px, 1fr));
   gap: 4px;
-  max-height: 160px;
+  max-height: 260px;
   overflow-y: auto;
   padding-right: 2px;
 }
