@@ -1,4 +1,4 @@
-// Ginomai Pro - Live Sermon Audio Transcription & Multi-Session Engine
+// Ginomia Pro - Live Sermon Audio Transcription & Multi-Session Engine
 'use strict';
 
 class SermonTranscriptManager {
@@ -763,7 +763,7 @@ class SermonTranscriptManager {
     const lines = [];
 
     lines.push(separator);
-    lines.push(` GINOMAI PRO — RECORDED MOMENT: ${moment.title.toUpperCase()} [${moment.type.toUpperCase()}]`);
+    lines.push(` GINOMIA PRO — RECORDED MOMENT: ${moment.title.toUpperCase()} [${moment.type.toUpperCase()}]`);
     lines.push(separator);
     lines.push(` Service:     ${this.session.title || 'Sunday Service'}`);
     lines.push(` Speaker:     ${this.session.speaker || 'Pastor'}`);
@@ -804,7 +804,7 @@ class SermonTranscriptManager {
     }
 
     lines.push(separator);
-    lines.push(' Transcribed live via Ginomai Pro — The Word in Motion');
+    lines.push(' Transcribed live via Ginomia Pro — The Word in Motion');
     lines.push(separator);
 
     return lines.join('\n');
@@ -870,7 +870,7 @@ class SermonTranscriptManager {
     const allScriptures = this.getAllScriptures();
 
     lines.push(separator);
-    lines.push(' GINOMAI PRO — SERVICE TRANSCRIPT & RECORDINGS');
+    lines.push(' GINOMIA PRO — SERVICE TRANSCRIPT & RECORDINGS');
     lines.push(separator);
     lines.push(` Service:     ${this.session.title || 'Sunday Service'}`);
     lines.push(` Speaker:     ${this.session.speaker || 'Pastor'}`);
@@ -944,7 +944,7 @@ class SermonTranscriptManager {
     }
 
     lines.push(separator);
-    lines.push(' Transcribed live via Ginomai Pro — The Word in Motion');
+    lines.push(' Transcribed live via Ginomia Pro — The Word in Motion');
     lines.push(separator);
 
     return lines.join('\n');
@@ -1413,4 +1413,3 @@ if (typeof window !== 'undefined' && typeof window.addEventListener === 'functio
     }
   });
 }
-

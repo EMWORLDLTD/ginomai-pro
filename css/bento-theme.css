@@ -860,13 +860,23 @@ body[data-theme-style="bento"] #bento-layout-root {
 }
 
 .bento-tabs2 span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 5px 11px;
   border-radius: 7px;
   color: var(--mute);
   font-weight: 600;
   cursor: pointer;
-  transition: opacity 0.04s ease, background 0.04s ease, border-color 0.04s ease;
+  transition: opacity 0.04s ease, background 0.04s ease, color 0.04s ease;
   user-select: none;
+  outline: none;
+  line-height: 1;
+}
+
+.bento-tabs2 span:not(.active):hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .bento-tabs2 span.active {
@@ -1079,14 +1089,24 @@ body[data-theme-style="bento"] #bento-layout-root {
 }
 
 .bento-seg span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font-size: 10px;
   font-weight: 700;
   color: var(--mute);
   padding: 5px 8px;
   border-radius: 6px;
   cursor: pointer;
-  transition: opacity 0.04s ease, background 0.04s ease, border-color 0.04s ease;
+  transition: opacity 0.04s ease, background 0.04s ease, color 0.04s ease;
   user-select: none;
+  outline: none;
+  line-height: 1;
+}
+
+.bento-seg span:not(.active):hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .bento-seg span.active {
@@ -1094,28 +1114,68 @@ body[data-theme-style="bento"] #bento-layout-root {
   color: #fff;
 }
 
-#bento-prev-mode-seg {
+.bento-prev-mode-row {
+  width: 100%;
+  margin-bottom: 6px;
+}
+
+.bento-prev-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  min-height: 24px;
+  margin-bottom: 8px;
+  box-sizing: border-box;
+}
+
+.bento-prev-status-row .bento-zoom {
+  margin-left: auto;
   flex-shrink: 0;
-  max-width: fit-content;
+}
+
+.bento-prev-subrow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  margin-bottom: 9px;
+  position: relative;
+}
+
+#bento-prev-mode-seg {
+  flex-shrink: 1;
+  min-width: 0;
+  display: flex;
+  max-width: 100%;
+  padding: 2px;
+  border-radius: 9px;
 }
 
 #bento-prev-mode-seg span {
-  padding: 4px 9px;
+  padding: 4px 8px;
   font-size: 9.5px;
+  font-weight: 700;
   letter-spacing: -0.01em;
   white-space: nowrap;
+}
+
+#bento-prev-mode-seg span.active {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
 }
 
 .bento-zoom {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 10px;
+  gap: 4px;
+  font-size: 9.5px;
   color: var(--dim);
   background: var(--card-2);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 5px 8px;
+  border-radius: 7px;
+  padding: 3px 6px;
   flex-shrink: 0;
   user-select: none;
 }
@@ -1124,6 +1184,8 @@ body[data-theme-style="bento"] #bento-layout-root {
   color: var(--dim);
   cursor: pointer;
   padding: 0 2px;
+  font-size: 11px;
+  line-height: 1;
 }
 
 .bento-zoom b:hover {
@@ -1452,6 +1514,206 @@ body[data-theme-style="bento"] #bento-layout-root {
   background: #06210f;
 }
 
+/* Card Quick Actions & Inline Editor */
+.card-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+  z-index: 3;
+}
+
+.bento-card-quick-edit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 3.5px;
+  padding: 1px 6px;
+  height: 20px;
+  font-size: 10px;
+  font-weight: 600;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--dim, #a3a1ae);
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.04s ease, background 0.04s ease, color 0.04s ease, border-color 0.04s ease;
+}
+
+.bento-single-card:hover .bento-card-quick-edit-btn,
+.bento-card-quick-edit-btn:focus-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.bento-card-quick-edit-btn:hover {
+  background: rgba(120, 82, 255, 0.2);
+  color: #ffffff;
+  border-color: var(--purple, #7852ff);
+}
+
+body[data-theme-mode="light"] .bento-card-quick-edit-btn {
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(0, 0, 0, 0.04);
+  color: #4b5563;
+}
+
+body[data-theme-mode="light"] .bento-card-quick-edit-btn:hover {
+  background: rgba(120, 82, 255, 0.12);
+  color: #7852ff;
+  border-color: #7852ff;
+}
+
+/* Flow 1: Seamless In-Place Live Card Editing */
+.bento-single-card.is-inline-editing {
+  z-index: 10;
+  outline: none !important;
+}
+
+/* Regular non-live card when editing: smooth rounded border matching card's 16px radius */
+.bento-single-card:not(.live).is-inline-editing {
+  border-color: var(--purple, #7852ff) !important;
+  box-shadow: 0 0 0 1.5px rgba(120, 82, 255, 0.3) !important;
+  outline: none !important;
+}
+
+/* Live card when editing: preserve organic live shape, strictly NO rectangular outline or border */
+.bento-single-card.live.is-inline-editing,
+.bento-single-card.live.is-inline-editing:focus,
+.bento-single-card.live.is-inline-editing:focus-within {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Text body during in-place editing: seamless typography, zero harsh border box or focus ring */
+.bento-single-card.is-inline-editing .card-body-text,
+.bento-single-card.is-inline-editing .card-body-text:focus,
+.bento-single-card.is-inline-editing .card-body-text:focus-visible,
+.bento-single-card.is-inline-editing .card-body-text:hover,
+.bento-single-card [contenteditable="true"]:focus {
+  cursor: text !important;
+  outline: none !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  user-select: text !important;
+  white-space: pre-wrap !important;
+  caret-color: var(--purple-text, #c4b5fd) !important;
+}
+
+
+.bento-card-quick-edit-btn.active {
+  background: rgba(120, 82, 255, 0.22);
+  color: #c4b5fd;
+  border-color: var(--purple, #7852ff);
+}
+
+body[data-theme-mode="light"] .bento-card-quick-edit-btn.active {
+  background: rgba(120, 82, 255, 0.15);
+  color: #6d28d9;
+  border-color: #7852ff;
+}
+
+/* Flow 3: Targeted Stanza Spotlight in Song Sheet Modal */
+.targeted-stanza-highlight {
+  border-color: var(--purple, #7852ff) !important;
+  box-shadow: 0 0 0 1px var(--purple, #7852ff), 0 4px 16px rgba(120, 82, 255, 0.25) !important;
+}
+
+.editor-target-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 9px;
+  font-weight: 700;
+  color: #ffffff;
+  background: var(--purple, #7852ff);
+  padding: 1px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.03em;
+}
+
+/* Universal Click-Through Dismissal Shield (Hardware-Accelerated, Zero-Latency) */
+.sf-dismiss-shield {
+  position: fixed;
+  inset: 0;
+  z-index: 99990;
+  background: transparent;
+  cursor: default;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+/* Floating Song Context Menu (Right Click on Library Songs) */
+.sf-song-context-menu {
+  position: fixed;
+  z-index: 100002;
+  min-width: 140px;
+  background: #131218;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+body[data-theme-mode="light"] .sf-song-context-menu {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.14);
+}
+
+.sf-ctx-item {
+  width: 100%;
+  height: 30px;
+  min-height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  padding: 0 9px;
+  border-radius: 5px;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  white-space: nowrap;
+  transition: background 0.04s ease, color 0.04s ease;
+}
+
+.sf-ctx-item:hover {
+  background: var(--card-hover, rgba(255, 255, 255, 0.08));
+  color: var(--text);
+}
+
+body[data-theme-mode="light"] .sf-ctx-item:hover {
+  background: var(--card-2, rgba(0, 0, 0, 0.05));
+  color: var(--text);
+}
+
+.sf-ctx-item svg {
+  flex-shrink: 0;
+  color: var(--dim);
+  transition: color 0.04s ease;
+}
+
+.sf-ctx-item:hover svg {
+  color: var(--purple, #7852ff);
+}
+
+.sf-ctx-divider {
+  height: 1px;
+  background: var(--border, rgba(255, 255, 255, 0.08));
+  margin: 2px 4px;
+}
+
 .bento-single-card .card-body-text {
   position: relative;
   z-index: 2;
@@ -1598,6 +1860,8 @@ body[data-theme-mode="light"] .bento-corner-dock .play-circle-btn:hover {
   font-weight: 700;
   letter-spacing: 0.04em;
   color: var(--green, #22c55e);
+  white-space: nowrap;
+  flex-shrink: 0;
   transition: color 0.2s ease, opacity 0.2s ease;
 }
 
@@ -1631,8 +1895,27 @@ body[data-theme-mode="light"] .bento-corner-dock .play-circle-btn:hover {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 6px;
+  min-width: 0;
   margin-bottom: 8px;
   flex: 0 0 auto;
+}
+
+.bento-prev-card .bento-card-title {
+  min-width: 0;
+  flex-shrink: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bento-prev-top-cluster {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+  flex-shrink: 0;
+  min-width: 0;
 }
 
 .bento-prev-box-wrapper {
@@ -1663,6 +1946,41 @@ body[data-theme-mode="light"] .bento-corner-dock .play-circle-btn:hover {
   font-size: max(8px, 2.5cqw);
   color: #4b4a54;
   font-weight: 700;
+  z-index: 5;
+}
+
+/* Bento Stage Preview Theme Background Layer */
+.bento-prev-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  pointer-events: none;
+  display: none;
+}
+
+.bento-prev-box.mode-full .bento-prev-bg {
+  display: block;
+}
+
+.bento-prev-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: none;
+}
+
+.bento-prev-dimmer {
+  position: absolute;
+  inset: 0;
+  background: #000000;
+  opacity: 0.3;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
 }
 
 .bento-prev-box .lt {
@@ -1676,6 +1994,7 @@ body[data-theme-mode="light"] .bento-corner-dock .play-circle-btn:hover {
   text-align: inherit;
   display: flex;
   flex-direction: column;
+  z-index: 2;
 }
 
 .bento-prev-box .lt .l1 {
@@ -1739,7 +2058,7 @@ body[data-theme-mode="light"] .bento-corner-dock .play-circle-btn:hover {
   bottom: 0;
   left: 0;
   right: 0;
-  background: #06080e;
+  background: transparent;
   padding: 5cqw 6cqw;
   display: flex;
   flex-direction: column;
@@ -1797,8 +2116,8 @@ body[data-theme-mode="light"] .bento-corner-dock .play-circle-btn:hover {
   align-items: inherit;
 }
 
-/* Transparent stage preview toggle (OBS overlay simulator) */
-.bento-prev-box.trans-active {
+/* Transparent stage preview toggle (OBS overlay simulator - Lower-Third only) */
+.bento-prev-box.mode-lt.trans-active {
   background-color: #07070a;
   background-image: 
     linear-gradient(45deg, #13131a 25%, transparent 25%), 
@@ -1807,9 +2126,6 @@ body[data-theme-mode="light"] .bento-corner-dock .play-circle-btn:hover {
     linear-gradient(-45deg, transparent 75%, #13131a 75%);
   background-size: 16px 16px;
   background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
-}
-.bento-prev-box.mode-full.trans-active .lt:not(.is-lexicon) {
-  background: transparent;
 }
 .bento-prev-box.mode-lt.trans-active .lt:not(.is-lexicon) {
   background: linear-gradient(0deg, rgba(0,0,0,.85) 0%, transparent 100%);
@@ -1959,48 +2275,165 @@ body[data-theme-mode="light"] .bento-corner-dock .play-circle-btn:hover {
 }
 
 .bento-stage-actions {
-  display: flex;
-  gap: 6px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 5px;
   flex: 0 0 auto;
+  margin-top: 8px;
 }
 
 .bento-sbtn {
-  flex: 1;
-  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 30px;
+  min-height: 30px;
+  padding: 0 4px;
   font-size: 10px;
-  font-weight: 700;
-  border-radius: 9px;
-  padding: 8px 4px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border-radius: 8px;
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+  background: var(--card-2, #14131b);
+  color: var(--dim, #a1a0b3);
   cursor: pointer;
-  transition: opacity 0.04s ease, background 0.04s ease, border-color 0.04s ease;
+  white-space: nowrap;
   user-select: none;
+  transition: background-color 0.04s ease, border-color 0.04s ease, color 0.04s ease, box-shadow 0.04s ease;
+  outline: none !important;
+  box-sizing: border-box;
 }
 
+.bento-sbtn svg {
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+.bento-sbtn:hover {
+  background: var(--card-hover, #1e1d27);
+  color: #FFFFFF;
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+/* Clear text - sleek neutral dark base, soft crimson tint */
 .bento-sbtn.clear {
-  background: var(--red-dim);
-  color: var(--red);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.2);
+  background: rgba(239, 68, 68, 0.07);
 }
 
+.bento-sbtn.clear:hover {
+  background: rgba(239, 68, 68, 0.18);
+  border-color: rgba(239, 68, 68, 0.45);
+  color: #ffffff;
+}
+
+.bento-sbtn.clear:active {
+  background: rgba(239, 68, 68, 0.3);
+  transform: translateY(1px);
+}
+
+/* Hold live - subtle amber tint when idle, solid amber pill when active */
 .bento-sbtn.hold {
-  background: var(--amber-dim);
-  color: var(--amber);
+  color: var(--amber, #f59e0b);
+  border-color: rgba(245, 158, 11, 0.2);
+  background: rgba(245, 158, 11, 0.06);
+}
+
+.bento-sbtn.hold:hover {
+  background: rgba(245, 158, 11, 0.16);
+  border-color: rgba(245, 158, 11, 0.4);
+  color: #fde68a;
 }
 
 .bento-sbtn.hold.active {
-  background: var(--amber);
-  color: #100f14;
+  background: #f59e0b !important;
+  color: #0f0e13 !important;
+  border-color: #f59e0b !important;
+  font-weight: 700;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.35);
 }
 
+/* Transparent - sleek neutral dark base, solid brand purple when active (NO double ring) */
 .bento-sbtn.trans {
-  background: var(--card-2);
-  color: var(--dim);
-  border: 1px solid var(--border-strong);
+  color: var(--dim, #a1a0b3);
+}
+
+.bento-sbtn.trans:hover {
+  background: rgba(138, 109, 255, 0.12);
+  border-color: rgba(138, 109, 255, 0.35);
+  color: #c4b5fd;
 }
 
 .bento-sbtn.trans.active {
-  background: var(--purple);
-  color: #fff;
-  border-color: var(--purple);
+  background: var(--purple, #7852ff) !important;
+  color: #ffffff !important;
+  border-color: var(--purple, #7852ff) !important;
+  box-shadow: 0 0 10px rgba(120, 82, 255, 0.35) !important;
+  outline: none !important;
+}
+
+/* Themes - clean subtle purple accent */
+.bento-sbtn.theme {
+  color: #c4b5fd;
+  border-color: rgba(138, 109, 255, 0.22);
+  background: rgba(138, 109, 255, 0.06);
+}
+
+.bento-sbtn.theme:hover {
+  background: rgba(138, 109, 255, 0.18);
+  border-color: rgba(138, 109, 255, 0.45);
+  color: #ffffff;
+}
+
+/* Light Theme support */
+body[data-theme-mode="light"] .bento-sbtn {
+  background: #f8fafc;
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #475569;
+}
+
+body[data-theme-mode="light"] .bento-sbtn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: rgba(0, 0, 0, 0.18);
+}
+
+body[data-theme-mode="light"] .bento-sbtn.clear {
+  background: rgba(239, 68, 68, 0.08);
+  color: #dc2626;
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+body[data-theme-mode="light"] .bento-sbtn.clear:hover {
+  background: rgba(239, 68, 68, 0.16);
+  border-color: rgba(239, 68, 68, 0.35);
+  color: #b91c1c;
+}
+
+body[data-theme-mode="light"] .bento-sbtn.hold {
+  background: rgba(245, 158, 11, 0.08);
+  color: #d97706;
+  border-color: rgba(245, 158, 11, 0.25);
+}
+
+body[data-theme-mode="light"] .bento-sbtn.hold.active {
+  background: #d97706 !important;
+  color: #ffffff !important;
+  border-color: #d97706 !important;
+}
+
+body[data-theme-mode="light"] .bento-sbtn.trans.active {
+  background: #7852ff !important;
+  color: #ffffff !important;
+  border-color: #7852ff !important;
+}
+
+body[data-theme-mode="light"] .bento-sbtn.theme {
+  background: rgba(120, 82, 255, 0.08);
+  color: #6d28d9;
+  border-color: rgba(120, 82, 255, 0.22);
 }
 
 .bento-feed-card {
@@ -2715,6 +3148,806 @@ body[data-theme-style="bento"] .reset-confirm-btn {
   background: var(--purple, #8a6dff);
   color: #ffffff;
   border: none;
+}
+
+/* ==========================================================================
+   Bento Theme - Library Manager & Song Creator Modal (Dark Mode)
+   ========================================================================== */
+body[data-theme-style="bento"] .library-import-modal {
+  width: 92vw !important;
+  max-width: 960px !important;
+  background: var(--card, #131218) !important;
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 32px 90px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(138, 109, 255, 0.14), 0 2px 16px rgba(138, 109, 255, 0.06) !important;
+  color: var(--text, #f3f2f7) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .settings-header {
+  background: var(--card, #131218) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07) !important;
+  padding: 16px 24px !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .modal-main-title {
+  color: var(--text, #f3f2f7) !important;
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 15px !important;
+  letter-spacing: -0.01em !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .modal-sub-title {
+  color: var(--dim, #a3a1ae) !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 11px !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .settings-header-icon {
+  background: rgba(138, 109, 255, 0.16) !important;
+  border: 1px solid rgba(138, 109, 255, 0.35) !important;
+  color: var(--purple-text, #c3b6ff) !important;
+  border-radius: 10px !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .settings-header-icon svg {
+  stroke: var(--purple-text, #c3b6ff) !important;
+}
+
+/* Header Backup Button */
+body[data-theme-style="bento"] .library-import-modal .settings-header .mode-toggle-btn {
+  background: var(--card-2, #1a1920) !important;
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  color: var(--text, #f3f2f7) !important;
+  border-radius: 8px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 600 !important;
+  font-size: 11px !important;
+  transition: opacity 0.04s ease, background 0.04s ease, border-color 0.04s ease, color 0.04s ease !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .settings-header .mode-toggle-btn:hover {
+  background: var(--card-hover, #23222c) !important;
+  border-color: rgba(138, 109, 255, 0.4) !important;
+  color: #ffffff !important;
+}
+
+/* Nav Bar & Tabs */
+body[data-theme-style="bento"] .library-import-modal .import-nav-bar {
+  background: var(--bg, #08080c) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07) !important;
+  padding: 10px 24px !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .import-nav-tabs {
+  background: var(--card-2, #1a1920) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 10px !important;
+  padding: 3px !important;
+  gap: 4px !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .import-nav-tab {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  color: var(--dim, #a3a1ae) !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  border-radius: 8px !important;
+  padding: 6px 16px !important;
+  transition: background 0.04s ease, color 0.04s ease, border-color 0.04s ease !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .import-nav-tab:hover {
+  color: var(--text, #f3f2f7) !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .import-nav-tab.active {
+  background: rgba(138, 109, 255, 0.16) !important;
+  border-color: rgba(138, 109, 255, 0.35) !important;
+  color: var(--purple-text, #c3b6ff) !important;
+  box-shadow: none !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .import-nav-tab.active svg {
+  stroke: var(--purple-text, #c3b6ff) !important;
+}
+
+/* Modal Body (Single Clean Scroll Container) */
+body[data-theme-style="bento"] .library-import-modal .import-modal-body {
+  background: var(--card, #131218) !important;
+  padding: 20px 24px !important;
+  max-height: calc(85vh - 120px) !important;
+  overflow-y: auto !important;
+}
+
+/* Tab 1: Dropzone */
+body[data-theme-style="bento"] .library-import-modal .import-dropzone-box {
+  background: rgba(26, 25, 32, 0.6) !important;
+  border: 1.5px dashed rgba(138, 109, 255, 0.28) !important;
+  border-radius: 14px !important;
+  transition: background 0.04s ease, border-color 0.04s ease, transform 0.04s ease !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .import-dropzone-box:hover,
+body[data-theme-style="bento"] .library-import-modal .import-dropzone-box.drag-hover {
+  background: rgba(138, 109, 255, 0.08) !important;
+  border-color: var(--purple, #8a6dff) !important;
+  transform: scale(1.002) !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .dropzone-icon-circle {
+  background: rgba(138, 109, 255, 0.14) !important;
+  border: 1px solid rgba(138, 109, 255, 0.32) !important;
+  color: var(--purple-text, #c3b6ff) !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .dropzone-icon-circle svg {
+  stroke: var(--purple-text, #c3b6ff) !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .dropzone-main-text {
+  color: var(--text, #f3f2f7) !important;
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 600 !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .dropzone-sub-text {
+  color: var(--dim, #a3a1ae) !important;
+  font-family: 'Inter', sans-serif !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .format-pill {
+  background: rgba(138, 109, 255, 0.08) !important;
+  border: 1px solid rgba(138, 109, 255, 0.22) !important;
+  color: var(--purple-text, #c3b6ff) !important;
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .dropzone-browse-btn {
+  background: var(--card-3, #201f28) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: var(--text, #f3f2f7) !important;
+  border-radius: 8px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 600 !important;
+  transition: background 0.04s ease, border-color 0.04s ease !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .dropzone-browse-btn:hover {
+  background: rgba(138, 109, 255, 0.22) !important;
+  border-color: var(--purple, #8a6dff) !important;
+  color: #ffffff !important;
+}
+
+/* Tab 2: Song Creator Form & Fields */
+body[data-theme-style="bento"] .library-import-modal .import-input-label {
+  color: var(--dim, #a3a1ae) !important;
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 600 !important;
+  font-size: 11px !important;
+  letter-spacing: 0.03em !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .import-text-field,
+body[data-theme-style="bento"] .library-import-modal .import-textarea {
+  background: var(--card-2, #1a1920) !important;
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  border-radius: 9px !important;
+  color: var(--text, #f3f2f7) !important;
+  font-family: 'Inter', sans-serif !important;
+  transition: border-color 0.04s ease, box-shadow 0.04s ease !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .import-textarea {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 11.5px !important;
+  line-height: 1.5 !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .import-text-field:focus,
+body[data-theme-style="bento"] .library-import-modal .import-textarea:focus {
+  border-color: var(--purple, #8a6dff) !important;
+  box-shadow: 0 0 0 2px rgba(138, 109, 255, 0.2) !important;
+  outline: none !important;
+}
+
+/* Quick Section Insert Chips */
+body[data-theme-style="bento"] .library-import-modal .tag-chips-label {
+  color: var(--mute, #696773) !important;
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 600 !important;
+  font-size: 10.5px !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .tag-chip {
+  background: rgba(138, 109, 255, 0.12) !important;
+  border: 1px solid rgba(138, 109, 255, 0.26) !important;
+  color: var(--purple-text, #c3b6ff) !important;
+  border-radius: 7px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 600 !important;
+  font-size: 11px !important;
+  padding: 3px 10px !important;
+  transition: background 0.04s ease, border-color 0.04s ease, color 0.04s ease !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .tag-chip:hover {
+  background: rgba(138, 109, 255, 0.28) !important;
+  border-color: rgba(138, 109, 255, 0.6) !important;
+  color: #ffffff !important;
+}
+
+/* Split Columns & Live Slide Preview */
+body[data-theme-style="bento"] .library-import-modal .split-col-header {
+  color: var(--dim, #a3a1ae) !important;
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 600 !important;
+  font-size: 11px !important;
+  letter-spacing: 0.03em !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .preview-count-badge {
+  background: rgba(138, 109, 255, 0.18) !important;
+  border: 1px solid rgba(138, 109, 255, 0.35) !important;
+  color: var(--purple-text, #c3b6ff) !important;
+  border-radius: 6px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-weight: 700 !important;
+  font-size: 10px !important;
+  padding: 2px 7px !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .import-preview-container {
+  background: var(--card-2, #1a1920) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 9px !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .import-prev-empty {
+  color: var(--dim, #a3a1ae) !important;
+  font-size: 11px !important;
+  font-family: 'Inter', sans-serif !important;
+  text-align: center !important;
+  margin: auto !important;
+  padding: 20px !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .import-prev-meta {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  padding-bottom: 6px !important;
+  margin-bottom: 8px !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .import-prev-title {
+  color: var(--purple-text, #c3b6ff) !important;
+  font-weight: 700 !important;
+  font-size: 12.5px !important;
+  font-family: 'Inter', sans-serif !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  max-width: 65% !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .import-prev-author {
+  color: var(--dim, #a3a1ae) !important;
+  font-weight: 500 !important;
+  font-size: 10.5px !important;
+  font-family: 'Inter', sans-serif !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .import-prev-card {
+  background: var(--card-3, #201f28) !important;
+  border: 1px solid rgba(255, 255, 255, 0.07) !important;
+  border-radius: 8px !important;
+  padding: 8px 10px !important;
+  margin-bottom: 6px !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .import-prev-card-header {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin-bottom: 4px !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .import-prev-slide-badge {
+  color: var(--purple, #8a6dff) !important;
+  font-size: 9.5px !important;
+  font-weight: 700 !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  letter-spacing: 0.03em !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .import-prev-section-badge {
+  background: rgba(62, 207, 126, 0.15) !important;
+  border: 1px solid rgba(62, 207, 126, 0.30) !important;
+  color: var(--green, #3ecf7e) !important;
+  font-size: 9.5px !important;
+  font-weight: 700 !important;
+  font-family: 'Inter', sans-serif !important;
+  border-radius: 4px !important;
+  padding: 1px 6px !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .import-prev-text {
+  color: var(--text, #f3f2f7) !important;
+  white-space: pre-wrap !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 11px !important;
+  line-height: 1.45 !important;
+}
+
+/* Modal Footer & Actions */
+body[data-theme-style="bento"] .library-import-modal .import-checkbox-label {
+  color: var(--dim, #a3a1ae) !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 11.5px !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .bento-modal-checkbox {
+  accent-color: var(--purple, #8a6dff) !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .import-primary-btn {
+  background: var(--purple, #8a6dff) !important;
+  color: #ffffff !important;
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 600 !important;
+  font-size: 11.5px !important;
+  padding: 8px 18px !important;
+  border-radius: 8px !important;
+  border: none !important;
+  box-shadow: 0 2px 10px rgba(138, 109, 255, 0.35) !important;
+  cursor: pointer !important;
+  transition: background 0.04s ease, transform 0.04s ease, box-shadow 0.04s ease !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .import-primary-btn:hover {
+  background: #9d84ff !important;
+  box-shadow: 0 4px 16px rgba(138, 109, 255, 0.5) !important;
+  transform: translateY(-1px) !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .import-primary-btn:active {
+  transform: translateY(0) !important;
+}
+
+/* ==========================================================================
+   Tab 3 & 4: Online Bibles & Cloud Search - Fixed Search, Toolbars, Grid & List
+   ========================================================================== */
+
+/* 1. Integrated Search Bar (SVG properly aligned, no text clash) */
+body[data-theme-style="bento"] .library-import-modal .import-search-bar-wrap {
+  position: relative !important;
+  background: var(--card-2, #1a1920) !important;
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  border-radius: 10px !important;
+  height: 42px !important;
+  display: flex !important;
+  align-items: center !important;
+  padding: 0 !important;
+  width: 100% !important;
+  margin-bottom: 6px !important;
+  box-sizing: border-box !important;
+  transition: border-color 0.04s ease, box-shadow 0.04s ease !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .import-search-bar-wrap:focus-within {
+  border-color: var(--purple, #8a6dff) !important;
+  box-shadow: 0 0 0 3px rgba(138, 109, 255, 0.18) !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .import-search-bar-wrap svg {
+  position: absolute !important;
+  left: 14px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  color: var(--mute, #696773) !important;
+  pointer-events: none !important;
+  width: 15px !important;
+  height: 15px !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .import-search-field {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 16px 0 40px !important;
+  height: 100% !important;
+  width: 100% !important;
+  font-size: 12.5px !important;
+  color: var(--text, #f3f2f7) !important;
+  outline: none !important;
+  box-sizing: border-box !important;
+}
+
+/* 2. Filter Toolbar & View Switcher */
+body[data-theme-style="bento"] .library-import-modal .repo-filter-toolbar {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  gap: 12px !important;
+  flex-wrap: wrap !important;
+  margin-bottom: 12px !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .repo-filter-chips {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  flex-wrap: wrap !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .repo-filter-label {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  color: var(--mute, #696773) !important;
+  margin-right: 2px !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .repo-filter-pill {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 11px !important;
+  font-weight: 550 !important;
+  padding: 5px 12px !important;
+  border-radius: 20px !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: var(--dim, #a3a1ae) !important;
+  cursor: pointer !important;
+  transition: opacity 0.04s ease, background 0.04s ease, border-color 0.04s ease, color 0.04s ease !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .repo-filter-pill:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .repo-filter-pill.active {
+  background: var(--purple, #8a6dff) !important;
+  border-color: var(--purple, #8a6dff) !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 8px rgba(138, 109, 255, 0.35) !important;
+}
+
+/* Pro Segmented View Switcher (Grid / List) */
+body[data-theme-style="bento"] .library-import-modal .repo-view-switcher {
+  display: inline-flex !important;
+  align-items: center !important;
+  background: var(--card-2, #1a1920) !important;
+  border: 1px solid rgba(255, 255, 255, 0.09) !important;
+  border-radius: 8px !important;
+  padding: 2px !important;
+  gap: 2px !important;
+  flex-shrink: 0 !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .repo-view-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  padding: 4px 10px !important;
+  border-radius: 6px !important;
+  font-size: 11px !important;
+  font-weight: 550 !important;
+  font-family: 'Inter', sans-serif !important;
+  color: var(--dim, #a3a1ae) !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  cursor: pointer !important;
+  transition: background 0.04s ease, color 0.04s ease, border-color 0.04s ease !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .repo-view-btn:hover {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .repo-view-btn.active {
+  background: var(--card-3, #201f28) !important;
+  border-color: rgba(138, 109, 255, 0.3) !important;
+  color: var(--purple-text, #c3b6ff) !important;
+  font-weight: 600 !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .repo-view-btn.active svg {
+  stroke: var(--purple-text, #c3b6ff) !important;
+}
+
+/* 3. Containers (kill nested 380px scrollbars, fill 100% width) */
+body[data-theme-style="bento"] .library-import-modal .cloud-bibles-grid,
+body[data-theme-style="bento"] .library-import-modal .cloud-songs-grid {
+  max-height: none !important;
+  overflow: visible !important;
+  padding-right: 0 !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* 4. 2-Column Responsive Grid Mode (No Truncation) */
+body[data-theme-style="bento"] .library-import-modal .cloud-bibles-grid.view-grid,
+body[data-theme-style="bento"] .library-import-modal .cloud-songs-grid.view-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+  width: 100% !important;
+}
+
+/* 5. 1-Column Spacious Studio List Mode */
+body[data-theme-style="bento"] .library-import-modal .cloud-bibles-grid.view-list,
+body[data-theme-style="bento"] .library-import-modal .cloud-songs-grid.view-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  width: 100% !important;
+}
+
+/* 6. Card Styling */
+body[data-theme-style="bento"] .library-import-modal .repo-item-card {
+  background: var(--card-2, #1a1920) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 12px !important;
+  padding: 12px 16px !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  gap: 12px !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  transition: background 0.04s ease, border-color 0.04s ease !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .cloud-bibles-grid.view-list .repo-item-card,
+body[data-theme-style="bento"] .library-import-modal .cloud-songs-grid.view-list .repo-item-card {
+  padding: 12px 20px !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .repo-item-card:hover {
+  background: #1f1e29 !important;
+  border-color: rgba(138, 109, 255, 0.35) !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .repo-item-card.active-repo {
+  border-color: rgba(138, 109, 255, 0.45) !important;
+  background: rgba(138, 109, 255, 0.07) !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .repo-item-main {
+  min-width: 0 !important;
+  flex: 1 !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .repo-item-title-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  min-width: 0 !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .repo-item-title {
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 650 !important;
+  font-size: 13.5px !important;
+  color: #ffffff !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  min-width: 0 !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .repo-item-author {
+  font-size: 11.5px !important;
+  font-weight: 500 !important;
+  color: var(--purple-text, #c3b6ff) !important;
+  margin-top: 2px !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .repo-item-meta {
+  font-size: 11px !important;
+  font-weight: 400 !important;
+  color: var(--dim, #a3a1ae) !important;
+  margin-top: 3px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  flex-wrap: wrap !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .repo-item-meta .meta-lang {
+  color: var(--dim, #a3a1ae) !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .repo-item-meta .meta-size {
+  color: var(--mute, #696773) !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 10px !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .repo-item-preview-text {
+  font-size: 11px !important;
+  color: var(--dim, #a3a1ae) !important;
+  margin-top: 4px !important;
+  line-height: 1.4 !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+  opacity: 0.9 !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .repo-tag-pill {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 9.5px !important;
+  padding: 2px 6px !important;
+  border-radius: 5px !important;
+  font-weight: 700 !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: var(--dim, #a3a1ae) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  flex-shrink: 0 !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .repo-tag-pill.installed {
+  background: rgba(62, 207, 126, 0.16) !important;
+  color: var(--green, #3ecf7e) !important;
+  border: 1px solid rgba(62, 207, 126, 0.3) !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .repo-tag-pill.active {
+  background: rgba(138, 109, 255, 0.22) !important;
+  color: var(--purple-text, #c3b6ff) !important;
+  border: 1px solid rgba(138, 109, 255, 0.4) !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .repo-slide-count-badge {
+  font-size: 9.5px !important;
+  font-weight: 700 !important;
+  background: rgba(138, 109, 255, 0.16) !important;
+  color: var(--purple-text, #c3b6ff) !important;
+  padding: 1px 6px !important;
+  border-radius: 4px !important;
+  border: 1px solid rgba(138, 109, 255, 0.3) !important;
+  flex-shrink: 0 !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .repo-status-badge {
+  font-size: 9.5px !important;
+  padding: 1px 6px !important;
+  border-radius: 4px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 3px !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .repo-status-badge .badge-dot {
+  font-size: 7px !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .repo-status-badge.active {
+  color: var(--purple-text, #c3b6ff) !important;
+  font-weight: 600 !important;
+  background: rgba(138, 109, 255, 0.18) !important;
+  border: 1px solid rgba(138, 109, 255, 0.35) !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .repo-status-badge.ready {
+  color: var(--green, #3ecf7e) !important;
+  font-weight: 600 !important;
+  background: rgba(62, 207, 126, 0.14) !important;
+  border: 1px solid rgba(62, 207, 126, 0.28) !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .repo-status-badge.cloud {
+  color: var(--mute, #696773) !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .repo-item-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  flex-shrink: 0 !important;
+  white-space: nowrap !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .bento-btn-primary-sm {
+  font-size: 11px !important;
+  padding: 5px 12px !important;
+  border-radius: 7px !important;
+  font-weight: 600 !important;
+  background: var(--purple, #8a6dff) !important;
+  border: none !important;
+  color: #ffffff !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  flex-shrink: 0 !important;
+  white-space: nowrap !important;
+  transition: background 0.04s ease !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .bento-btn-primary-sm:hover {
+  background: #9d84ff !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .bento-btn-secondary-sm {
+  font-size: 11px !important;
+  padding: 5px 12px !important;
+  border-radius: 7px !important;
+  font-weight: 600 !important;
+  background: var(--card-3, #201f28) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: var(--text, #f3f2f7) !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  flex-shrink: 0 !important;
+  white-space: nowrap !important;
+  transition: background 0.04s ease, border-color 0.04s ease !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .bento-btn-secondary-sm:hover {
+  background: rgba(138, 109, 255, 0.18) !important;
+  border-color: var(--purple, #8a6dff) !important;
+  color: #ffffff !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .bento-btn-active-indicator {
+  font-size: 11px !important;
+  padding: 5px 10px !important;
+  border-radius: 7px !important;
+  font-weight: 600 !important;
+  background: rgba(138, 109, 255, 0.2) !important;
+  border: 1px solid var(--purple, #8a6dff) !important;
+  color: var(--purple-text, #c3b6ff) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  flex-shrink: 0 !important;
+  white-space: nowrap !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .bento-btn-icon-danger {
+  padding: 5px 8px !important;
+  border-radius: 7px !important;
+  background: rgba(242, 85, 75, 0.12) !important;
+  border: 1px solid rgba(242, 85, 75, 0.28) !important;
+  color: #fca5a5 !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: background 0.04s ease, border-color 0.04s ease !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .bento-btn-icon-danger:hover {
+  background: rgba(242, 85, 75, 0.25) !important;
+  border-color: rgba(242, 85, 75, 0.5) !important;
+}
+
+body[data-theme-style="bento"] .library-import-modal .repo-empty-state {
+  padding: 36px 20px !important;
+  text-align: center !important;
+  color: var(--dim, #a3a1ae) !important;
+  font-size: 12px !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+  border-radius: 12px !important;
+  border: 1px dashed rgba(255, 255, 255, 0.08) !important;
+  grid-column: 1 / -1 !important;
 }
 
 /* 2. Modal Header & Close Controls */
@@ -3640,8 +4873,6 @@ body[data-theme-style="bento"][data-theme-mode="light"] .settings-field-row {
 
 body[data-theme-style="bento"][data-theme-mode="light"] select.settings-select-custom,
 body[data-theme-style="bento"][data-theme-mode="light"] select#desktop-display-select,
-body[data-theme-style="bento"][data-theme-mode="light"] .import-text-field,
-body[data-theme-style="bento"][data-theme-mode="light"] .import-textarea,
 body[data-theme-style="bento"][data-theme-mode="light"] .dialog-search-input {
   background: #ffffff !important;
   border: 1px solid rgba(0, 0, 0, 0.12) !important;
@@ -3649,23 +4880,426 @@ body[data-theme-style="bento"][data-theme-mode="light"] .dialog-search-input {
 }
 
 body[data-theme-style="bento"][data-theme-mode="light"] .settings-segmented-group,
-body[data-theme-style="bento"][data-theme-mode="light"] .theme-mode-switcher-group,
-body[data-theme-style="bento"][data-theme-mode="light"] .import-nav-tabs {
+body[data-theme-style="bento"][data-theme-mode="light"] .theme-mode-switcher-group {
   background: #edeaf5 !important;
   border-color: rgba(0, 0, 0, 0.08) !important;
 }
 
 body[data-theme-style="bento"][data-theme-mode="light"] .settings-segmented-btn,
-body[data-theme-style="bento"][data-theme-mode="light"] .theme-mode-btn,
-body[data-theme-style="bento"][data-theme-mode="light"] .import-nav-tab {
+body[data-theme-style="bento"][data-theme-mode="light"] .theme-mode-btn {
   color: #5a5769 !important;
 }
 
-body[data-theme-style="bento"][data-theme-mode="light"] .import-nav-tab.active {
+/* ==========================================================================
+   Bento Theme - Library Manager Modal (Light Mode Overrides)
+   ========================================================================== */
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal {
   background: #ffffff !important;
-  border: 1px solid rgba(120, 82, 255, 0.35) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(120, 82, 255, 0.14) !important;
   color: #14131c !important;
-  box-shadow: none !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .settings-header {
+  background: #ffffff !important;
+  border-bottom-color: rgba(0, 0, 0, 0.07) !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .modal-main-title {
+  color: #14131c !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .modal-sub-title {
+  color: #5a5769 !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .settings-header-icon {
+  background: rgba(120, 82, 255, 0.12) !important;
+  border-color: rgba(120, 82, 255, 0.25) !important;
+  color: #6037e6 !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .settings-header-icon svg {
+  stroke: #6037e6 !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .settings-header .mode-toggle-btn {
+  background: #edeaf5 !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  color: #14131c !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .settings-header .mode-toggle-btn:hover {
+  background: #e2def0 !important;
+  border-color: rgba(120, 82, 255, 0.4) !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .import-nav-bar {
+  background: #edeaf5 !important;
+  border-bottom-color: rgba(0, 0, 0, 0.07) !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .import-nav-tabs {
+  background: #ffffff !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .import-nav-tab {
+  color: #5a5769 !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .import-nav-tab:hover {
+  color: #14131c !important;
+  background: rgba(0, 0, 0, 0.04) !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .import-nav-tab.active {
+  background: rgba(120, 82, 255, 0.14) !important;
+  border-color: rgba(120, 82, 255, 0.35) !important;
+  color: #6037e6 !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .import-nav-tab.active svg {
+  stroke: #6037e6 !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .import-modal-body {
+  background: #ffffff !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .import-dropzone-box {
+  background: #f8f7fc !important;
+  border-color: rgba(120, 82, 255, 0.35) !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .import-dropzone-box:hover,
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .import-dropzone-box.drag-hover {
+  background: rgba(120, 82, 255, 0.06) !important;
+  border-color: #7852ff !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .dropzone-icon-circle {
+  background: rgba(120, 82, 255, 0.12) !important;
+  border-color: rgba(120, 82, 255, 0.3) !important;
+  color: #6037e6 !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .dropzone-icon-circle svg {
+  stroke: #6037e6 !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .dropzone-main-text {
+  color: #14131c !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .dropzone-sub-text {
+  color: #5a5769 !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .format-pill {
+  background: rgba(120, 82, 255, 0.08) !important;
+  border-color: rgba(120, 82, 255, 0.22) !important;
+  color: #6037e6 !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .dropzone-browse-btn {
+  background: #edeaf5 !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+  color: #14131c !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .dropzone-browse-btn:hover {
+  background: rgba(120, 82, 255, 0.15) !important;
+  border-color: #7852ff !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .import-input-label {
+  color: #5a5769 !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .import-text-field,
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .import-textarea,
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .import-search-field {
+  background: #f8f7fc !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+  color: #14131c !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .import-text-field:focus,
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .import-textarea:focus,
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .import-search-field:focus {
+  border-color: #7852ff !important;
+  box-shadow: 0 0 0 2px rgba(120, 82, 255, 0.18) !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .tag-chips-label {
+  color: #878496 !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .tag-chip {
+  background: rgba(120, 82, 255, 0.10) !important;
+  border-color: rgba(120, 82, 255, 0.25) !important;
+  color: #6037e6 !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .tag-chip:hover {
+  background: rgba(120, 82, 255, 0.22) !important;
+  border-color: #7852ff !important;
+  color: #14131c !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .split-col-header {
+  color: #5a5769 !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .preview-count-badge {
+  background: rgba(120, 82, 255, 0.14) !important;
+  border-color: rgba(120, 82, 255, 0.3) !important;
+  color: #6037e6 !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .import-preview-container {
+  background: #f8f7fc !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .import-prev-empty {
+  color: #5a5769 !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .import-prev-meta {
+  border-bottom-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .import-prev-title {
+  color: #6037e6 !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .import-prev-author {
+  color: #5a5769 !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .import-prev-card {
+  background: #ffffff !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .import-prev-slide-badge {
+  color: #7852ff !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .import-prev-section-badge {
+  background: rgba(16, 185, 129, 0.12) !important;
+  border-color: rgba(16, 185, 129, 0.28) !important;
+  color: #059669 !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .import-prev-text {
+  color: #14131c !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .import-checkbox-label {
+  color: #5a5769 !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .bento-modal-checkbox {
+  accent-color: #7852ff !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .import-primary-btn {
+  background: #7852ff !important;
+  box-shadow: 0 2px 10px rgba(120, 82, 255, 0.3) !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .import-primary-btn:hover {
+  background: #6a42f5 !important;
+  box-shadow: 0 4px 16px rgba(120, 82, 255, 0.45) !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .import-search-bar-wrap {
+  background: #f8f7fc !important;
+  border-color: rgba(0, 0, 0, 0.10) !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .import-search-bar-wrap:focus-within {
+  border-color: #7852ff !important;
+  box-shadow: 0 0 0 3px rgba(120, 82, 255, 0.18) !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .import-search-bar-wrap svg {
+  color: #7852ff !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .import-search-field {
+  color: #14131c !important;
+}
+
+/* Light Mode Filter Toolbar & View Switcher */
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .repo-filter-label {
+  color: #878496 !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .repo-filter-pill {
+  background: rgba(0, 0, 0, 0.04) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  color: #5a5769 !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .repo-filter-pill:hover {
+  background: rgba(0, 0, 0, 0.08) !important;
+  color: #14131c !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .repo-filter-pill.active {
+  background: #7852ff !important;
+  border-color: #7852ff !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(120, 82, 255, 0.3) !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .repo-view-switcher {
+  background: #f0eff5 !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .repo-view-btn {
+  color: #5a5769 !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .repo-view-btn:hover {
+  color: #14131c !important;
+  background: rgba(0, 0, 0, 0.04) !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .repo-view-btn.active {
+  background: #ffffff !important;
+  border-color: rgba(120, 82, 255, 0.25) !important;
+  color: #6037e6 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .repo-view-btn.active svg {
+  stroke: #6037e6 !important;
+}
+
+/* Light Mode Card Styling */
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .repo-item-card {
+  background: #f8f7fc !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .repo-item-card:hover {
+  background: #edeaf5 !important;
+  border-color: rgba(120, 82, 255, 0.3) !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .repo-item-card.active-repo {
+  border-color: rgba(120, 82, 255, 0.45) !important;
+  background: rgba(120, 82, 255, 0.06) !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .repo-item-title {
+  color: #14131c !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .repo-item-author {
+  color: #6037e6 !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .repo-item-meta {
+  color: #5a5769 !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .repo-item-meta .meta-lang {
+  color: #5a5769 !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .repo-item-meta .meta-size {
+  color: #878496 !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .repo-item-preview-text {
+  color: #5a5769 !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .repo-tag-pill {
+  background: rgba(0, 0, 0, 0.06) !important;
+  color: #5a5769 !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .repo-tag-pill.installed {
+  background: rgba(16, 185, 129, 0.12) !important;
+  color: #059669 !important;
+  border-color: rgba(16, 185, 129, 0.28) !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .repo-tag-pill.active {
+  background: rgba(120, 82, 255, 0.14) !important;
+  color: #6037e6 !important;
+  border-color: rgba(120, 82, 255, 0.3) !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .repo-status-badge.active {
+  color: #6037e6 !important;
+  background: rgba(120, 82, 255, 0.14) !important;
+  border-color: rgba(120, 82, 255, 0.3) !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .repo-status-badge.ready {
+  color: #059669 !important;
+  background: rgba(16, 185, 129, 0.12) !important;
+  border-color: rgba(16, 185, 129, 0.28) !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .repo-status-badge.cloud {
+  color: #878496 !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .bento-btn-primary-sm {
+  background: #7852ff !important;
+  border-color: #7852ff !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .bento-btn-primary-sm:hover {
+  background: #6a42f5 !important;
+  border-color: #6a42f5 !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .bento-btn-secondary-sm {
+  background: #edeaf5 !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+  color: #14131c !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .bento-btn-secondary-sm:hover {
+  background: rgba(120, 82, 255, 0.14) !important;
+  border-color: #7852ff !important;
+  color: #14131c !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .bento-btn-active-indicator {
+  background: rgba(120, 82, 255, 0.14) !important;
+  border-color: #7852ff !important;
+  color: #6037e6 !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .bento-btn-icon-danger {
+  background: rgba(239, 68, 68, 0.10) !important;
+  border-color: rgba(239, 68, 68, 0.25) !important;
+  color: #dc2626 !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .bento-btn-icon-danger:hover {
+  background: rgba(239, 68, 68, 0.20) !important;
+  border-color: #dc2626 !important;
+}
+
+body[data-theme-style="bento"][data-theme-mode="light"] .library-import-modal .repo-empty-state {
+  background: rgba(0, 0, 0, 0.02) !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+  color: #5a5769 !important;
 }
 
 body[data-theme-style="bento"][data-theme-mode="light"] .theme-style-card {
@@ -3698,16 +5332,6 @@ body[data-theme-style="bento"][data-theme-mode="light"] .audio-mic-option.active
   background: rgba(120, 82, 255, 0.12) !important;
   border-color: rgba(120, 82, 255, 0.25) !important;
   color: #14131c !important;
-}
-
-body[data-theme-style="bento"][data-theme-mode="light"] .repo-item-card {
-  background: #edeaf5 !important;
-  border-color: rgba(0, 0, 0, 0.06) !important;
-}
-
-body[data-theme-style="bento"][data-theme-mode="light"] .repo-item-card:hover {
-  background: #e2def0 !important;
-  border-color: rgba(0, 0, 0, 0.10) !important;
 }
 
 body[data-theme-style="bento"][data-theme-mode="light"] #tab-shortcuts .settings-card-group > div,
@@ -6462,8 +8086,8 @@ body[data-theme-style="bento"][data-theme-mode="light"] .transition-style-card .
 .bento-trans-btn-trigger {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 3px 8px 3px 7px;
+  gap: 4px;
+  padding: 3px 6px 3px 5px;
   background: var(--card-2, #181920);
   border: 1px solid var(--border, rgba(255, 255, 255, 0.12));
   border-radius: 7px;
@@ -6473,6 +8097,8 @@ body[data-theme-style="bento"][data-theme-mode="light"] .transition-style-card .
   font-family: var(--font-main, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
   color: var(--text, #f3f2f7);
   outline: none;
+  flex-shrink: 0;
+  max-width: 96px;
 }
 
 .bento-trans-btn-trigger:hover,
@@ -6491,14 +8117,18 @@ body[data-theme-style="bento"][data-theme-mode="light"] .transition-style-card .
 }
 
 .bento-trans-btn-trigger .bento-trans-name {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   color: var(--text, #f3f2f7);
-  letter-spacing: 0.2px;
+  letter-spacing: 0.1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .bento-trans-btn-trigger .bento-trans-arrow {
   color: var(--dim, #a3a1ae);
+  flex-shrink: 0;
   transition: transform 0.18s ease;
 }
 
@@ -9376,3 +11006,518 @@ body[data-theme-mode="light"] .session-foot-hint code {
   box-shadow: none !important;
 }
 
+/* ==========================================================================
+   Sanctuary Theme Engine & Dual-Output Preview System (0ms Tactile & Non-GPU)
+   ========================================================================== */
+.bento-theme-pill-wrap {
+  display: inline-flex;
+  max-width: 115px;
+}
+
+.bento-sanctuary-theme-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  background: var(--card-2, #1a1920);
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+  border-radius: 6px;
+  color: var(--text, #f3f2f7);
+  font-size: 10px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.04s, background-color 0.04s;
+  outline: none;
+  max-width: 115px;
+}
+
+.bento-sanctuary-theme-btn span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bento-sanctuary-theme-btn:hover {
+  background: var(--card-3, #23222e);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.bento-sanctuary-theme-btn svg {
+  color: var(--purple, #8a6dff);
+  flex-shrink: 0;
+}
+
+/* Sanctuary Presentation Themes Modal Dialog (Strict Non-GPU Blur) */
+#sanctuary-theme-modal-backdrop.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(4, 4, 8, 0.82);
+  z-index: 100060;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.sanctuary-theme-modal-card {
+  width: 100%;
+  max-width: 620px;
+  background: #131218;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 16px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.95);
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-sizing: border-box;
+  animation: bentoLexSlideUp 0.12s ease-out;
+}
+
+.sanctuary-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 10px;
+}
+
+.sanctuary-modal-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #FFFFFF;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.sanctuary-modal-title svg {
+  color: #8a6dff;
+}
+
+.sanctuary-modal-close {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background 0.04s, color 0.04s;
+}
+
+.sanctuary-modal-close:hover {
+  color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Category Filter Tabs */
+.sanctuary-cat-tabs {
+  display: flex;
+  gap: 6px;
+  background: #09090e;
+  padding: 4px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.sanctuary-cat-tab {
+  flex: 1;
+  text-align: center;
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--mute, #878496);
+  transition: background-color 0.04s, color 0.04s;
+  white-space: nowrap;
+}
+
+.sanctuary-cat-tab.active {
+  background: #201f2c;
+  color: #FFFFFF;
+}
+
+/* Themes Grid (3 columns on modal) */
+.sanctuary-modal-themes-grid,
+.sanctuary-themes-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  max-height: 240px;
+  overflow-y: auto;
+  padding: 2px;
+}
+
+@media (max-width: 580px) {
+  .sanctuary-modal-themes-grid,
+  .sanctuary-themes-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.sanctuary-theme-card {
+  position: relative;
+  border-radius: 9px;
+  height: 64px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 7px 10px;
+  background-size: cover;
+  background-position: center;
+  transition: border-color 0.04s, transform 0.04s;
+}
+
+.sanctuary-theme-card:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-1px);
+}
+
+.sanctuary-theme-card.active {
+  border: 2px solid #8a6dff !important;
+}
+
+.sanctuary-theme-card.active::after {
+  content: "✓";
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: #8a6dff;
+  color: #FFFFFF;
+  font-size: 9px;
+  font-weight: 900;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.sanctuary-theme-card-name {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #FFFFFF;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.95);
+  z-index: 2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sanctuary-theme-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.15) 0%, rgba(0, 0, 0, 0.72) 100%);
+  pointer-events: none;
+}
+
+.sanctuary-theme-card-badge {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  font-size: 7.5px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.65);
+  color: #E2E8F0;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  z-index: 2;
+  line-height: 1.3;
+}
+
+.sanctuary-theme-card-badge.video {
+  background: rgba(124, 58, 237, 0.85);
+  color: #FFFFFF;
+  border-color: rgba(167, 139, 250, 0.4);
+}
+
+.sanctuary-theme-card-badge.image {
+  background: rgba(14, 116, 144, 0.85);
+  color: #FFFFFF;
+  border-color: rgba(34, 211, 238, 0.4);
+}
+
+.sanctuary-theme-card-badge.gradient {
+  background: rgba(30, 41, 59, 0.85);
+  color: #CBD5E1;
+}
+
+/* Control Sections */
+.sanctuary-control-section {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  background: #09090e;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 9px;
+  padding: 10px 12px;
+}
+
+.sanctuary-control-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.sanctuary-control-val {
+  font-size: 11px;
+  font-weight: 700;
+  color: #c4b5fd;
+  font-family: var(--font-mono, monospace);
+}
+
+.sanctuary-dimmer-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 5px;
+  border-radius: 3px;
+  background: #252433;
+  outline: none;
+  cursor: pointer;
+}
+
+.sanctuary-dimmer-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #8a6dff;
+  cursor: pointer;
+}
+
+.sanctuary-font-group {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+
+.sanctuary-font-btn {
+  background: #191824;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 10px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.75);
+  cursor: pointer;
+  text-align: center;
+  transition: background-color 0.04s, border-color 0.04s, color 0.04s;
+}
+
+.sanctuary-font-btn:hover {
+  background: #222030;
+  color: #FFFFFF;
+}
+
+.sanctuary-font-btn.active {
+  background: #262438;
+  border-color: #8a6dff;
+  color: #c3b6ff;
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   Dual Output Preview Layout (Sanctuary 16:9 + Livestream OBS Side-by-Side)
+   ========================================================================== */
+.bento-single-prev-wrap {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bento-dual-prev-wrap {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  gap: 6px;
+  box-sizing: border-box;
+}
+
+.bento-dual-mon {
+  flex: 1;
+  height: 100%;
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #000000;
+  display: flex;
+  flex-direction: column;
+}
+
+.dual-mon-badge {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  font-size: 7.5px;
+  font-weight: 700;
+  padding: 1.5px 5px;
+  border-radius: 3px;
+  z-index: 10;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+.sanctuary-badge {
+  background: rgba(37, 99, 235, 0.9);
+  color: #FFFFFF;
+}
+
+.livestream-badge {
+  background: rgba(220, 38, 38, 0.9);
+  color: #FFFFFF;
+}
+
+/* Sanctuary Monitor Inside Dual View */
+.dual-mon-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background-size: cover;
+  background-position: center;
+}
+
+.bento-dual-sanctuary-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: none;
+}
+
+.dual-mon-dimmer {
+  position: absolute;
+  inset: 0;
+  background: #000000;
+  opacity: 0.3;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.dual-mon-text {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 16px 8px 6px;
+  color: #FFFFFF;
+  font-family: 'Outfit', sans-serif;
+  overflow: hidden;
+}
+
+.dual-mon-text .sanctuary-l1 {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #60A5FA;
+  margin-bottom: 2px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+  letter-spacing: 0.02em;
+}
+
+.dual-mon-text .sanctuary-l2 {
+  font-size: 8.5px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: #FFFFFF;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.95);
+}
+
+.dual-mon-empty {
+  font-size: 8.5px;
+  color: rgba(255, 255, 255, 0.35);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Livestream Monitor Inside Dual View */
+.dual-mon-camera-sim {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 60%, #17152d 0%, #080712 85%);
+  z-index: 1;
+}
+
+.dual-mon-camera-sim .cam-silhouette {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 54px;
+  height: 28px;
+  background: rgba(0, 0, 0, 0.45);
+  border-radius: 20px 20px 0 0;
+}
+
+.dual-mon-lt {
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
+  right: 4px;
+  background: rgba(15, 23, 42, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 4px;
+  padding: 3px 5px;
+  text-align: center;
+  z-index: 3;
+}
+
+.dual-mon-lt .lt-l1 {
+  font-size: 7px;
+  font-weight: 700;
+  color: #c3b6ff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dual-mon-lt .lt-l2 {
+  font-size: 7.5px;
+  font-weight: 500;
+  color: #FFFFFF;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Single-mode Sanctuary Dimmer Overlay ─────────────────────────────────── */
+.bento-single-sanctuary-dimmer {
+  position: absolute;
+  inset: 0;
+  background: #000000;
+  opacity: 0.3;
+  pointer-events: none;
+  z-index: 1;
+  transition: opacity 0s;
+}

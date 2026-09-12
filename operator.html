@@ -6,7 +6,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ginomai Pro — Remote Operator</title>
+  <title>Ginomia Pro — Remote Operator</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
     rel="stylesheet">
@@ -906,7 +906,7 @@
             <polyline points="2 12 12 17 22 12" />
           </svg>
         </div>
-        <span class="join-brand-text">Ginomai Pro</span>
+        <span class="join-brand-text">Ginomia Pro</span>
         <span class="join-brand-badge">OPERATOR</span>
       </div>
 
@@ -920,6 +920,10 @@
           autocomplete="off">
       </div>
 
+      <div class="join-field">
+        <label class="join-label" for="operator-pairing-code">HOST PAIRING CODE</label>
+        <input id="operator-pairing-code" class="join-input" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="Code from host Broadcast Hub">
+      </div>
       <button class="join-btn" id="join-btn" onclick="joinSession()">Join Session</button>
 
       <div class="join-error" id="join-error"></div>
@@ -933,7 +937,7 @@
     <div id="session-bar">
       <div class="session-bar-left">
         <div class="session-dot" id="session-dot"></div>
-        <span class="session-label">Connected to Ginomai Pro Studio —</span>
+        <span class="session-label">Connected to Ginomia Pro Studio —</span>
         <span class="session-operator-name" id="session-name-display">Operator</span>
       </div>
       <div class="session-bar-right">
@@ -1163,7 +1167,7 @@
         const res = await fetch('/api/session/join', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name })
+          body: JSON.stringify({ name, pairingCode: $('operator-pairing-code').value })
         });
         const data = await res.json();
 

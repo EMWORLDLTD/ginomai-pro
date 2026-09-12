@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Ginomai Pro — The Word in Motion</title>
+  <title>Ginomia Pro — The Word in Motion</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=David+Libre:wght@500;700&family=GFS+Didot&family=Noto+Serif+Hebrew:wght@600;800&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Cormorant+Garamond:ital,wght@0,500;0,700;1,500&family=David+Libre:wght@500;700&family=GFS+Didot&family=Inter:wght@400;600;700;800&family=Noto+Serif+Hebrew:wght@600;800&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     * {
       box-sizing: border-box;
@@ -31,9 +31,18 @@
       background-position: center;
       background-color: #0A0E18;
       background-image: none;
-      transition: opacity 0.4s ease;
+      transition: background 0.3s ease, background-color 0.3s ease;
       z-index: 1;
       display: none;
+      pointer-events: none;
+    }
+
+    #bg-dimmer-layer {
+      position: absolute;
+      inset: 0;
+      background: #000000;
+      opacity: 0.3;
+      transition: opacity 0.2s ease;
       pointer-events: none;
     }
 
@@ -71,6 +80,10 @@
     :root {
       --sf-trans-duration: 300ms;
       --sf-trans-ease: cubic-bezier(0.16, 1, 0.3, 1);
+      --sf-sanctuary-font: 'Outfit', sans-serif;
+      --sf-sanctuary-text-color: #FFFFFF;
+      --sf-sanctuary-header-color: #60A5FA;
+      --sf-sanctuary-text-shadow: 0 4px 16px rgba(0, 0, 0, 0.95), 0 2px 6px rgba(0, 0, 0, 0.9);
     }
 
     /* Display Layout Root Container (Native 1920x1080 Canvas Scale) */
@@ -142,21 +155,23 @@
     }
 
     .full-card-wrapper .reference-line {
+      font-family: var(--sf-sanctuary-font);
       font-size: 42px;
       font-weight: 900;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      color: #EAB308;
+      color: var(--sf-sanctuary-header-color);
       margin-bottom: 24px;
-      text-shadow: 0 4px 14px rgba(0, 0, 0, 0.95), 0 2px 4px rgba(0, 0, 0, 0.9);
+      text-shadow: var(--sf-sanctuary-text-shadow);
     }
 
     .full-card-wrapper .content-line {
+      font-family: var(--sf-sanctuary-font);
       font-size: 64px;
       font-weight: 800;
       line-height: 1.35;
-      color: #FFFFFF;
-      text-shadow: 0 4px 16px rgba(0, 0, 0, 0.95), 0 2px 6px rgba(0, 0, 0, 0.9);
+      color: var(--sf-sanctuary-text-color);
+      text-shadow: var(--sf-sanctuary-text-shadow);
       word-break: break-word;
       max-width: 1500px;
     }
@@ -229,6 +244,7 @@
     }
 
     .lt-card-wrapper .reference-line {
+      font-family: var(--sf-sanctuary-font);
       font-size: 28px;
       font-weight: 900;
       text-transform: uppercase;
@@ -239,6 +255,7 @@
     }
 
     .lt-card-wrapper .content-line {
+      font-family: var(--sf-sanctuary-font);
       font-size: 40px;
       font-weight: 800;
       line-height: 1.3;
@@ -873,7 +890,10 @@
 <body>
 
   <!-- Background layer (Sanctuary Mode) -->
-  <div id="bg-layer"></div>
+  <div id="bg-layer">
+    <video id="bg-video" autoplay loop muted playsinline style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:none; pointer-events:none;"></video>
+    <div id="bg-dimmer-layer"></div>
+  </div>
 
   <!-- Standby Idle State Placeholder (when no slide is on air) -->
   <div id="standby-container" class="standby-container">
@@ -902,15 +922,36 @@
     const urlParams = new URLSearchParams(window.location.search);
     const isPreview = urlParams.has('preview') || urlParams.get('mode') === 'preview';
     const rawTarget = (urlParams.get('target') || urlParams.get('mode') || '').toLowerCase();
-    const isExplicitLt = rawTarget === 'livestream' || rawTarget === 'lt' || rawTarget === 'lowerthird' || rawTarget === 'obs';
+    const rawLayout = (urlParams.get('layout') || '').toLowerCase();
+
     const isSanctuary = rawTarget === 'sanctuary' || rawTarget === 'full' || rawTarget === 'projector' || rawTarget === 'hdmi';
-    const targetType = isExplicitLt ? 'livestream' : (isSanctuary ? 'sanctuary' : 'auto');
+    const isExplicitLt = rawLayout === 'lt' || rawLayout === 'lowerthird';
+    const isExplicitFull = rawLayout === 'full';
+    const isObs = rawTarget === 'obs' || rawTarget === 'livestream' || rawTarget === 'broadcast';
+    const targetType = isSanctuary ? 'sanctuary' : (isObs ? 'obs' : (isExplicitLt ? 'livestream' : 'auto'));
+
+    function isLowerThirdLayout(data) {
+      if (!data) data = window.LATEST_STATE || {};
+      if (isExplicitLt) return true;
+      if (isExplicitFull || isSanctuary) return false;
+
+      const obsRule = (data.sanctuaryTheme && data.sanctuaryTheme.obsModeRule) || data.obsModeRule || localStorage.getItem('sf_obs_mode_rule') || 'follow';
+      if (targetType === 'obs' || targetType === 'livestream') {
+        if (obsRule === 'always_full') return false;
+        if (obsRule === 'always_lt') return true;
+        // 'follow': follow studio toggle (data.mode)
+        return Boolean(data.mode === 'lt' || data.mode === 'lowerthird');
+      }
+
+      return Boolean(data.mode === 'lt' || data.mode === 'lowerthird');
+    }
 
     // Try BroadcastChannel (works for same-origin tabs, NOT for OBS)
     let syncChannel = null;
     try { syncChannel = new BroadcastChannel('scriptureflow_sync'); } catch (e) {}
 
     const bgLayer = document.getElementById('bg-layer');
+    const bgVideo = document.getElementById('bg-video');
     const container = document.getElementById('display-container');
     const standbyEl = document.getElementById('standby-container');
 
@@ -935,18 +976,24 @@
     let lastProcessedTimestamp = 0;
 
     function ensureAlphaTransparent() {
-      if (isPreview || targetType === 'sanctuary' || (!isExplicitLt && window.CURRENT_DISPLAY_MODE === 'full')) {
-        const bg = (window.LATEST_STATE && window.LATEST_STATE.bg) || '#0A0E18';
-        document.documentElement.style.setProperty('background', bg, 'important');
-        document.documentElement.style.setProperty('background-color', bg, 'important');
-        document.body.style.setProperty('background', bg, 'important');
-        document.body.style.setProperty('background-color', bg, 'important');
+      const isLt = isLowerThirdLayout(window.LATEST_STATE || {});
+      const isTransparent = Boolean(window.LATEST_STATE && window.LATEST_STATE.transparentBg);
+
+      // Transparency is strictly for lower-third mode
+      if (isLt && isTransparent) {
+        document.documentElement.style.setProperty('background', 'transparent', 'important');
+        document.documentElement.style.setProperty('background-color', 'transparent', 'important');
+        document.body.style.setProperty('background', 'transparent', 'important');
+        document.body.style.setProperty('background-color', 'transparent', 'important');
         return;
       }
-      document.documentElement.style.setProperty('background', 'transparent', 'important');
-      document.documentElement.style.setProperty('background-color', 'transparent', 'important');
-      document.body.style.setProperty('background', 'transparent', 'important');
-      document.body.style.setProperty('background-color', 'transparent', 'important');
+
+      // Full display mode or non-transparent lower-third
+      const bg = (window.LATEST_STATE && window.LATEST_STATE.bg) || '#0A0E18';
+      document.documentElement.style.setProperty('background', bg, 'important');
+      document.documentElement.style.setProperty('background-color', bg, 'important');
+      document.body.style.setProperty('background', bg, 'important');
+      document.body.style.setProperty('background-color', bg, 'important');
     }
 
     if (isPreview) {
@@ -956,23 +1003,24 @@
 
     function applyTargetMode(mode) {
       window.CURRENT_DISPLAY_MODE = mode;
-      const isLt = (targetType === 'livestream') || (!isSanctuary && (mode === 'lt' || mode === 'lowerthird'));
+      const isLt = isLowerThirdLayout(window.LATEST_STATE || { mode: mode });
       if (isLt) {
         container.className = 'mode-lt visible';
         bgLayer.style.display = 'none';
+        if (bgVideo) {
+          bgVideo.style.display = 'none';
+          bgVideo.pause();
+        }
         if (standbyEl) standbyEl.classList.add('hidden');
       } else {
         container.className = 'mode-full visible';
-        if (targetType === 'sanctuary' || !isExplicitLt) {
-          bgLayer.style.display = 'block';
-        } else {
-          bgLayer.style.display = 'none';
-        }
+        // Full mode ALWAYS displays the sanctuary background layer (transparency is lower-third only)
+        bgLayer.style.display = 'block';
       }
       ensureAlphaTransparent();
     }
 
-    applyTargetMode(targetType === 'livestream' ? 'lt' : 'full');
+    applyTargetMode(isLowerThirdLayout() ? 'lt' : 'full');
 
     // =====================================================
     // SYNC STRATEGY
@@ -1007,18 +1055,36 @@
     fetchInitialState();
 
     let sseRetryTimer = null;
+    let outputConnectionId = null;
+    let outputReceivedRevision = null;
+    let outputStreamConnected = false;
+    function acknowledgeOutput() {
+      if (!outputConnectionId) return;
+      fetch('/api/output-ack', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: outputConnectionId, revision: outputReceivedRevision }) }).catch(() => {});
+    }
+    setInterval(acknowledgeOutput, 3000);
     function connectSSE() {
       const apiBase = window.location.origin;
-      const evtSource = new EventSource(apiBase + '/api/events');
+      const outputTarget = new URLSearchParams(location.search).get('target') || 'dynamic';
+      const evtSource = new EventSource(apiBase + '/api/events?target=' + encodeURIComponent(outputTarget));
+      evtSource.onopen = () => { outputStreamConnected = true; };
+      evtSource.addEventListener('output-session', event => { outputConnectionId = JSON.parse(event.data).id; });
 
       evtSource.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
           applyState(data);
+          if (data._outputRevision !== undefined) {
+            outputReceivedRevision = data._outputRevision;
+            acknowledgeOutput();
+          }
         } catch (e) {}
       };
 
       evtSource.onerror = () => {
+        outputStreamConnected = false;
+        outputConnectionId = null;
         evtSource.close();
         if (sseRetryTimer) clearTimeout(sseRetryTimer);
         sseRetryTimer = setTimeout(connectSSE, 3000);
@@ -1029,10 +1095,106 @@
       connectSSE();
     }
 
+    function applySanctuaryTheme(theme) {
+      if (!theme) return;
+      window.ACTIVE_SANCTUARY_THEME = theme;
+
+      // Font propagates to ALL output targets (sanctuary projector + OBS/livestream overlay)
+      if (theme.font) {
+        document.documentElement.style.setProperty('--sf-sanctuary-font', `'${theme.font}', -apple-system, sans-serif`);
+      }
+
+      const isLt = isLowerThirdLayout(window.LATEST_STATE || {});
+      const isClearBg = Boolean(window.LATEST_STATE && window.LATEST_STATE.clearBg);
+      // Background always shows in Full Display mode unless clearBg is active (transparency is strictly for lower third)
+      const shouldShowBg = !isLt && !isClearBg;
+
+      const vid = document.getElementById('bg-video');
+
+      if (bgLayer) {
+        if (shouldShowBg) {
+          bgLayer.style.display = 'block';
+
+          if (theme.type === 'video' && theme.videoUrl) {
+            bgLayer.style.backgroundImage = 'none';
+            bgLayer.style.backgroundColor = '#000000';
+            if (vid) {
+              if (vid.getAttribute('data-src') !== theme.videoUrl) {
+                vid.setAttribute('data-src', theme.videoUrl);
+                vid.src = theme.videoUrl;
+              }
+              vid.style.display = 'block';
+              vid.play().catch(() => {});
+            }
+          } else if (theme.type === 'image' && theme.imageUrl) {
+            if (vid) {
+              vid.style.display = 'none';
+              vid.pause();
+            }
+            bgLayer.style.backgroundImage = `url('${theme.imageUrl}')`;
+            bgLayer.style.backgroundSize = 'cover';
+            bgLayer.style.backgroundPosition = 'center';
+          } else {
+            if (vid) {
+              vid.style.display = 'none';
+              vid.pause();
+            }
+            bgLayer.style.backgroundImage = 'none';
+            if (theme.bgCss) {
+              bgLayer.style.background = theme.bgCss;
+            }
+          }
+        } else {
+          bgLayer.style.display = 'none';
+          if (vid) {
+            vid.style.display = 'none';
+            vid.pause();
+          }
+        }
+      }
+
+      const dimmerEl = document.getElementById('bg-dimmer-layer');
+      if (dimmerEl) {
+        const dimmerVal = (typeof theme.dimmer === 'number') ? theme.dimmer : 30;
+        dimmerEl.style.opacity = (dimmerVal / 100).toString();
+      }
+      if (theme.textColor) {
+        document.documentElement.style.setProperty('--sf-sanctuary-text-color', theme.textColor);
+      }
+      if (theme.headerColor) {
+        document.documentElement.style.setProperty('--sf-sanctuary-header-color', theme.headerColor);
+      }
+      if (theme.textShadow) {
+        document.documentElement.style.setProperty('--sf-sanctuary-text-shadow', theme.textShadow);
+      }
+    }
+
+    function initLocalSanctuaryTheme() {
+      try {
+        const themeId = localStorage.getItem('sf_sanctuary_theme') || 'deep_celestial';
+        const dimmer = parseInt(localStorage.getItem('sf_sanctuary_dimmer') || '30', 10);
+        const font = localStorage.getItem('sf_sanctuary_font') || 'Outfit';
+        const defaultThemes = {
+          deep_celestial: { bgCss: 'radial-gradient(ellipse at 50% 25%, #1e3a8a 0%, #0c1838 50%, #060b19 100%)', textColor: '#FFFFFF', headerColor: '#60A5FA', textShadow: '0 4px 16px rgba(0, 0, 0, 0.92), 0 1px 3px rgba(0, 0, 0, 0.95)' },
+          golden_sunrise: { bgCss: 'radial-gradient(ellipse at 50% 15%, #78350f 0%, #3b1d06 45%, #120902 100%)', textColor: '#FFFBEB', headerColor: '#FBBF24', textShadow: '0 4px 18px rgba(0, 0, 0, 0.95), 0 1px 4px rgba(0, 0, 0, 0.95)' },
+          atmospheric_ember: { bgCss: 'radial-gradient(ellipse at 50% 30%, #581c87 0%, #3b0764 45%, #170326 100%)', textColor: '#FAF5FF', headerColor: '#C084FC', textShadow: '0 4px 16px rgba(0, 0, 0, 0.92), 0 1px 3px rgba(0, 0, 0, 0.95)' },
+          emerald_sanctuary: { bgCss: 'radial-gradient(ellipse at 50% 20%, #064e3b 0%, #022c22 50%, #01140f 100%)', textColor: '#ECFDF5', headerColor: '#34D399', textShadow: '0 4px 16px rgba(0, 0, 0, 0.92), 0 1px 3px rgba(0, 0, 0, 0.95)' },
+          cathedral_slate: { bgCss: 'linear-gradient(180deg, #1e293b 0%, #0f172a 60%, #070b14 100%)', textColor: '#F8FAFC', headerColor: '#94A3B8', textShadow: '0 4px 16px rgba(0, 0, 0, 0.88), 0 1px 3px rgba(0, 0, 0, 0.95)' },
+          obsidian_dark: { bgCss: '#000000', textColor: '#FFFFFF', headerColor: '#E4E4E7', textShadow: 'none' }
+        };
+        const cur = defaultThemes[themeId] || defaultThemes.deep_celestial;
+        applySanctuaryTheme({ id: themeId, font: font, dimmer: dimmer, ...cur });
+      } catch(e) {}
+    }
+    initLocalSanctuaryTheme();
+
     if (syncChannel) {
       try { syncChannel.postMessage({ type: 'REQUEST_STATE' }); } catch (e) {}
       syncChannel.onmessage = (event) => {
         if (event.data && event.data.type === 'REQUEST_STATE') return;
+        if (event.data && (event.data.type === 'sanctuary_theme_sync' || event.data.sanctuaryTheme)) {
+          applySanctuaryTheme(event.data.sanctuaryTheme);
+        }
         applyState(event.data);
       };
     }
@@ -1040,6 +1202,9 @@
     window.addEventListener('storage', (event) => {
       if (event.key === 'scriptureflow_live_state' && event.newValue) {
         try { applyState(JSON.parse(event.newValue)); } catch (e) {}
+      }
+      if (event.key === 'sf_sanctuary_theme' || event.key === 'sf_sanctuary_dimmer' || event.key === 'sf_sanctuary_font') {
+        initLocalSanctuaryTheme();
       }
     });
 
@@ -1070,10 +1235,10 @@
 
     // Render slide payload content into a specific slot
     function populateSlot(slot, data) {
-      const isLt = (targetType === 'livestream') || (!isSanctuary && (data.mode === 'lt' || data.mode === 'lowerthird'));
+      const isLt = isLowerThirdLayout(data);
       
       let boxClass = isLt ? 'lt-card-wrapper' : 'full-card-wrapper';
-      if (data.transparentBg) boxClass += ' transparent-bg';
+      if (isLt && data.transparentBg) boxClass += ' transparent-bg';
       slot.box.className = 'card-box ' + boxClass;
       slot.el.removeAttribute('data-lex-pos');
 
@@ -1390,18 +1555,10 @@
       window.LATEST_STATE = data;
       applyTargetMode(data.mode);
 
-      if (targetType === 'sanctuary' || (!isExplicitLt && data.mode !== 'lt')) {
-        bgLayer.style.display = 'block';
-        if (data.clearBg) {
-          bgLayer.style.backgroundImage = 'none';
-          bgLayer.style.backgroundColor = '#0A0E18';
-        } else if (data.bg) {
-          bgLayer.style.backgroundColor = data.bg;
-        } else {
-          bgLayer.style.backgroundColor = '#0A0E18';
-        }
-      } else {
-        bgLayer.style.display = 'none';
+      if (data.sanctuaryTheme) {
+        applySanctuaryTheme(data.sanctuaryTheme);
+      } else if (window.ACTIVE_SANCTUARY_THEME) {
+        applySanctuaryTheme(window.ACTIVE_SANCTUARY_THEME);
       }
 
       const transitionType = String(data.transitionType || 'fade').toLowerCase().replace(/[\s_]+/g, '-');
@@ -1413,7 +1570,7 @@
         transitionTimer = null;
       }
 
-      const isTargetLt = (targetType === 'livestream') || data.mode === 'lt' || isExplicitLt;
+      const isTargetLt = isLowerThirdLayout(data);
       const isIncomingLexLt = isLex && (isTargetLt || lexMode !== 'full');
 
       let transInClass = `trans-in-${transitionType}`;
@@ -1479,6 +1636,7 @@
           }
         } catch (e) {}
       } else {
+        if (outputStreamConnected) return;
         fetch(window.location.origin + '/api/state')
           .then(r => r.json())
           .then(data => {
@@ -1488,7 +1646,7 @@
           })
           .catch(() => {});
       }
-    }, 500);
+    }, 3000);
 
     window.applyState = applyState;
   </script>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Loop Generator</title>
+</head>
+<body style="margin:0; overflow:hidden; background:#000;">
+  <canvas id="c" width="1280" height="720"></canvas>
+  <script>
+    const { ipcRenderer } = require('electron');
+    const fs = require('fs');
+    const path = require('path');
+
+    const themes = [
+      { name: 'celestial_worship', file: 'celestial_worship.webp' },
+      { name: 'golden_sunrise', file: 'golden_sunrise.webp' },
+      { name: 'atmospheric_ember', file: 'atmospheric_ember.webp' },
+      { name: 'emerald_ambient', file: 'emerald_ambient.webp' }
+    ];
+
+    const canvas = document.getElementById('c');
+    const ctx = canvas.getContext('2d');
+
+    async function processTheme(item) {
+      return new Promise((resolve) => {
+        const imgPath = path.resolve(__dirname, '..', 'Themes', item.file);
+        console.log('Loading image:', imgPath);
+        const img = new Image();
+        img.onload = () => {
+          console.log('Image loaded:', item.file);
+          const stream = canvas.captureStream(30);
+          let mime = 'video/webm;codecs=vp8';
+          if (!MediaRecorder.isTypeSupported(mime)) {
+            mime = 'video/webm';
+          }
+          const recorder = new MediaRecorder(stream, {
+            mimeType: mime,
+            videoBitsPerSecond: 4000000
+          });
+          const chunks = [];
+          recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+          recorder.onstop = async () => {
+            const blob = new Blob(chunks, { type: 'video/webm' });
+            const buf = Buffer.from(await blob.arrayBuffer());
+            const outPath = path.resolve(__dirname, '..', 'Themes', item.name + '_loop.webm');
+            fs.writeFileSync(outPath, buf);
+            console.log('Successfully saved ' + item.name + '_loop.webm (' + buf.length + ' bytes)');
+            resolve();
+          };
+
+          recorder.start();
+          const totalFrames = 150; // 5-second seamless loop @ 30fps
+          let frame = 0;
+
+          function render() {
+            const progress = frame / totalFrames;
+            const angle = progress * Math.PI * 2;
+            const scale = 1.0 + 0.035 * (0.5 - 0.5 * Math.cos(angle));
+            const panX = Math.sin(angle) * 12;
+            const panY = (0.5 - 0.5 * Math.cos(angle)) * 8;
+
+            ctx.save();
+            ctx.clearRect(0, 0, 1280, 720);
+            ctx.translate(640 + panX, 360 + panY);
+            ctx.scale(scale, scale);
+            ctx.drawImage(img, -640, -360, 1280, 720);
+            ctx.restore();
+
+            frame++;
+            if (frame < totalFrames) {
+              setTimeout(render, 16);
+            } else {
+              recorder.stop();
+            }
+          }
+          render();
+        };
+        img.onerror = (err) => {
+          console.error('Failed to load image:', imgPath, err);
+          resolve();
+        };
+        img.src = 'file:///' + imgPath.replace(/\\/g, '/');
+      });
+    }
+
+    async function runAll() {
+      for (const t of themes) {
+        console.log('Starting processing for:', t.name);
+        await processTheme(t);
+      }
+      ipcRenderer.send('done-all');
+    }
+    runAll();
+  </script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-// Ginomai Pro - Bento Theme Interactive Controller
+// Ginomia Pro - Bento Theme Interactive Controller
 // Powers all buttons, slots, tabs, library items, medley deck columns, stage preview, and AI speech feed
 
 (function() {
@@ -547,6 +547,12 @@
           if (typeof window.syncDashboardWorkspace === 'function') window.syncDashboardWorkspace();
         };
 
+        row.oncontextmenu = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          window.openSongContextMenu(e, song.id);
+        };
+
         listEl.appendChild(row);
       });
     }
@@ -555,6 +561,198 @@
       listEl.scrollTop = savedScrollTop;
     }
   }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // UNIVERSAL OVERLAY DISMISSAL SHIELD (Zero-Latency Click-Through Prevention)
+  // ─────────────────────────────────────────────────────────────────────────────
+  let _activeDismissCallback = null;
+
+  window.openDismissShield = function(onDismiss, zIndex = 99990) {
+    let shield = document.getElementById('sf-dismiss-shield');
+    if (!shield) {
+      shield = document.createElement('div');
+      shield.id = 'sf-dismiss-shield';
+      shield.className = 'sf-dismiss-shield';
+      document.body.appendChild(shield);
+
+      const handleDismiss = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        const cb = _activeDismissCallback;
+        _activeDismissCallback = null;
+        if (typeof cb === 'function') {
+          cb(e);
+        } else {
+          window.dismissAllOverlays();
+        }
+        window.closeDismissShield();
+      };
+
+      shield.addEventListener('pointerdown', handleDismiss, true);
+      shield.addEventListener('mousedown', handleDismiss, true);
+      shield.addEventListener('click', handleDismiss, true);
+      shield.addEventListener('contextmenu', handleDismiss, true);
+    }
+
+    _activeDismissCallback = onDismiss;
+    shield.style.zIndex = zIndex;
+    shield.style.display = 'block';
+  };
+
+  window.closeDismissShield = function() {
+    const shield = document.getElementById('sf-dismiss-shield');
+    if (shield) {
+      shield.style.display = 'none';
+    }
+    _activeDismissCallback = null;
+  };
+
+  window.dismissAllOverlays = function() {
+    if (typeof window.closeSongContextMenu === 'function') window.closeSongContextMenu();
+    if (typeof window.closeTranslationDropdown === 'function') window.closeTranslationDropdown();
+    if (typeof window.closeBentoChapterPopover === 'function') window.closeBentoChapterPopover();
+    if (typeof window.closeBentoVersePopover === 'function') window.closeBentoVersePopover();
+    if (typeof window.closeSongPicker === 'function') window.closeSongPicker();
+    if (typeof window.closeVersionPicker === 'function') window.closeVersionPicker();
+    if (typeof window.closeBiblePassagePicker === 'function') window.closeBiblePassagePicker();
+    if (typeof window.cancelActiveInlineCardEdit === 'function') window.cancelActiveInlineCardEdit();
+    if (typeof window.closeAudioMicPopover === 'function') window.closeAudioMicPopover();
+    if (window.sessionManager && typeof window.sessionManager.closeSessionDropdown === 'function') {
+      window.sessionManager.closeSessionDropdown();
+    }
+    const tools = document.querySelector('.sf-tools-menu');
+    if (tools && tools.open) tools.open = false;
+    window.closeDismissShield();
+  };
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // SONG LIST CONTEXT MENU (RIGHT-CLICK TO EDIT)
+  window.openSongContextMenu = function(e, songId) {
+    let menu = document.getElementById('sf-song-context-menu');
+    if (!menu) {
+      menu = document.createElement('div');
+      menu.id = 'sf-song-context-menu';
+      menu.className = 'sf-song-context-menu';
+      document.body.appendChild(menu);
+    }
+
+    const song = (window.SONGS_DATABASE || []).find(s => s.id === songId);
+
+    menu.innerHTML = `
+      <button type="button" class="sf-ctx-item" id="sf-ctx-inplace-btn">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg>
+        <span>Quick edit in-place</span>
+      </button>
+      <button type="button" class="sf-ctx-item" id="sf-ctx-sheet-btn">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        <span>Song sheet editor</span>
+      </button>
+      <div class="sf-ctx-divider"></div>
+      <button type="button" class="sf-ctx-item" id="sf-ctx-agenda-btn">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        <span>Add to Agenda</span>
+      </button>
+    `;
+
+    const inplaceBtn = menu.querySelector('#sf-ctx-inplace-btn');
+    if (inplaceBtn) {
+      inplaceBtn.onclick = (ev) => {
+        ev.stopPropagation();
+        window.closeSongContextMenu();
+        if (window.state) window.state.activeSongId = songId;
+        if (typeof window.renderDeck === 'function') window.renderDeck();
+        setTimeout(() => {
+          const firstCard = document.querySelector(`.bento-single-card[data-slide-id^="song_${songId}_"]`);
+          if (firstCard && firstCard.dataset && firstCard.dataset.slideId) {
+            window.startInlineCardEdit(firstCard.dataset.slideId, songId, 0);
+          }
+        }, 80);
+      };
+    }
+
+    const sheetBtn = menu.querySelector('#sf-ctx-sheet-btn');
+    if (sheetBtn) {
+      sheetBtn.onclick = (ev) => {
+        ev.stopPropagation();
+        window.closeSongContextMenu();
+        if (window.state) window.state.activeSongId = songId;
+        if (typeof window.openSongSheetModal === 'function') {
+          window.openSongSheetModal(songId, 0);
+        } else if (typeof window.openSongEditorModal === 'function') {
+          window.openSongEditorModal(songId, 0);
+        }
+      };
+    }
+
+    const agendaBtn = menu.querySelector('#sf-ctx-agenda-btn');
+    if (agendaBtn) {
+      agendaBtn.onclick = (ev) => {
+        ev.stopPropagation();
+        window.closeSongContextMenu();
+        if (song) {
+          if (!window.state) window.state = {};
+          if (!Array.isArray(window.state.agendaItems)) window.state.agendaItems = [];
+          window.state.agendaItems.push({
+            type: 'song',
+            id: song.id,
+            title: song.title,
+            author: song.author || ''
+          });
+          if (typeof window.renderBentoAgenda === 'function') window.renderBentoAgenda();
+          if (typeof window.showToast === 'function') window.showToast(`Added "${song.title}" to agenda`, 'success');
+        }
+      };
+    }
+
+    menu.style.display = 'flex';
+    menu.style.visibility = 'hidden';
+    menu.style.top = '0px';
+    menu.style.left = '0px';
+
+    const menuW = menu.offsetWidth || 140;
+    const menuH = menu.offsetHeight || 72;
+
+    let posX = e.clientX;
+    let posY = e.clientY;
+
+    if (posX + menuW > window.innerWidth - 10) {
+      posX = Math.max(10, window.innerWidth - menuW - 10);
+    }
+    if (posY + menuH > window.innerHeight - 10) {
+      posY = Math.max(10, window.innerHeight - menuH - 10);
+    }
+
+    menu.style.left = `${posX}px`;
+    menu.style.top = `${posY}px`;
+    menu.style.visibility = 'visible';
+
+    // Activate shield to swallow outside clicks completely (prevents underlying card clicks)
+    window.openDismissShield(() => {
+      window.closeSongContextMenu();
+    }, 100001);
+
+    const keyHandler = (ev) => {
+      if (ev.key === 'Escape') {
+        window.closeSongContextMenu();
+      }
+    };
+    window._sfCtxKey = keyHandler;
+    document.addEventListener('keydown', keyHandler, { once: true });
+  };
+
+  window.closeSongContextMenu = function() {
+    const menu = document.getElementById('sf-song-context-menu');
+    if (menu) {
+      menu.style.display = 'none';
+      menu.innerHTML = '';
+    }
+    if (window._sfCtxKey) {
+      document.removeEventListener('keydown', window._sfCtxKey);
+      window._sfCtxKey = null;
+    }
+    window.closeDismissShield();
+  };
 
   // ─────────────────────────────────────────────────────────────────────────────
   // 3. BENTO DECK RENDERER (SINGLE OR 3-COLUMN MEDLEY WITH S1/S2/S3 HEADERS)
@@ -1176,7 +1374,11 @@
               card.setAttribute('data-slide-id', slideId);
               if (card.dataset) card.dataset.slideId = slideId;
               card.className = `bento-single-card ${isLive ? 'live' : ''}`;
-              card.onclick = () => window.projectSlide(slideId, chunk.text, refStr);
+              card.onclick = (e) => {
+                if (card.classList.contains('is-inline-editing')) return;
+                if (e && e.target && e.target.closest('.card-body-text[contenteditable="true"], .bento-card-quick-edit-btn, .bento-inline-edit-status')) return;
+                window.projectSlide(slideId, chunk.text, refStr);
+              };
 
               card.innerHTML = `
                 ${isLive ? `
@@ -1186,7 +1388,13 @@
                 ` : ''}
                 <div class="head-tag-row">
                   <span class="tag-title">${escapeHtml(chunk.label || stanza.type || `VERSE ${sIdx + 1}`)}</span>
-                  ${isLive ? '<div class="live-pill"><span class="dot"></span>LIVE</div>' : ''}
+                  <div class="card-head-actions">
+                    <button type="button" class="bento-card-quick-edit-btn" title="Edit lyrics in-place" onclick="event.preventDefault(); event.stopPropagation(); window.startInlineCardEdit('${slideId}', '${song.id}', ${sIdx}, ${chunks.length > 1 ? cIdx : -1})">
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg>
+                      <span>Edit</span>
+                    </button>
+                    ${isLive ? '<div class="live-pill"><span class="dot"></span>LIVE</div>' : ''}
+                  </div>
                 </div>
                 <div class="card-body-text">${escapeHtml(chunk.text).replace(/\n/g, '<br>')}</div>
                 ${isLive ? `
@@ -1207,6 +1415,221 @@
       }
     }
   }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // FLOW 1: SEAMLESS IN-PLACE LIVE EDITING & FLOW 3: SONG SHEET INTEGRATION
+  // ─────────────────────────────────────────────────────────────────────────────
+  let _activeInlineEditor = null;
+
+  window.cancelActiveInlineCardEdit = function() {
+    if (!_activeInlineEditor) return;
+    const { card, bodyEl, originalHtml } = _activeInlineEditor;
+    if (card && bodyEl) {
+      bodyEl.innerHTML = originalHtml;
+      bodyEl.contentEditable = 'false';
+      bodyEl.removeAttribute('role');
+      bodyEl.removeAttribute('aria-multiline');
+      bodyEl.onkeydown = null;
+      bodyEl.onblur = null;
+      bodyEl.onclick = null;
+      bodyEl.onmousedown = null;
+      bodyEl.onpointerdown = null;
+      card.classList.remove('is-inline-editing');
+
+      const editBtn = card.querySelector('.bento-card-quick-edit-btn');
+      if (editBtn) {
+        editBtn.classList.remove('active');
+        editBtn.innerHTML = `
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg>
+          <span>Edit</span>
+        `;
+      }
+      const editBadge = card.querySelector('.bento-card-editing-badge');
+      if (editBadge) editBadge.remove();
+      const statusBar = card.querySelector('.bento-inline-edit-status');
+      if (statusBar) statusBar.remove();
+    }
+    _activeInlineEditor = null;
+  };
+
+  window.startInlineCardEdit = function(slideId, songId, stanzaIndex, chunkIndex = -1) {
+    if (_activeInlineEditor && _activeInlineEditor.slideId === slideId) {
+      if (typeof _activeInlineEditor.finishSave === 'function') {
+        _activeInlineEditor.finishSave();
+      }
+      return;
+    }
+    window.cancelActiveInlineCardEdit();
+
+    const card = document.getElementById('bento_card_' + slideId);
+    if (!card) return;
+
+    const bodyEl = card.querySelector('.card-body-text');
+    if (!bodyEl) return;
+
+    const song = (window.SONGS_DATABASE || []).find(s => s.id === songId);
+    if (!song || !song.stanzas || !song.stanzas[stanzaIndex]) return;
+
+    const stanza = song.stanzas[stanzaIndex];
+    let initialText = stanza.text;
+
+    const maxLines = (window.state && window.state.maxLinesPerSlide) ? window.state.maxLinesPerSlide : 0;
+    if (chunkIndex >= 0 && maxLines > 0) {
+      const rawLines = stanza.text.split('\n');
+      const start = chunkIndex * maxLines;
+      const end = Math.min(rawLines.length, start + maxLines);
+      initialText = rawLines.slice(start, end).join('\n');
+    }
+
+    const originalHtml = bodyEl.innerHTML;
+    let finishSaveRef = null;
+    _activeInlineEditor = {
+      card,
+      bodyEl,
+      originalHtml,
+      initialText,
+      slideId,
+      songId,
+      stanzaIndex,
+      chunkIndex,
+      isSaved: false,
+      finishSave: () => { if (finishSaveRef) finishSaveRef(); }
+    };
+
+    card.classList.add('is-inline-editing');
+    bodyEl.contentEditable = 'true';
+    bodyEl.spellcheck = false;
+    bodyEl.setAttribute('role', 'textbox');
+    bodyEl.setAttribute('aria-multiline', 'true');
+
+    // Prevent any clicks or pointer interactions inside the editable body from triggering slide projection
+    bodyEl.onclick = (e) => { e.stopPropagation(); };
+    bodyEl.onmousedown = (e) => { e.stopPropagation(); };
+    bodyEl.onpointerdown = (e) => { e.stopPropagation(); };
+
+    // Toggle edit button to "Done"
+    const editBtn = card.querySelector('.bento-card-quick-edit-btn');
+    if (editBtn) {
+      editBtn.classList.add('active');
+      editBtn.innerHTML = `
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>Done</span>
+      `;
+    }
+
+    // Set cursor to end of text
+    bodyEl.focus();
+    try {
+      const range = document.createRange();
+      const sel = window.getSelection();
+      range.selectNodeContents(bodyEl);
+      range.collapse(false);
+      sel.removeAllRanges();
+      sel.addRange(range);
+    } catch (err) {}
+
+    const finishSave = () => {
+      if (!_activeInlineEditor || _activeInlineEditor.isSaved) return;
+      _activeInlineEditor.isSaved = true;
+
+      let newText = (bodyEl.innerText !== undefined ? bodyEl.innerText : bodyEl.textContent) || '';
+      newText = newText.replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim();
+
+      if (!newText) {
+        if (typeof window.showToast === 'function') window.showToast('Lyrics cannot be blank', 'warning');
+        window.cancelActiveInlineCardEdit();
+        return;
+      }
+
+      if (chunkIndex >= 0 && maxLines > 0) {
+        const rawLines = stanza.text.split('\n');
+        const start = chunkIndex * maxLines;
+        const end = Math.min(rawLines.length, start + maxLines);
+        const newLines = newText.split('\n');
+        rawLines.splice(start, end - start, ...newLines);
+        stanza.text = rawLines.join('\n');
+      } else {
+        stanza.text = newText;
+      }
+
+      if (window.libraryImporter && typeof window.libraryImporter.updateSong === 'function') {
+        window.libraryImporter.updateSong(songId, { stanzas: song.stanzas });
+      }
+
+      card.classList.remove('is-inline-editing');
+      bodyEl.contentEditable = 'false';
+      bodyEl.removeAttribute('role');
+      bodyEl.removeAttribute('aria-multiline');
+      bodyEl.onkeydown = null;
+      bodyEl.onblur = null;
+      bodyEl.onclick = null;
+      bodyEl.onmousedown = null;
+      bodyEl.onpointerdown = null;
+
+      if (editBtn) {
+        editBtn.classList.remove('active');
+        editBtn.innerHTML = `
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg>
+          <span>Edit</span>
+        `;
+      }
+      const editBadge = card.querySelector('.bento-card-editing-badge');
+      if (editBadge) editBadge.remove();
+      const statusBar = card.querySelector('.bento-inline-edit-status');
+      if (statusBar) statusBar.remove();
+
+      bodyEl.innerHTML = escapeHtml(newText).replace(/\n/g, '<br>');
+
+      // Strictly update live projection ONLY IF THIS EXACT SLIDE is currently live!
+      if (window.state && window.state.activeLiveSlideId === slideId) {
+        window.state.activeLiveText = newText;
+        if (typeof window.reprojectCurrentLive === 'function') {
+          window.reprojectCurrentLive();
+        } else if (typeof window.broadcastState === 'function') {
+          window.broadcastState();
+        }
+        if (typeof window.syncBentoStagePreview === 'function') {
+          window.syncBentoStagePreview();
+        }
+      }
+
+      _activeInlineEditor = null;
+      if (typeof window.showToast === 'function') {
+        window.showToast('Slide lyrics saved', 'success');
+      }
+    };
+    finishSaveRef = finishSave;
+
+    bodyEl.onkeydown = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
+        window.cancelActiveInlineCardEdit();
+      } else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        e.stopPropagation();
+        bodyEl.blur();
+      }
+    };
+
+    bodyEl.onblur = () => {
+      setTimeout(() => {
+        if (_activeInlineEditor && !_activeInlineEditor.isSaved) {
+          finishSave();
+        }
+      }, 50);
+    };
+  };
+
+  // Flow 3 Helper: Open Focused Song Sheet Modal
+  window.openSongSheetModal = function(songId, stanzaIndex = 0) {
+    window.cancelActiveInlineCardEdit();
+    if (typeof window.openSongEditorModal === 'function') {
+      window.openSongEditorModal(songId, stanzaIndex);
+    } else if (typeof window.openSongEditor === 'function') {
+      window.openSongEditor(songId, stanzaIndex);
+    }
+  };
 
   // ─────────────────────────────────────────────────────────────────────────────
   function syncBentoStagePreview() {
@@ -1238,6 +1661,79 @@
       prevBox.insertBefore(idleHint, prevBox.firstChild);
     }
 
+    const prevBg = document.getElementById('bento-prev-bg');
+    const prevVideo = document.getElementById('bento-prev-video');
+    const prevDimmer = document.getElementById('bento-single-sanctuary-dimmer');
+    const resTag = document.getElementById('bento-res-tag');
+    const sancTheme = (window.themeManager && typeof window.themeManager.getSanctuaryPayload === 'function')
+      ? window.themeManager.getSanctuaryPayload()
+      : (state.sanctuaryTheme || null);
+
+    // The selected preview target is authoritative. Output state can briefly lag
+    // while this segmented control is being changed.
+    const previewMode = window.previewTargetMode || 'sanctuary';
+    const isFullMode = previewMode === 'sanctuary';
+    const isTransActive = Boolean(state.transparentBg && !isFullMode);
+
+    if (prevBox) {
+      prevBox.classList.toggle('mode-full', isFullMode);
+      prevBox.classList.toggle('mode-lt', !isFullMode);
+      prevBox.classList.toggle('trans-active', isTransActive);
+    }
+
+    if (resTag) {
+      resTag.textContent = isFullMode ? 'Full display • 1080p' : 'Lower-third • 1080p';
+    }
+
+    if (prevDimmer && sancTheme) {
+      const dimmerVal = (typeof sancTheme.dimmer === 'number') ? sancTheme.dimmer : 30;
+      prevDimmer.style.opacity = (dimmerVal / 100).toString();
+    }
+
+    if (prevBg && sancTheme) {
+      if (isFullMode) {
+        prevBg.style.display = 'block';
+        if (sancTheme.type === 'video' && sancTheme.videoUrl) {
+          prevBg.style.backgroundImage = 'none';
+          prevBg.style.backgroundColor = '#000000';
+          if (prevVideo) {
+            if (prevVideo.getAttribute('data-src') !== sancTheme.videoUrl) {
+              prevVideo.setAttribute('data-src', sancTheme.videoUrl);
+              prevVideo.src = sancTheme.videoUrl;
+            }
+            prevVideo.style.display = 'block';
+            const playAttempt = prevVideo.play();
+            if (playAttempt && typeof playAttempt.catch === 'function') {
+              playAttempt.catch(() => {
+                if (sancTheme.imageUrl) prevBg.style.backgroundImage = `url('${sancTheme.imageUrl}')`;
+              });
+            }
+          }
+        } else if (sancTheme.type === 'image' && sancTheme.imageUrl) {
+          if (prevVideo) {
+            prevVideo.style.display = 'none';
+            prevVideo.pause();
+          }
+          prevBg.style.backgroundImage = `url('${sancTheme.imageUrl}')`;
+          prevBg.style.backgroundSize = 'cover';
+          prevBg.style.backgroundPosition = 'center';
+        } else {
+          if (prevVideo) {
+            prevVideo.style.display = 'none';
+            prevVideo.pause();
+          }
+          prevBg.style.backgroundImage = 'none';
+          prevBg.style.background = sancTheme.bgCss || '#0A0E18';
+        }
+      } else {
+        prevBg.style.display = 'none';
+        if (prevVideo) {
+          prevVideo.style.display = 'none';
+          prevVideo.pause();
+        }
+      }
+    }
+
     const overlay = document.getElementById('bento-preview-text-overlay');
     const isBible = slideId.startsWith('bible_') || 
                     slideId.startsWith('medley_bible_') || 
@@ -1259,6 +1755,12 @@
       } else {
         overlay.style.alignItems = 'flex-start';
       }
+
+      // Apply the selected Sanctuary Typography font to the Stage Preview overlay
+      const previewFont = (state.sanctuaryTheme && state.sanctuaryTheme.font)
+        || (typeof localStorage !== 'undefined' && localStorage.getItem('sf_sanctuary_font'))
+        || 'Outfit';
+      overlay.style.fontFamily = `'${previewFont}', -apple-system, sans-serif`;
 
       if (liveText || liveRef) {
         if (idleHint) idleHint.style.display = 'none';
@@ -1352,6 +1854,89 @@
       }
     }
 
+    // ── Sync Dual Output Preview (Sanctuary + Livestream Monitors) ─────────────
+    const singleWrap = document.getElementById('bento-single-prev-wrap');
+    const dualWrap = document.getElementById('bento-dual-prev-wrap');
+    const isDual = (window.previewTargetMode === 'dual');
+
+    if (singleWrap && dualWrap) {
+      singleWrap.style.display = isDual ? 'none' : 'flex';
+      dualWrap.style.display = isDual ? 'flex' : 'none';
+    }
+
+    if (isDual) {
+      const sancBg = document.getElementById('bento-dual-sanctuary-bg');
+      const sancVideo = document.getElementById('bento-dual-sanctuary-video');
+      const sancDimmer = document.getElementById('bento-dual-sanctuary-dimmer');
+      const sancText = document.getElementById('bento-dual-sanctuary-text');
+      const streamLt = document.getElementById('bento-dual-livestream-lt');
+
+      const theme = (window.themeManager && typeof window.themeManager.getSanctuaryPayload === 'function')
+        ? window.themeManager.getSanctuaryPayload()
+        : null;
+
+      if (sancBg && theme) {
+        if (theme.type === 'video' && theme.videoUrl) {
+          sancBg.style.background = theme.imageUrl
+            ? `center / cover no-repeat url('${theme.imageUrl}')`
+            : '#0a1128';
+          if (sancVideo) {
+            if (sancVideo.dataset.src !== theme.videoUrl) {
+              sancVideo.dataset.src = theme.videoUrl;
+              sancVideo.src = theme.videoUrl;
+            }
+            sancVideo.style.display = 'block';
+            const playAttempt = sancVideo.play();
+            if (playAttempt && typeof playAttempt.catch === 'function') playAttempt.catch(() => {});
+          }
+        } else {
+          if (sancVideo) {
+            sancVideo.style.display = 'none';
+            sancVideo.pause();
+          }
+          sancBg.style.background = theme.imageUrl
+            ? `center / cover no-repeat url('${theme.imageUrl}')`
+            : (theme.bgCss || '#0a1128');
+        }
+      }
+      if (sancDimmer && theme) {
+        sancDimmer.style.opacity = ((theme.dimmer !== undefined ? theme.dimmer : 30) / 100).toString();
+      }
+
+      if (sancText) {
+        if (liveText || liveRef) {
+          const lines = (liveText || '').split('\n').filter(l => l.trim().length > 0);
+          if (isBible) {
+            sancText.innerHTML = `
+              <div class="sanctuary-l1" style="color:${theme ? theme.headerColor : '#60A5FA'}; font-family:${theme ? theme.font : 'Outfit'};">${escapeHtml(liveRef)}</div>
+              <div class="sanctuary-l2" style="color:${theme ? theme.textColor : '#FFFFFF'}; text-shadow:${theme ? theme.textShadow : 'none'}; font-family:${theme ? theme.font : 'Outfit'};">${escapeHtml(liveText)}</div>
+            `;
+          } else {
+            const displayLines = lines.slice(0, 3).map(l => escapeHtml(l.trim())).join('<br>');
+            sancText.innerHTML = `
+              ${liveRef ? `<div class="sanctuary-l1" style="color:${theme ? theme.headerColor : '#60A5FA'}; font-size:8px; font-family:${theme ? theme.font : 'Outfit'};">${escapeHtml(liveRef)}</div>` : ''}
+              <div class="sanctuary-l2" style="color:${theme ? theme.textColor : '#FFFFFF'}; text-shadow:${theme ? theme.textShadow : 'none'}; font-family:${theme ? theme.font : 'Outfit'};">${displayLines || escapeHtml(liveText)}</div>
+            `;
+          }
+        } else {
+          sancText.innerHTML = `<div class="dual-mon-empty">Output idle</div>`;
+        }
+      }
+
+      if (streamLt) {
+        if (liveText || liveRef) {
+          const lines = (liveText || '').split('\n').filter(l => l.trim().length > 0);
+          const firstLine = lines[0] || liveText;
+          streamLt.innerHTML = `
+            ${liveRef ? `<div class="lt-l1">${escapeHtml(liveRef)}</div>` : ''}
+            <div class="lt-l2">${escapeHtml(firstLine)}</div>
+          `;
+        } else {
+          streamLt.innerHTML = `<div class="dual-mon-empty">Output idle</div>`;
+        }
+      }
+    }
+
     if (status) {
       const isLive = !!(state.activeLiveSlideId && !state.isClear && !state.clear && !state.blackout);
       status.classList.toggle('idle', !isLive);
@@ -1365,11 +1950,17 @@
 
     if (holdBtn) {
       holdBtn.classList.toggle('active', !!state.isHoldLive);
-      holdBtn.textContent = state.isHoldLive ? 'Locked' : 'Hold';
+      const label = holdBtn.querySelector('.btn-label');
+      if (label) {
+        label.textContent = state.isHoldLive ? 'Locked' : 'Hold';
+      }
+      holdBtn.setAttribute('aria-pressed', String(!!state.isHoldLive));
+      holdBtn.title = state.isHoldLive ? 'Release hold (Pinned live)' : 'Hold current slide live';
     }
 
     if (transBtn) {
       transBtn.classList.toggle('active', !!state.transparentBg);
+      transBtn.setAttribute('aria-pressed', String(!!state.transparentBg));
     }
 
     if (scaleLabel) {
@@ -1380,21 +1971,50 @@
       }
     }
 
-    const isLt = state.currentMode === 'livestream' || state.currentMode === 'lt';
+    const isLt = window.previewTargetMode === 'livestream';
+    const modeDual = document.getElementById('bento-prev-mode-dual');
 
     if (prevBox) {
       prevBox.classList.toggle('mode-lt', isLt);
-      prevBox.classList.toggle('mode-full', !isLt);
+      prevBox.classList.toggle('mode-full', !isLt && !isDual);
+      prevBox.classList.toggle('mode-dual', isDual);
       prevBox.classList.toggle('trans-active', !!state.transparentBg);
-      const resTag = prevBox.querySelector('.res-tag');
+      const resTag = document.getElementById('bento-res-tag') || prevBox.querySelector('.res-tag');
       if (resTag) {
-        resTag.textContent = isLt ? 'Lower-third • 1080p' : 'Full display • 1080p';
+        if (isDual) resTag.textContent = 'Dual output • 1080p';
+        else if (isLt) resTag.textContent = 'Lower-third • 1080p';
+        else resTag.textContent = 'Sanctuary • 1080p';
+      }
+
+      // Single View Sanctuary Theme Background
+      if (!isLt && !isDual) {
+        const theme = (window.themeManager && typeof window.themeManager.getSanctuaryPayload === 'function')
+          ? window.themeManager.getSanctuaryPayload()
+          : null;
+        if (theme && theme.bgCss) {
+          prevBox.style.background = theme.bgCss;
+        } else {
+          prevBox.style.background = '#0a0a0f';
+        }
+        const singleDimmer = document.getElementById('bento-single-sanctuary-dimmer');
+        if (singleDimmer) {
+          const dimmerVal = (theme && theme.dimmer !== undefined) ? theme.dimmer : 30;
+          singleDimmer.style.opacity = (dimmerVal / 100).toString();
+        }
+      } else {
+        prevBox.style.background = '#08080c';
       }
     }
 
     if (modeFull && modeLt) {
-      modeFull.classList.toggle('active', !isLt);
-      modeLt.classList.toggle('active', isLt);
+      modeFull.classList.toggle('active', window.previewTargetMode === 'sanctuary');
+      modeLt.classList.toggle('active', window.previewTargetMode === 'livestream');
+      modeFull.setAttribute('aria-pressed', String(window.previewTargetMode === 'sanctuary'));
+      modeLt.setAttribute('aria-pressed', String(window.previewTargetMode === 'livestream'));
+    }
+    if (modeDual) {
+      modeDual.classList.toggle('active', isDual);
+      modeDual.setAttribute('aria-pressed', String(isDual));
     }
   }
 
@@ -1547,8 +2167,14 @@
     const searchInput = document.getElementById('bento-search-input');
     const curTab = window.state ? window.state.currentTab : 'songs';
 
-    if (tabBible) tabBible.classList.toggle('active', curTab === 'bible');
-    if (tabSongs) tabSongs.classList.toggle('active', curTab === 'songs');
+    if (tabBible) {
+      tabBible.classList.toggle('active', curTab === 'bible');
+      tabBible.setAttribute('aria-selected', String(curTab === 'bible'));
+    }
+    if (tabSongs) {
+      tabSongs.classList.toggle('active', curTab === 'songs');
+      tabSongs.setAttribute('aria-selected', String(curTab === 'songs'));
+    }
 
     if (transSel) {
       transSel.style.display = (curTab === 'bible') ? 'flex' : 'none';
@@ -1862,6 +2488,12 @@
     if (searchInp) searchInp.value = '';
     renderBentoChapterPopoverGrid('');
     popover.classList.add('open');
+    if (typeof window.openDismissShield === 'function') {
+      window.openDismissShield(() => {
+        closeBentoChapterPopover();
+        closeBentoVersePopover();
+      }, 9998);
+    }
     if (searchInp && typeof searchInp.focus === 'function') {
       setTimeout(() => {
         if (typeof searchInp.focus === 'function') searchInp.focus();
@@ -1872,6 +2504,10 @@
   function closeBentoChapterPopover() {
     const popover = document.getElementById('bento-chapter-popover');
     if (popover) popover.classList.remove('open');
+    const vsPopover = document.getElementById('bento-verse-popover');
+    if (!vsPopover || !vsPopover.classList.contains('open')) {
+      if (typeof window.closeDismissShield === 'function') window.closeDismissShield();
+    }
   }
   window.closeBentoChapterPopover = closeBentoChapterPopover;
 
@@ -2036,6 +2672,12 @@
 
     // Open so real rendered height and width can be accurately calculated
     popover.classList.add('open');
+    if (typeof window.openDismissShield === 'function') {
+      window.openDismissShield(() => {
+        closeBentoVersePopover();
+        closeBentoChapterPopover();
+      }, 9998);
+    }
 
     const targetEl = (event && (event.currentTarget || event.target)) || document.getElementById('bento-active-verse-badge');
     const isDrawerBtn = (event && event.isDrawerBtn) || (targetEl && targetEl.classList && targetEl.classList.contains('bento-drawer-btn'));
@@ -2115,6 +2757,10 @@
     document.querySelectorAll('.bento-drawer-btn.picking-active').forEach(el => {
       el.classList.remove('picking-active');
     });
+    const chPopover = document.getElementById('bento-chapter-popover');
+    if (!chPopover || !chPopover.classList.contains('open')) {
+      if (typeof window.closeDismissShield === 'function') window.closeDismissShield();
+    }
   }
   window.closeBentoVersePopover = closeBentoVersePopover;
 
@@ -2183,4 +2829,3 @@
   window.syncBentoTabsUI = syncBentoTabsUI;
 
 })();
-

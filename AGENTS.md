@@ -1,4 +1,4 @@
-﻿# ScriptureFlow Live Pro - Core Architecture & Developer Rules
+# ScriptureFlow Live Pro - Core Architecture & Developer Rules
 
 ## 1. 0ms Latency & Tactile Responsiveness Mandate (Compulsory)
 - **Instant In-Place State & Visual Updates**: All user clicks, slide projections, verse selections, song selections, menu toggles, and modal openings must update state and DOM classes immediately in-place (< 1ms execution time).
@@ -18,3 +18,9 @@
 ## 4. Notification Layering & UI Principles
 - **Topmost Layer**: Notifications (toasts, alerts, status banners) must ALWAYS render with the highest stacking order (`z-index: 100000+`) above all modals, custom dialogs, sheets, and popovers.
 - **Emoji Restriction**: Use industry-standard SVG icons (Lucide, Heroicons, Material) instead of unrequested emojis.
+
+## 5. Click-Through Absorption & Overlay Dismissal Mandate (Compulsory)
+- **Zero Click Bleed-Through on Dismissal**: When any modal, context menu, popover, or dropdown is open, clicking outside to dismiss the overlay must ONLY dismiss the overlay. The click must be absorbed by a dismissal shield or overlay backdrop and MUST NEVER penetrate or trigger underlying slide cards, projection triggers, buttons, or tools.
+- **Accidental Projection & Action Prevention**: Live slide projections, button clicks, and tool actions beneath an open overlay are strictly prohibited from firing during a dismissal click.
+- **Instant Overlay Dismissal**: Overlays and their dismissal shields must dismiss in `<= 0.04s` or instantly (`0s`) on dismissal click or `Escape` keypress.
+

@@ -1,4 +1,4 @@
-// Ginomai Pro - High-Speed Greek & Hebrew Concordance Lexicon Detector
+// Ginomia Pro - High-Speed Greek & Hebrew Concordance Lexicon Detector
 'use strict';
 
 (function() {

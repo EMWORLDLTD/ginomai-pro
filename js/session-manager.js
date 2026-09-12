@@ -1,4 +1,4 @@
-// Ginomai Pro - Service Session Management & Persistence Engine
+// Ginomia Pro - Service Session Management & Persistence Engine
 'use strict';
 
 (function(window) {
@@ -13,6 +13,7 @@
       this.isDirty = false;
       this.lastSavedTimestamp = null;
       this.autoSaveTimer = null;
+      this.saveError = null;
     }
 
     init() {
@@ -46,8 +47,17 @@
         if (this.activeSessionId) {
           localStorage.setItem(ACTIVE_SESSION_ID_KEY, this.activeSessionId);
         }
+        this.saveError = null;
+        this.isDirty = false;
+        this.lastSavedTimestamp = new Date();
+        this.updateTopBarUi();
+        return true;
       } catch (err) {
         console.error('[SessionManager] Error saving sessions to localStorage:', err);
+        this.saveError = 'Changes could not be saved on this device. Retry or export a copy before closing.';
+        this.isDirty = true;
+        this.updateTopBarUi();
+        return false;
       }
     }
 
@@ -78,7 +88,7 @@
         createdAt: now,
         updatedAt: now,
         version: '1.0',
-        app: 'Ginomai Pro',
+        app: 'Ginomia Pro',
         agendaItems: [],
         activeSongId: null,
         activeBibleBook: '',
@@ -125,17 +135,11 @@
       }
 
       this.captureStateIntoSession(active);
-      this.saveToStorage();
-      this.lastSavedTimestamp = new Date();
-      this.isDirty = false;
+      if (!this.saveToStorage()) return null;
       this.updateTopBarUi();
 
       if (!silent && typeof window.showToast === 'function') {
         window.showToast(`Session "${active.name}" saved`, 'success');
-      }
-
-      if (typeof window.syncDashboardWorkspace === 'function') {
-        window.syncDashboardWorkspace(true);
       }
 
       return active;
@@ -154,6 +158,7 @@
     }
 
     createNewSession(name = null, copyCurrentAgenda = false) {
+      if (this.getActiveSession() && !this.saveCurrentSessionSnapshot(null, true)) return null;
       const sessionName = name && name.trim() ? name.trim() : `Service ${new Date().toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`;
       const newSession = this.createSessionObject(sessionName);
 
@@ -163,9 +168,12 @@
         newSession.agendaItems = [];
       }
 
+      const previousId = this.activeSessionId;
       this.sessions.unshift(newSession);
       this.activeSessionId = newSession.id;
-      this.saveToStorage();
+      if (!this.saveToStorage()) {
+        this.sessions.shift(); this.activeSessionId = previousId; this.updateTopBarUi(); return null;
+      }
 
       this.applySessionToState(newSession);
 
@@ -187,10 +195,11 @@
       }
 
       // Auto-save current session state first before switching
-      this.saveCurrentSessionSnapshot(null, true);
+      if (!this.saveCurrentSessionSnapshot(null, true)) return false;
 
+      const previousId = this.activeSessionId;
       this.activeSessionId = target.id;
-      this.saveToStorage();
+      if (!this.saveToStorage()) { this.activeSessionId = previousId; this.updateTopBarUi(); return false; }
 
       this.applySessionToState(target);
 
@@ -235,7 +244,7 @@
       clone.updatedAt = new Date().toISOString();
 
       this.sessions.unshift(clone);
-      this.saveToStorage();
+      if (!this.saveToStorage()) return null;
       this.renderSessionManagerModal();
 
       if (typeof window.showToast === 'function') {
@@ -250,7 +259,7 @@
 
       target.name = newName.trim();
       target.updatedAt = new Date().toISOString();
-      this.saveToStorage();
+      if (!this.saveToStorage()) return false;
       this.updateTopBarUi();
       this.renderSessionManagerModal();
 
@@ -261,13 +270,15 @@
     }
 
     deleteSession(sessionId) {
+      const previousSessions = JSON.parse(JSON.stringify(this.sessions));
+      const previousId = this.activeSessionId;
       if (this.sessions.length <= 1) {
         // Do not allow deleting the only session; clear its agenda instead
         const only = this.sessions[0];
         only.name = DEFAULT_SESSION_NAME;
         only.agendaItems = [];
         only.updatedAt = new Date().toISOString();
-        this.saveToStorage();
+        if (!this.saveToStorage()) { this.sessions = previousSessions; this.updateTopBarUi(); return false; }
         this.applySessionToState(only);
         this.renderSessionManagerModal();
         this.updateTopBarUi();
@@ -284,10 +295,12 @@
       
       if (this.activeSessionId === sessionId) {
         this.activeSessionId = this.sessions[0].id;
-        this.applySessionToState(this.sessions[0]);
       }
 
-      this.saveToStorage();
+      if (!this.saveToStorage()) {
+        this.sessions = previousSessions; this.activeSessionId = previousId; this.updateTopBarUi(); return false;
+      }
+      if (previousId === sessionId) this.applySessionToState(this.sessions[0]);
       this.updateTopBarUi();
       this.renderSessionManagerModal();
 
@@ -302,14 +315,15 @@
       const targetId = sessionId || this.activeSessionId;
       let session = this.sessions.find(s => s.id === targetId);
       if (!session) {
-        session = this.saveCurrentSessionSnapshot(null, true);
+        session = this.createSessionObject(DEFAULT_SESSION_NAME);
+        this.captureStateIntoSession(session);
       } else if (targetId === this.activeSessionId) {
         this.captureStateIntoSession(session);
       }
 
       // Prepare portable package
       const exportPackage = {
-        app: 'Ginomai Pro',
+        app: 'Ginomia Pro',
         type: 'session_package',
         formatVersion: '1.0',
         exportedAt: new Date().toISOString(),
@@ -320,7 +334,7 @@
       const blob = new Blob([jsonStr], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
 
-      const safeFilename = (session.name || 'GinomaiPro_Session')
+      const safeFilename = (session.name || 'GinomiaPro_Session')
         .replace(/[^a-zA-Z0-9_\-\s]/g, '')
         .trim()
         .replace(/\s+/g, '_');
@@ -354,7 +368,7 @@
             // Raw session object format
             importedSession = parsed;
           } else {
-            throw new Error('Unrecognized Ginomai Pro session file format');
+            throw new Error('Unrecognized Ginomia Pro session file format');
           }
 
           // Generate fresh unique ID to avoid overwriting existing
@@ -362,9 +376,12 @@
           importedSession.updatedAt = new Date().toISOString();
           if (!importedSession.name) importedSession.name = file.name.replace(/\.(sflow|json)$/i, '');
 
+          if (!Array.isArray(importedSession.agendaItems)) throw new Error('Session agenda must be a list');
+          if (!this.saveCurrentSessionSnapshot(null, true)) return;
+          const previousId = this.activeSessionId;
           this.sessions.unshift(importedSession);
           this.activeSessionId = importedSession.id;
-          this.saveToStorage();
+          if (!this.saveToStorage()) { this.sessions.shift(); this.activeSessionId = previousId; this.updateTopBarUi(); return; }
 
           this.applySessionToState(importedSession);
           this.updateTopBarUi();
@@ -421,8 +438,12 @@
 
       if (sessionSyncEl) {
         sessionSyncEl.className = this.isDirty ? 'session-sync-dot dirty' : 'session-sync-dot clean';
-        sessionSyncEl.title = this.isDirty ? 'Unsaved changes (auto-syncing)' : 'All changes saved locally';
+        sessionSyncEl.title = this.saveError || (this.isDirty ? 'Unsaved changes (auto-saving)' : 'All changes saved locally');
       }
+      const status = document.getElementById('session-save-status');
+      if (status) status.textContent = this.saveError ? 'Not saved' : this.isDirty ? 'Saving…' : 'Saved';
+      const warning = document.getElementById('session-save-warning');
+      if (warning) warning.hidden = !this.saveError;
     }
 
     toggleSessionDropdown(event) {
@@ -445,8 +466,13 @@
       this.populateDropdownRecentList();
       menu.classList.add('open');
       menu.style.display = 'flex';
+      menu.style.zIndex = '100002';
 
-      // Auto close on document click
+      if (typeof window.openDismissShield === 'function') {
+        window.openDismissShield(() => this.closeSessionDropdown(), 100001);
+      }
+
+      // Auto close on document click as backup
       const closeHandler = (e) => {
         if (!menu.contains(e.target) && !e.target.closest('#bento-session-pill')) {
           this.closeSessionDropdown();
@@ -461,6 +487,9 @@
       if (menu) {
         menu.classList.remove('open');
         menu.style.display = 'none';
+      }
+      if (typeof window.closeDismissShield === 'function') {
+        window.closeDismissShield();
       }
     }
 
@@ -648,7 +677,7 @@
 
       if (newName && newName.trim()) {
         const newSession = this.createNewSession(newName.trim(), true);
-        if (typeof window.showToast === 'function') {
+        if (newSession && typeof window.showToast === 'function') {
           window.showToast(`Saved as "${newSession.name}"`, 'success');
         }
       }
@@ -678,6 +707,7 @@
 
     setupKeyboardShortcuts() {
       window.addEventListener('keydown', (e) => {
+        if (e.defaultPrevented || window.sfActiveModal?.()) return;
         // Prevent hotkeys inside inputs/textareas unless specific combo
         const isInput = e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable);
 

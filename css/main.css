@@ -713,6 +713,15 @@ body {
   box-shadow: 0 0 0 1.5px rgba(59, 130, 246, 0.5);
 }
 
+.bento-single-card [contenteditable="true"],
+.bento-single-card [contenteditable="true"]:hover,
+.bento-single-card [contenteditable="true"]:focus {
+  background: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
 /* Workspace Layout & Scalability */
 :root {
   --sidebar-width: 300px;
@@ -2337,8 +2346,8 @@ select option {
   transform: translateY(-6px) scale(0.98);
   pointer-events: none;
   transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 .custom-search-dialog.open {
@@ -2904,39 +2913,367 @@ select option {
   position: relative;
   display: flex;
   align-items: center;
+  width: 100%;
+  height: 44px;
+  background: #0D121D;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  box-sizing: border-box;
 }
 
 .import-search-bar-wrap svg {
   position: absolute;
-  left: 12px;
-  color: #64748B;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #8A6DFF;
   pointer-events: none;
+  width: 16px;
+  height: 16px;
+  z-index: 2;
 }
 
 .import-search-field {
   width: 100%;
-  background: #0D121D;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  height: 100%;
+  background: transparent;
+  border: none;
   color: #F8FAFC;
-  padding: 8px 12px 8px 34px;
-  font-size: 12px;
-  border-radius: 8px;
+  padding: 0 16px 0 44px;
+  font-size: 13px;
+  border-radius: 10px;
   outline: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  box-sizing: border-box;
+  transition: border-color 0.04s ease, box-shadow 0.04s ease;
 }
 
-.import-search-field:focus {
-  border-color: rgba(59, 130, 246, 0.6);
-  box-shadow: none;
+.import-search-bar-wrap:focus-within {
+  border-color: rgba(138, 109, 255, 0.6);
+  box-shadow: 0 0 0 3px rgba(138, 109, 255, 0.2);
 }
 
-.cloud-bibles-grid {
+/* Filter Toolbar & Segmented View Switcher */
+.repo-filter-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+  margin-bottom: 8px;
+}
+
+.repo-filter-chips {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.repo-filter-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748B;
+  margin-right: 2px;
+}
+
+.repo-filter-pill {
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 550;
+  padding: 5px 12px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #94A3B8;
+  cursor: pointer;
+  transition: background 0.04s ease, border-color 0.04s ease, color 0.04s ease;
+}
+
+.repo-filter-pill:hover {
+  background: rgba(255, 255, 255, 0.09);
+  color: #FFFFFF;
+}
+
+.repo-filter-pill.active {
+  background: #8A6DFF;
+  border-color: #8A6DFF;
+  color: #FFFFFF;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(138, 109, 255, 0.35);
+}
+
+.repo-view-switcher {
+  display: inline-flex;
+  align-items: center;
+  background: #151C2A;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 2px;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.repo-view-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 550;
+  color: #94A3B8;
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background 0.04s ease, color 0.04s ease;
+}
+
+.repo-view-btn:hover {
+  color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.repo-view-btn.active {
+  background: #1E293B;
+  border-color: rgba(138, 109, 255, 0.3);
+  color: #C3B6FF;
+  font-weight: 600;
+}
+
+.repo-view-btn.active svg {
+  stroke: #C3B6FF;
+}
+
+/* Containers */
+.cloud-bibles-grid,
+.cloud-songs-grid {
+  max-height: none;
+  overflow: visible;
+  padding-right: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.cloud-bibles-grid.view-grid,
+.cloud-songs-grid.view-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  max-height: 380px;
-  overflow-y: auto;
-  padding-right: 2px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  width: 100%;
+}
+
+.cloud-bibles-grid.view-list,
+.cloud-songs-grid.view-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+/* Card Styling */
+.repo-item-card {
+  background: #151C2A;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  box-sizing: border-box;
+  transition: background 0.04s ease, border-color 0.04s ease;
+}
+
+.cloud-bibles-grid.view-list .repo-item-card,
+.cloud-songs-grid.view-list .repo-item-card {
+  padding: 12px 20px;
+}
+
+.repo-item-card:hover {
+  background: #1A2333;
+  border-color: rgba(138, 109, 255, 0.35);
+}
+
+.repo-item-card.active-repo {
+  border-color: rgba(138, 109, 255, 0.5);
+  background: rgba(138, 109, 255, 0.08);
+}
+
+.repo-item-main {
+  min-width: 0;
+  flex: 1;
+}
+
+.repo-item-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.repo-item-title {
+  font-weight: 650;
+  font-size: 13.5px;
+  color: #FFFFFF;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.repo-item-author {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: #C3B6FF;
+  margin-top: 2px;
+}
+
+.repo-item-meta {
+  font-size: 11px;
+  font-weight: 400;
+  color: #94A3B8;
+  margin-top: 3px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.repo-item-meta .meta-lang {
+  color: #94A3B8;
+}
+
+.repo-item-meta .meta-size {
+  color: #64748B;
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+
+.repo-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.repo-tag-pill {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  padding: 2px 6px;
+  border-radius: 5px;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.08);
+  color: #94A3B8;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+}
+
+.repo-tag-pill.installed {
+  background: rgba(62, 207, 126, 0.16);
+  color: #3ECF7E;
+  border: 1px solid rgba(62, 207, 126, 0.3);
+}
+
+.repo-tag-pill.active {
+  background: rgba(138, 109, 255, 0.22);
+  color: #C3B6FF;
+  border: 1px solid rgba(138, 109, 255, 0.4);
+}
+
+.repo-status-badge {
+  font-size: 9.5px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.repo-status-badge.active {
+  color: #C3B6FF;
+  font-weight: 600;
+  background: rgba(138, 109, 255, 0.18);
+  border: 1px solid rgba(138, 109, 255, 0.35);
+}
+
+.repo-status-badge.ready {
+  color: #3ECF7E;
+  font-weight: 600;
+  background: rgba(62, 207, 126, 0.14);
+  border: 1px solid rgba(62, 207, 126, 0.28);
+}
+
+.repo-status-badge.cloud {
+  color: #64748B;
+}
+
+.repo-action-btn {
+  font-size: 11px;
+  padding: 5px 12px;
+  border-radius: 7px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  min-width: 92px;
+  justify-content: center;
+  transition: background 0.04s ease, border-color 0.04s ease;
+}
+
+.bento-btn-primary-sm {
+  background: #8A6DFF;
+  border: 1px solid #8A6DFF;
+  color: #FFFFFF;
+}
+
+.bento-btn-primary-sm:hover {
+  background: #9D84FF;
+  border-color: #9D84FF;
+}
+
+.bento-btn-secondary-sm {
+  background: #1E293B;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #F8FAFC;
+}
+
+.bento-btn-secondary-sm:hover {
+  background: rgba(138, 109, 255, 0.18);
+  border-color: #8A6DFF;
+  color: #FFFFFF;
+}
+
+.bento-btn-active-indicator {
+  background: rgba(138, 109, 255, 0.2);
+  border: 1px solid #8A6DFF;
+  color: #C3B6FF;
+}
+
+.bento-btn-icon-danger {
+  padding: 5px 8px;
+  border-radius: 7px;
+  background: rgba(242, 85, 75, 0.12);
+  border: 1px solid rgba(242, 85, 75, 0.28);
+  color: #FCA5A5;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.04s ease, border-color 0.04s ease;
+}
+
+.bento-btn-icon-danger:hover {
+  background: rgba(242, 85, 75, 0.25);
+  border-color: rgba(242, 85, 75, 0.5);
 }
 
 .settings-body {
@@ -3387,8 +3724,8 @@ input:checked+.settings-slider:before {
 
 .app-toast {
   background: rgba(14, 19, 30, 0.95);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-left: 4px solid #3B82F6;
   border-radius: 10px;

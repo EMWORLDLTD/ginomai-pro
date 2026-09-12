@@ -1,4 +1,4 @@
-// Ginomai Pro - Master Control Engine
+// Ginomia Pro - Master Control Engine
 'use strict';
 
 const CHANNEL_NAME = 'scriptureflow_sync';
@@ -21,7 +21,7 @@ const state = {
   chapterTargetSlot: null,
   activePickerSlot: 0,
   activePickerType: 'song', // 'song' | 'version' | 'bible'
-  
+
   // Service Agenda Items (Supports Drag & Drop)
   agendaItems: [],
 
@@ -99,7 +99,7 @@ let themeManager = null;
 window.state = state;
 
 // ── Hoisted Global Variables (TDZ Protection) ─────────────────────────────
-var previewTargetMode = 'sanctuary';
+var previewTargetMode = (typeof localStorage !== 'undefined' && localStorage.getItem('sf_preview_target_mode')) || 'sanctuary';
 window.previewTargetMode = previewTargetMode;
 
 var customLanIp = '';
@@ -215,6 +215,9 @@ function initThemeManager() {
     });
     window.themeManager = themeManager;
     themeManager.updateSettingsUi();
+    if (typeof themeManager.updateSanctuaryUi === 'function') {
+      themeManager.updateSanctuaryUi();
+    }
   }
 }
 
@@ -307,6 +310,7 @@ function restoreSavedWorkspaceState() {
       if (dash.currentMode) {
         state.currentMode = dash.currentMode;
         previewTargetMode = (state.currentMode === 'lt' || state.currentMode === 'lowerthird') ? 'livestream' : 'sanctuary';
+        window.previewTargetMode = previewTargetMode;
       }
       if (dash.maxLinesPerSlide !== undefined) state.maxLinesPerSlide = dash.maxLinesPerSlide;
       if (dash.textSize !== undefined) state.textSize = dash.textSize;
@@ -411,9 +415,18 @@ document.addEventListener('DOMContentLoaded', () => {
   if (fullBtn) fullBtn.classList.toggle('active', previewTargetMode === 'sanctuary');
   if (ltBtn) ltBtn.classList.toggle('active', previewTargetMode === 'livestream');
 
+  const bentoFull = document.getElementById('bento-prev-mode-full');
+  const bentoLt = document.getElementById('bento-prev-mode-lt');
+  const bentoDual = document.getElementById('bento-prev-mode-dual');
+  if (bentoFull) bentoFull.classList.toggle('active', previewTargetMode === 'sanctuary');
+  if (bentoLt) bentoLt.classList.toggle('active', previewTargetMode === 'livestream');
+  if (bentoDual) bentoDual.classList.toggle('active', previewTargetMode === 'dual');
+
   const previewTargetBtn = document.getElementById('preview-target-toggle-btn');
   if (previewTargetBtn) {
-    previewTargetBtn.textContent = (previewTargetMode === 'sanctuary') ? 'Full Display' : 'Lower-Third';
+    if (previewTargetMode === 'sanctuary') previewTargetBtn.textContent = 'Sanctuary';
+    else if (previewTargetMode === 'dual') previewTargetBtn.textContent = 'Dual Output';
+    else previewTargetBtn.textContent = 'Livestream';
     previewTargetBtn.classList.toggle('active', previewTargetMode === 'livestream');
   }
   const previewTransToggle = document.getElementById('preview-transparent-bg-toggle');
@@ -862,6 +875,7 @@ window.focusLibrarySearch = focusLibrarySearch;
 
 function initKeyboardNav() {
   window.addEventListener('keydown', (e) => {
+    if (e.defaultPrevented || window.sfActiveModal?.() || e.target.closest?.('input,textarea,select,[contenteditable="true"]')) return;
     // 1. Handle Global Undo / Redo Shortcuts (Ctrl+Z, Ctrl+Y, Ctrl+Shift+Z)
     const isCtrl = e.ctrlKey || e.metaKey;
     if (isCtrl && (e.key === 'z' || e.key === 'Z')) {
@@ -2112,6 +2126,10 @@ function toggleTranslationDropdown(e) {
     dialog.classList.add('open');
     if (btn) btn.classList.add('open');
     if (bentoBtn) bentoBtn.classList.add('open');
+    dialog.style.zIndex = '100002';
+    if (typeof window.openDismissShield === 'function') {
+      window.openDismissShield(closeTranslationDropdown, 100001);
+    }
     if (input) setTimeout(() => input.focus(), 60);
   }
 }
@@ -2123,6 +2141,9 @@ function closeTranslationDropdown() {
   if (dialog) dialog.classList.remove('open');
   if (btn) btn.classList.remove('open');
   if (bentoBtn) bentoBtn.classList.remove('open');
+  if (typeof window.closeDismissShield === 'function') {
+    window.closeDismissShield();
+  }
 }
 
 // Version Switcher & Compare Mode
@@ -2214,7 +2235,11 @@ function toggleCompareMode() {
 
 // Hold / Lock Live Slide
 function toggleHoldLive() {
+  if (REMOTE_MODE) { showToast('Hold live is controlled by the host.', 'info'); return; }
   state.isHoldLive = !state.isHoldLive;
+  fetch('/api/hold', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ held: state.isHoldLive }) })
+    .then(response => { if (!response.ok) throw new Error('Hold unavailable'); })
+    .catch(() => showToast('Could not update remote Hold. Check the server connection.', 'error'));
   const btn = document.getElementById('btn-hold-toggle');
   if (btn) {
     btn.classList.toggle('held', state.isHoldLive);
@@ -2847,7 +2872,8 @@ function resetLanIpHost() {
 
 function openOutputLink(targetType) {
   const baseUrl = getBaseDisplayUrl('');
-  window.open(`${baseUrl}?target=${targetType}`, '_blank');
+  const finalUrl = targetType.includes('?') ? `${baseUrl}${targetType}` : `${baseUrl}?target=${targetType}`;
+  window.open(finalUrl, '_blank');
 }
 
 function openRemoteControl() {
@@ -2884,7 +2910,7 @@ function copyRemoteControlLink(btnElement) {
 
 function copyOutputLink(targetType, btnElement) {
   const baseUrl = getBaseDisplayUrl(customLanIp);
-  const targetUrl = `${baseUrl}?target=${targetType}`;
+  const targetUrl = targetType.includes('?') ? `${baseUrl}${targetType}` : `${baseUrl}?target=${targetType}`;
 
   const copySuccess = () => {
     showToast(`Copied ${targetType.toUpperCase()} Link to Clipboard!`, 'success');
@@ -2926,6 +2952,7 @@ function fallbackCopy(targetType, callback) {
 
 function togglePreviewTargetMode() {
   previewTargetMode = (previewTargetMode === 'sanctuary') ? 'livestream' : 'sanctuary';
+  window.previewTargetMode = previewTargetMode;
   state.currentMode = (previewTargetMode === 'livestream') ? 'lt' : 'full';
   const iframe = document.getElementById('preview-iframe');
   const btn = document.getElementById('preview-target-toggle-btn');
@@ -2946,7 +2973,7 @@ function togglePreviewTargetMode() {
 function openPopoutPreview() {
   const baseUrl = getBaseDisplayUrl();
   const popUrl = `${baseUrl}?target=${previewTargetMode}`;
-  window.open(popUrl, 'GinomaiProPreviewPopout', 'width=1280,height=720,menubar=no,toolbar=no,location=no,status=no');
+  window.open(popUrl, 'GinomiaProPreviewPopout', 'width=1280,height=720,menubar=no,toolbar=no,location=no,status=no');
 }
 
 // Global Toast Notification Engine
@@ -2956,6 +2983,8 @@ function showToast(message, type = 'info') {
     toastContainer = document.createElement('div');
     toastContainer.id = 'app-toast-container';
     toastContainer.className = 'app-toast-container';
+    toastContainer.setAttribute('aria-live', 'polite');
+    toastContainer.setAttribute('aria-relevant', 'additions');
     document.body.appendChild(toastContainer);
   }
 
@@ -2968,19 +2997,22 @@ function showToast(message, type = 'info') {
 
   const toast = document.createElement('div');
   toast.className = `app-toast toast-${type}`;
-  toast.innerHTML = `<span style="font-weight:600;">${message}</span>`;
+  toast.textContent = message;
+  toast.setAttribute('role', type === 'error' ? 'alert' : 'status');
 
   toastContainer.appendChild(toast);
-  setTimeout(() => toast.classList.add('visible'), 20);
+  toast.classList.add('visible');
 
   setTimeout(() => {
     toast.classList.remove('visible');
     setTimeout(() => toast.remove(), 300);
-  }, 2200);
+  }, type === 'error' ? 8000 : 4500);
 }
 
 // Broadcast Live State Change
-function broadcastState(override = {}) {
+let liveStorageTimer;
+let pendingLiveStorage;
+function broadcastState(override = {}, previewAlreadyUpdated = false) {
   if (REMOTE_MODE) {
     if (override.clear) sendRemoteCommand({ type: 'CLEAR' });
     else if (override.blackout) sendRemoteCommand({ type: 'BLACKOUT' });
@@ -3025,6 +3057,7 @@ function broadcastState(override = {}) {
     textSize: state.textSize,
     textAutoScale: state.textAutoScale,
     bg: state.background,
+    sanctuaryTheme: (window.themeManager && typeof window.themeManager.getSanctuaryPayload === 'function') ? window.themeManager.getSanctuaryPayload() : (state.sanctuaryTheme || null),
     clear: override.clear || false,
     clearBg: override.clearBg || false,
     blackout: override.blackout || false,
@@ -3033,9 +3066,11 @@ function broadcastState(override = {}) {
   };
 
   // 1. Save state to localStorage for cross-window hydration using isolated key
-  try {
-    localStorage.setItem('scriptureflow_live_state', JSON.stringify(payload));
-  } catch (e) {}
+  pendingLiveStorage = payload;
+  clearTimeout(liveStorageTimer);
+  liveStorageTimer = setTimeout(() => {
+    try { localStorage.setItem('scriptureflow_live_state', JSON.stringify(pendingLiveStorage)); } catch (e) {}
+  }, 80);
 
   // 2. Broadcast via BroadcastChannel & Server Sync (Host only)
   if (!REMOTE_MODE) {
@@ -3052,7 +3087,7 @@ function broadcastState(override = {}) {
     } catch (e) {}
   }
 
-  updateLivePreview(payload);
+  if (!previewAlreadyUpdated) updateLivePreview(payload);
 }
 
 function createDashboardSnapshot() {
@@ -3105,6 +3140,7 @@ function applyDashboardPatch(patch = {}) {
   if (patch.currentMode !== undefined) {
     state.currentMode = patch.currentMode;
     previewTargetMode = (state.currentMode === 'lt' || state.currentMode === 'lowerthird') ? 'livestream' : 'sanctuary';
+    window.previewTargetMode = previewTargetMode;
     const previewBtn = document.getElementById('preview-target-toggle-btn');
     if (previewBtn) {
       previewBtn.textContent = (previewTargetMode === 'sanctuary') ? 'Full Display' : 'Lower-Third';
@@ -3246,7 +3282,7 @@ const TRANSITION_ICONS = {
 };
 
 const TRANSITION_NAMES = {
-  'fade': 'Crossfade',
+  'fade': 'Fade',
   'zoom-in': 'Zoom In',
   'zoom-out': 'Zoom Out',
   'slide-left': 'Slide Left',
@@ -3677,11 +3713,22 @@ window.adjustTextScale = adjustTextScale;
 
 function setPreviewTargetMode(mode) {
   previewTargetMode = mode;
-  state.currentMode = (mode === 'livestream' || mode === 'lt' || mode === 'lowerthird') ? 'lt' : 'full';
+  window.previewTargetMode = mode;
+  try { localStorage.setItem('sf_preview_target_mode', mode); } catch(e) {}
+
+  if (mode === 'livestream' || mode === 'lt' || mode === 'lowerthird') {
+    state.currentMode = 'lt';
+  } else if (mode === 'dual') {
+    state.currentMode = 'dual';
+  } else {
+    state.currentMode = 'full';
+  }
+
   const iframe = document.getElementById('preview-iframe');
   if (iframe) {
     const baseUrl = getBaseDisplayUrl();
-    iframe.src = `${baseUrl}?target=${previewTargetMode}&preview=1`;
+    const iframeTarget = (mode === 'dual') ? 'sanctuary' : mode;
+    iframe.src = `${baseUrl}?target=${iframeTarget}&preview=1`;
   }
   const fullBtn = document.getElementById('preview-mode-full-btn');
   const ltBtn = document.getElementById('preview-mode-lt-btn');
@@ -3690,12 +3737,16 @@ function setPreviewTargetMode(mode) {
 
   const bentoFull = document.getElementById('bento-prev-mode-full');
   const bentoLt = document.getElementById('bento-prev-mode-lt');
+  const bentoDual = document.getElementById('bento-prev-mode-dual');
   if (bentoFull) bentoFull.classList.toggle('active', previewTargetMode === 'sanctuary');
   if (bentoLt) bentoLt.classList.toggle('active', previewTargetMode === 'livestream');
+  if (bentoDual) bentoDual.classList.toggle('active', previewTargetMode === 'dual');
 
   const previewTargetBtn = document.getElementById('preview-target-toggle-btn');
   if (previewTargetBtn) {
-    previewTargetBtn.textContent = (previewTargetMode === 'sanctuary') ? 'Full Display' : 'Lower-Third';
+    if (previewTargetMode === 'sanctuary') previewTargetBtn.textContent = 'Sanctuary';
+    else if (previewTargetMode === 'dual') previewTargetBtn.textContent = 'Dual Output';
+    else previewTargetBtn.textContent = 'Livestream';
     previewTargetBtn.classList.toggle('active', previewTargetMode === 'livestream');
   }
 
@@ -3708,10 +3759,133 @@ function setPreviewTargetMode(mode) {
 window.setPreviewTargetMode = setPreviewTargetMode;
 
 function togglePreviewTargetMode() {
-  const nextMode = (previewTargetMode === 'sanctuary') ? 'livestream' : 'sanctuary';
+  let nextMode = 'sanctuary';
+  if (previewTargetMode === 'sanctuary') nextMode = 'livestream';
+  else if (previewTargetMode === 'livestream') nextMode = 'dual';
+  else nextMode = 'sanctuary';
   setPreviewTargetMode(nextMode);
 }
 window.togglePreviewTargetMode = togglePreviewTargetMode;
+
+// Sanctuary Theme Modal Controller
+let activeSanctuaryCategory = 'all';
+
+function openSanctuaryThemeModal() {
+  const modal = document.getElementById('sanctuary-theme-modal-backdrop');
+  if (!modal) return;
+  renderSanctuaryThemesGrid();
+  if (window.themeManager && typeof window.themeManager.updateSanctuaryUi === 'function') {
+    window.themeManager.updateSanctuaryUi();
+  }
+  modal.style.display = 'flex';
+  modal.classList.add('open');
+}
+window.openSanctuaryThemeModal = openSanctuaryThemeModal;
+
+function closeSanctuaryThemeModal() {
+  const modal = document.getElementById('sanctuary-theme-modal-backdrop');
+  if (modal) {
+    modal.classList.remove('open');
+    modal.style.display = 'none';
+  }
+}
+window.closeSanctuaryThemeModal = closeSanctuaryThemeModal;
+
+function toggleSanctuaryThemeModal() {
+  const modal = document.getElementById('sanctuary-theme-modal-backdrop');
+  if (!modal) return;
+  if (modal.classList.contains('open') || modal.style.display === 'flex') {
+    closeSanctuaryThemeModal();
+  } else {
+    openSanctuaryThemeModal();
+  }
+}
+window.toggleSanctuaryThemeModal = toggleSanctuaryThemeModal;
+
+// Compatibility aliases
+window.toggleSanctuaryThemePopover = toggleSanctuaryThemeModal;
+window.closeSanctuaryThemePopover = closeSanctuaryThemeModal;
+
+function filterSanctuaryThemes(cat) {
+  activeSanctuaryCategory = cat || 'all';
+  document.querySelectorAll('.sanctuary-cat-tab').forEach(tab => {
+    tab.classList.toggle('active', tab.getAttribute('data-cat') === activeSanctuaryCategory);
+  });
+  renderSanctuaryThemesGrid();
+}
+window.filterSanctuaryThemes = filterSanctuaryThemes;
+
+function renderSanctuaryThemesGrid() {
+  const grid = document.getElementById('sanctuary-themes-grid');
+  if (!grid) return;
+  const themes = window.SANCTUARY_THEMES || {};
+  const curThemeId = (window.themeManager && window.themeManager.activeSanctuaryTheme) || 'celestial_motion';
+
+  let html = '';
+  const seenIds = new Set();
+  Object.keys(themes).forEach(tid => {
+    if (tid === 'deep_celestial') return; // skip legacy alias from grid
+    const t = themes[tid];
+    if (seenIds.has(t.id)) return;
+    seenIds.add(t.id);
+
+    if (activeSanctuaryCategory !== 'all' && t.category !== activeSanctuaryCategory) return;
+    const isActive = (tid === curThemeId || (curThemeId === 'deep_celestial' && tid === 'celestial_motion'));
+    const bgStyle = t.imageUrl ? `background-image: url('${t.imageUrl}'); background-size: cover; background-position: center;` : `background: ${t.previewGradient || t.bgCss};`;
+    const badgeLabel = t.badge || (t.type === 'video' ? 'WEBM' : (t.type === 'image' ? 'WEBP' : 'GRADIENT'));
+    const badgeType = t.type || 'gradient';
+
+    html += `
+      <div class="sanctuary-theme-card ${isActive ? 'active' : ''}" data-theme-id="${tid}" style="${bgStyle}" onclick="onSanctuaryThemeSelect('${tid}')" title="${escapeHtml(t.description || t.name)}">
+        <div class="sanctuary-theme-card-badge ${badgeType}">${badgeLabel}</div>
+        <div class="sanctuary-theme-card-name">${escapeHtml(t.name)}</div>
+      </div>
+    `;
+  });
+  grid.innerHTML = html;
+}
+window.renderSanctuaryThemesGrid = renderSanctuaryThemesGrid;
+
+function onObsModeRuleChange(rule) {
+  if (window.themeManager && typeof window.themeManager.setObsModeRule === 'function') {
+    window.themeManager.setObsModeRule(rule);
+  }
+}
+window.onObsModeRuleChange = onObsModeRuleChange;
+
+function onSanctuaryThemeSelect(themeId) {
+  if (window.themeManager && typeof window.themeManager.setSanctuaryTheme === 'function') {
+    window.themeManager.setSanctuaryTheme(themeId);
+  }
+  renderSanctuaryThemesGrid();
+  broadcastState();
+  if (typeof window.syncBentoStagePreview === 'function') {
+    window.syncBentoStagePreview();
+  }
+}
+window.onSanctuaryThemeSelect = onSanctuaryThemeSelect;
+
+function onSanctuaryDimmerChange(val) {
+  if (window.themeManager && typeof window.themeManager.setSanctuaryDimmer === 'function') {
+    window.themeManager.setSanctuaryDimmer(val);
+  }
+  broadcastState();
+  if (typeof window.syncBentoStagePreview === 'function') {
+    window.syncBentoStagePreview();
+  }
+}
+window.onSanctuaryDimmerChange = onSanctuaryDimmerChange;
+
+function onSanctuaryFontChange(font) {
+  if (window.themeManager && typeof window.themeManager.setSanctuaryFont === 'function') {
+    window.themeManager.setSanctuaryFont(font);
+  }
+  broadcastState();
+  if (typeof window.syncBentoStagePreview === 'function') {
+    window.syncBentoStagePreview();
+  }
+}
+window.onSanctuaryFontChange = onSanctuaryFontChange;
 
 function toggleTextAutoScale(isAuto) {
   state.textAutoScale = isAuto;
@@ -3731,14 +3905,14 @@ function updateLivePreview(payload) {
 }
 
 function clearAllOutputs() {
+  if (window.cancelPreparedSlide) window.cancelPreparedSlide();
   state.activeLiveSlideId = null;
   state.activeLiveText = '';
   state.activeLiveRef = '';
   state.activeLexiconData = null;
   updateActiveSlideVisuals(null);
   updateLivePreview({ clear: true });
-  broadcastState({ clear: true });
-  renderDeck();
+  broadcastState({ clear: true }, true);
 
   const drawerProjBtn = document.getElementById('strongs-drawer-project-btn');
   if (drawerProjBtn) {
@@ -4319,6 +4493,14 @@ function openSongPicker(slotIndex, event) {
     if (input) input.value = '';
     renderSongPickerResults('');
     dialog.classList.add('open');
+    dialog.style.zIndex = '100002';
+    if (typeof window.openDismissShield === 'function') {
+      window.openDismissShield(() => {
+        closeSongPicker();
+        closeVersionPicker();
+        closeBiblePassagePicker();
+      }, 100001);
+    }
     if (input) {
       setTimeout(() => {
         input.focus();
@@ -4333,6 +4515,11 @@ function closeSongPicker() {
   if (dialog) {
     dialog.classList.remove('open');
     dialog._openedForSlot = null;
+  }
+  const vDialog = document.getElementById('medley-version-dialog');
+  const bDialog = document.getElementById('medley-bible-dialog');
+  if ((!vDialog || !vDialog.classList.contains('open')) && (!bDialog || !bDialog.classList.contains('open'))) {
+    if (typeof window.closeDismissShield === 'function') window.closeDismissShield();
   }
 }
 
@@ -4432,6 +4619,14 @@ function openVersionPicker(slotIndex, event) {
     if (input) input.value = '';
     renderVersionPickerResults('');
     dialog.classList.add('open');
+    dialog.style.zIndex = '100002';
+    if (typeof window.openDismissShield === 'function') {
+      window.openDismissShield(() => {
+        closeSongPicker();
+        closeVersionPicker();
+        closeBiblePassagePicker();
+      }, 100001);
+    }
     if (input) {
       setTimeout(() => {
         input.focus();
@@ -4446,6 +4641,11 @@ function closeVersionPicker() {
   if (dialog) {
     dialog.classList.remove('open');
     dialog._openedForSlot = null;
+  }
+  const sDialog = document.getElementById('medley-song-dialog');
+  const bDialog = document.getElementById('medley-bible-dialog');
+  if ((!sDialog || !sDialog.classList.contains('open')) && (!bDialog || !bDialog.classList.contains('open'))) {
+    if (typeof window.closeDismissShield === 'function') window.closeDismissShield();
   }
 }
 
@@ -4535,6 +4735,14 @@ function openBiblePassagePicker(slotIndex, event) {
     if (input) input.value = '';
     renderBiblePassagePickerResults('');
     dialog.classList.add('open');
+    dialog.style.zIndex = '100002';
+    if (typeof window.openDismissShield === 'function') {
+      window.openDismissShield(() => {
+        closeSongPicker();
+        closeVersionPicker();
+        closeBiblePassagePicker();
+      }, 100001);
+    }
     if (input) {
       setTimeout(() => {
         input.focus();
@@ -4549,6 +4757,11 @@ function closeBiblePassagePicker() {
   if (dialog) {
     dialog.classList.remove('open');
     dialog._openedForSlot = null;
+  }
+  const sDialog = document.getElementById('medley-song-dialog');
+  const vDialog = document.getElementById('medley-version-dialog');
+  if ((!sDialog || !sDialog.classList.contains('open')) && (!vDialog || !vDialog.classList.contains('open'))) {
+    if (typeof window.closeDismissShield === 'function') window.closeDismissShield();
   }
 }
 
@@ -4837,7 +5050,8 @@ function syncStateFromSlideId(slideId) {
 
 // Project Slide Live (Zero-latency instant reaction)
 function projectSlide(slideId, text, reference, extra = {}) {
-  if (state.isHoldLive) return;
+  if (state.isHoldLive) { showToast('Live output is held. Release Hold live to change slides.', 'warning'); return; }
+  if (window.prepareSlideIfNeeded?.(slideId, text, reference, extra)) return;
 
   state.activeLexiconData = null;
   const drawerProjBtn = document.getElementById('strongs-drawer-project-btn');
@@ -4948,7 +5162,7 @@ function projectSlide(slideId, text, reference, extra = {}) {
     compareData: state.compareData,
     clear: false,
     blackout: false
-  });
+  }, true);
 
   // If projection targets a different chapter/song not currently in deck, rebuild deck
   if (needsDeckRebuild) {
@@ -4958,11 +5172,9 @@ function projectSlide(slideId, text, reference, extra = {}) {
   // 5. Update history asynchronously
   const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   state.scriptureHistory.unshift({ reference, text, time: now });
-  renderAiHud();
-
-  if (typeof window.syncBentoStagePreview === 'function') {
-    window.syncBentoStagePreview();
-  }
+  state.scriptureHistory.length = Math.min(state.scriptureHistory.length, 100);
+  clearTimeout(projectSlide.historyTimer);
+  projectSlide.historyTimer = setTimeout(renderAiHud, 0);
 }
 
 function sendRemoteCommand(command) {
@@ -5679,6 +5891,9 @@ function toggleAutoProject(explicitVal) {
   const bentoSwitch = document.getElementById('bento-autoproj-switch');
   if (bentoSwitch) {
     bentoSwitch.classList.toggle('active', state.autoProject);
+    const control = bentoSwitch.closest('.bento-autoproj');
+    control?.setAttribute('aria-pressed', String(state.autoProject));
+    control?.setAttribute('aria-label', state.autoProject ? 'Auto-project armed — detected content goes live automatically' : 'Auto-project off');
   }
 
   showToast(`Auto-Project ${state.autoProject ? 'Enabled (Hands-Free)' : 'Disabled (Manual)'}`, state.autoProject ? 'success' : 'info');
@@ -5807,10 +6022,14 @@ function updateRemoteServerUI(enabled) {
   updateRemoteSessionHeaderUI();
 }
 
+let controlEventSource = null;
 function initRemoteControl() {
   if (!window.EventSource || window.location.protocol === 'file:') return;
+  if (REMOTE_MODE && !window.sfOperatorPaired) return;
   checkRemoteServerStatus();
+  controlEventSource?.close();
   const commands = new EventSource('/api/control-events');
+  controlEventSource = commands;
   commands.onmessage = (event) => {
     try { applyRemoteCommand(JSON.parse(event.data)); } catch (error) { console.warn('Ignored remote command', error); }
   };
@@ -6057,11 +6276,8 @@ function submitOperatorName() {
   const cleanName = rawName.slice(0, 40);
   setSavedOperatorName(cleanName);
   updateOperatorHeaderUI(cleanName);
-  closeOperatorJoinModal();
-
   // Re-join and register with the server under the new name
   joinAndSyncOperatorSession(cleanName);
-  showToast(`Joined as "${cleanName}". Connected to Studio!`, 'success');
 }
 window.submitOperatorName = submitOperatorName;
 window.closeOperatorJoinModal = closeOperatorJoinModal;
@@ -6310,13 +6526,24 @@ function joinAndSyncOperatorSession(customName) {
   fetch('/api/session/join', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name: operatorName, deviceId: deviceId })
+    body: JSON.stringify({ name: operatorName, deviceId: deviceId, pairingCode: document.getElementById('operator-pairing-code')?.value })
   }).then(r => r.json()).then(data => {
+    if (data.pairingRequired || data.error) {
+      setRemoteSessionLocked(true);
+      openOperatorJoinModal(false);
+      const error = document.getElementById('operator-join-error');
+      if (error) { error.textContent = data.error; error.style.display = 'block'; }
+      return;
+    }
     if (data.sessionOffline) {
       setRemoteSessionLocked(true);
       return;
     }
     setRemoteSessionLocked(false);
+    closeOperatorJoinModal();
+    window.sfOperatorPaired = true;
+    initRemoteControl();
+    if (customName) showToast(`Joined as "${operatorName}". Connected to Studio!`, 'success');
     if (data.name) {
       updateOperatorHeaderUI(data.name);
     }
@@ -6342,6 +6569,10 @@ function joinAndSyncOperatorSession(customName) {
             }
           } else if (msg.type === 'PRIVILEGE_UPDATE' && msg.sessionEnabled === false) {
             setRemoteSessionLocked(true);
+          } else if (msg.type === 'SESSION_ENDED') {
+            window.sfOperatorPaired = false;
+            setRemoteSessionLocked(true);
+            controlEventSource?.close();
           } else if (msg.type === 'SPEECH_AI_UPDATE') {
             applyHostSpeechAiUpdate(msg);
           }
@@ -6463,10 +6694,9 @@ function applyRemoteCommand(command) {
       updateActiveSlideVisuals(null);
       updateLivePreview({ blackout: true, clear: false });
       broadcastState({ blackout: true, clear: false });
-      renderDeck();
-      if (typeof window.syncBentoStagePreview === 'function') {
-        window.syncBentoStagePreview();
-      }
+          if (typeof window.syncBentoStagePreview === 'function') {
+            window.syncBentoStagePreview();
+          }
       return;
     }
     if (command.type === 'NAVIGATE') {
@@ -7060,11 +7290,21 @@ function initOmniSearchDrag() {
   header.addEventListener('touchstart', onDragStart, { passive: true });
 }
 
+let omniSearchFocusOrigin = null;
 function openOmniSearchPalette(mode = 'all', initialQuery = '') {
   const palette = document.getElementById('omni-search-palette');
   const input = document.getElementById('omni-search-input');
   if (!palette) return;
 
+  if (palette.style.display !== 'flex') omniSearchFocusOrigin = document.activeElement;
+  let backdrop = document.getElementById('omni-search-backdrop');
+  if (!backdrop) {
+    backdrop = document.createElement('div');
+    backdrop.id = 'omni-search-backdrop';
+    backdrop.addEventListener('click', closeOmniSearchPalette);
+    palette.before(backdrop);
+  }
+  backdrop.hidden = false;
   palette.style.display = 'flex';
   initOmniSearchDrag();
 
@@ -7078,16 +7318,17 @@ function openOmniSearchPalette(mode = 'all', initialQuery = '') {
       input.value = '';
       handleOmniSearchInput('');
     }
-    setTimeout(() => {
-      input.focus();
-      if (input.value) input.select();
-    }, 50);
+    input.focus();
+    if (input.value) input.select();
   }
 }
 
 function closeOmniSearchPalette() {
   const palette = document.getElementById('omni-search-palette');
   if (palette) palette.style.display = 'none';
+  const backdrop = document.getElementById('omni-search-backdrop');
+  if (backdrop) backdrop.hidden = true;
+  if (palette?.contains(document.activeElement)) omniSearchFocusOrigin?.focus();
 }
 
 function toggleOmniSearchPalette(mode) {
@@ -8545,6 +8786,15 @@ function switchImportSubTab(subTab) {
     if (btn) btn.classList.toggle('active', tab === subTab);
     if (pane) pane.style.display = (tab === subTab) ? 'flex' : 'none';
   });
+  if (subTab === 'bibles' && typeof renderCloudBibles === 'function') {
+    renderCloudBibles(document.getElementById('cloud-bible-search-input')?.value || '');
+  }
+  if (subTab === 'cloudsongs' && typeof filterCloudSongs === 'function') {
+    filterCloudSongs(document.getElementById('cloud-song-search-input')?.value || '');
+  }
+  if (subTab === 'manual' && typeof updateImportLivePreview === 'function') {
+    updateImportLivePreview();
+  }
 }
 
 function insertTagIntoImport(tagName) {
@@ -8602,7 +8852,7 @@ function updateImportLivePreview() {
 
   if (!text.trim()) {
     if (countBadge) countBadge.textContent = '0 Slides';
-    previewBox.innerHTML = `<span style="color:var(--text-muted); font-size:11px; margin:auto; text-align:center; padding:20px;">Type lyrics on the left to see live parsed slides...</span>`;
+    previewBox.innerHTML = `<span class="import-prev-empty">Type lyrics on the left to see live parsed slides...</span>`;
     return;
   }
 
@@ -8610,14 +8860,17 @@ function updateImportLivePreview() {
   if (countBadge) countBadge.textContent = `${parsed.stanzas.length} Slide${parsed.stanzas.length === 1 ? '' : 's'}`;
 
   previewBox.innerHTML = `
-    <div style="font-weight:600; font-size:12px; color:var(--accent-pink-light); margin-bottom:4px; padding-bottom:4px; border-bottom:1px solid rgba(255,255,255,0.08); display:flex; justify-content:space-between; align-items:center;">
-      <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:60%;">${escapeHtml(parsed.title)}</span>
-      <span style="font-weight:400; font-size:10.5px; color:var(--text-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">by ${escapeHtml(parsed.author)}</span>
+    <div class="import-prev-meta">
+      <span class="import-prev-title">${escapeHtml(parsed.title)}</span>
+      <span class="import-prev-author">by ${escapeHtml(parsed.author)}</span>
     </div>
     ${parsed.stanzas.map((s, sIdx) => `
-      <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:6px; padding:6px 8px; margin-bottom:4px;">
-        <div style="font-size:9.5px; font-weight:700; color:#60A5FA; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:2px;">SLIDE ${sIdx + 1} &bull; [${escapeHtml(s.type)}]</div>
-        <div style="color:var(--text-starlight); white-space:pre-wrap; font-family:var(--font-mono); font-size:11px; line-height:1.4;">${escapeHtml(s.text)}</div>
+      <div class="import-prev-card">
+        <div class="import-prev-card-header">
+          <span class="import-prev-slide-badge">SLIDE ${sIdx + 1}</span>
+          <span class="import-prev-section-badge">[${escapeHtml(s.type)}]</span>
+        </div>
+        <div class="import-prev-text">${escapeHtml(s.text)}</div>
       </div>
     `).join('')}
   `;
@@ -8626,7 +8879,7 @@ function updateImportLivePreview() {
 // -------------------------------------------------------------
 // Song Editor Modal Engine (Minimalist & Functional)
 // -------------------------------------------------------------
-function openSongEditorModal(targetId = null) {
+function openSongEditorModal(targetId = null, targetStanzaIndex = null) {
   const songId = targetId || state.activeSongId;
   const song = SONGS_DATABASE.find(s => s.id === songId) || SONGS_DATABASE[0];
   if (!song) return;
@@ -8647,11 +8900,62 @@ function openSongEditorModal(targetId = null) {
   const formattedText = song.stanzas.map(s => `[${s.type}]\n${s.text}`).join('\n\n');
   textInput.value = formattedText;
 
-  updateSongEditorLivePreview();
+  const validStanzaIdx = (targetStanzaIndex !== null && targetStanzaIndex >= 0 && targetStanzaIndex < song.stanzas.length)
+    ? targetStanzaIndex
+    : -1;
+
+  updateSongEditorLivePreview(validStanzaIdx);
   modal.classList.add('open');
+
+  if (validStanzaIdx >= 0) {
+    setTimeout(() => {
+      focusSongEditorStanza(validStanzaIdx, song);
+    }, 80);
+  }
 }
 
-function updateSongEditorLivePreview() {
+function focusSongEditorStanza(targetStanzaIndex, song) {
+  const textInput = document.getElementById('editor-song-text');
+  const previewBox = document.getElementById('editor-preview-box');
+  if (!textInput || !song || !song.stanzas) return;
+
+  const targetStanza = song.stanzas[targetStanzaIndex];
+  if (!targetStanza) return;
+
+  // Find character index of this stanza in textInput.value
+  let searchFrom = 0;
+  let targetCharIdx = -1;
+  for (let i = 0; i <= targetStanzaIndex; i++) {
+    const s = song.stanzas[i];
+    const tag = `[${s.type}]`;
+    const found = textInput.value.indexOf(tag, searchFrom);
+    if (found !== -1) {
+      if (i === targetStanzaIndex) {
+        targetCharIdx = found;
+        break;
+      }
+      searchFrom = found + tag.length;
+    }
+  }
+
+  if (targetCharIdx !== -1) {
+    textInput.focus();
+    textInput.setSelectionRange(targetCharIdx, targetCharIdx + `[${targetStanza.type}]`.length);
+    const linesBefore = textInput.value.substring(0, targetCharIdx).split('\n').length;
+    const lineHeight = 19;
+    textInput.scrollTop = Math.max(0, (linesBefore - 2) * lineHeight);
+  }
+
+  if (previewBox) {
+    const prevStanzaEl = document.getElementById(`editor-prev-stanza-${targetStanzaIndex}`);
+    if (prevStanzaEl) {
+      prevStanzaEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      prevStanzaEl.classList.add('targeted-stanza-highlight');
+    }
+  }
+}
+
+function updateSongEditorLivePreview(targetStanzaIndex = -1) {
   const title = document.getElementById('editor-song-title')?.value || 'Untitled Song';
   const author = document.getElementById('editor-song-author')?.value || 'Unknown Artist';
   const text = document.getElementById('editor-song-text')?.value || '';
@@ -8667,15 +8971,22 @@ function updateSongEditorLivePreview() {
   const parsed = window.libraryImporter.parseSongText(text, title, author);
 
   previewBox.innerHTML = `
-    <div class="editor-prev-meta" style="font-weight:700; font-size:12px; margin-bottom:4px; padding-bottom:4px;">
-      ${parsed.title} <span class="editor-prev-author" style="font-weight:400;">by ${parsed.author}</span>
+    <div class="editor-prev-meta" style="font-weight:700; font-size:12px; margin-bottom:6px; padding-bottom:4px; display:flex; justify-content:space-between; align-items:center;">
+      <div>${escapeHtml(parsed.title)} <span class="editor-prev-author" style="font-weight:400; opacity:0.8;">by ${escapeHtml(parsed.author)}</span></div>
+      <span class="editor-prev-cnt" style="font-size:10px; font-weight:600; color:var(--purple-text, #c4b5fd);">${parsed.stanzas.length} slides</span>
     </div>
-    ${parsed.stanzas.map(s => `
-      <div class="editor-prev-stanza" style="border-radius:6px; padding:6px 8px; margin-bottom:4px;">
-        <span class="editor-prev-tag" style="font-size:10px; font-weight:700; text-transform:uppercase;">[${s.type}]</span>
-        <div class="editor-prev-text" style="white-space:pre-wrap; margin-top:2px; font-family:var(--font-mono, monospace); font-size:11px;">${s.text}</div>
-      </div>
-    `).join('')}
+    ${parsed.stanzas.map((s, idx) => {
+      const isTarget = idx === targetStanzaIndex;
+      return `
+        <div class="editor-prev-stanza ${isTarget ? 'targeted-stanza-highlight' : ''}" id="editor-prev-stanza-${idx}" style="border-radius:8px; padding:8px 10px; margin-bottom:6px; border: 1px solid ${isTarget ? 'var(--purple, #7852ff)' : 'rgba(255,255,255,0.08)'}; background:${isTarget ? 'rgba(120,82,255,0.12)' : 'var(--card, #1a1922)'}; transition:all 0.15s ease;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+            <span class="editor-prev-tag" style="font-size:10px; font-weight:700; text-transform:uppercase; color:${isTarget ? 'var(--purple-text, #c4b5fd)' : 'var(--text-dim, #94a3b8)'};">[${escapeHtml(s.type)}]</span>
+            ${isTarget ? '<span class="editor-target-badge" style="font-size:9px; font-weight:700; color:#fff; background:var(--purple, #7852ff); padding:1px 6px; border-radius:4px;">SELECTED SLIDE</span>' : ''}
+          </div>
+          <div class="editor-prev-text" style="white-space:pre-wrap; font-family:var(--font-mono, monospace); font-size:11.5px; line-height:1.4;">${escapeHtml(s.text)}</div>
+        </div>
+      `;
+    }).join('')}
   `;
 }
 
@@ -8748,6 +9059,8 @@ function deleteCurrentEditingSong() {
 // Global Aliases for HTML Handlers
 window.openSongEditor = openSongEditorModal;
 window.openSongEditorModal = openSongEditorModal;
+window.openSongSheetModal = openSongEditorModal;
+window.focusSongEditorStanza = focusSongEditorStanza;
 window.closeSongEditor = function() {
   const modal = document.getElementById('song-editor-modal-backdrop');
   if (modal) modal.classList.remove('open');
@@ -8872,7 +9185,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 function renderCloudSongs(filter = '') {
-  const container = document.getElementById('cloud-songs-list') || document.getElementById('cloud-song-list');
+  const container = document.getElementById('cloud-songs-results') || document.getElementById('cloud-songs-list') || document.getElementById('cloud-song-list');
   if (!container) return;
   const q = (filter || '').trim().toLowerCase();
   const list = (typeof CLOUD_REPOSITORIES !== 'undefined' && CLOUD_REPOSITORIES.songs) || [
@@ -8887,20 +9200,82 @@ function renderCloudSongs(filter = '') {
   ];
   const matches = list.filter(s => !q || s.title.toLowerCase().includes(q) || (s.artist && s.artist.toLowerCase().includes(q)) || (s.tags && s.tags.toLowerCase().includes(q)));
   if (matches.length === 0) {
-    container.innerHTML = `<div style="grid-column: 1 / -1; padding: 24px; text-align: center; color: var(--text-muted); font-size: 12px;">No cloud songs matching "${escapeHtml(filter)}"</div>`;
+    container.innerHTML = `<div class="repo-empty-state">No cloud songs matching "${escapeHtml(filter)}"</div>`;
     return;
   }
   container.innerHTML = matches.map((s, idx) => `
-    <div class="repo-item-card cloud-item-card" style="padding:12px 14px; border-radius:12px; display:flex; justify-content:space-between; align-items:center; gap:12px; background: rgba(18,24,38,0.7); border:1px solid rgba(255,255,255,0.06);">
-      <div style="min-width:0; flex:1;">
-        <div style="font-weight:600; font-size:13px; color:#F8FAFC; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(s.title)}</div>
-        <div style="font-size:11px; color:#94A3B8; margin-top:2px;">${escapeHtml(s.artist || 'Artist')} • <span style="color:var(--accent-pink);">${escapeHtml(s.tags || 'Song')}</span></div>
+    <div class="repo-item-card cloud-item-card">
+      <div class="repo-item-main">
+        <div class="repo-item-title">${escapeHtml(s.title)}</div>
+        <div class="repo-item-meta">
+          <span>${escapeHtml(s.artist || 'Artist')}</span>
+          <span class="meta-dot">&bull;</span>
+          <span class="repo-tag-pill installed">${escapeHtml(s.tags || 'Song')}</span>
+        </div>
       </div>
-      <button class="icon-btn-secondary" onclick="omniAddAndProjectCloudSong(${idx})" style="padding:6px 12px; font-size:11.5px; border-radius:7px; background:rgba(236,72,153,0.15); border:1px solid rgba(236,72,153,0.3); color:#F472B6; cursor:pointer;">Add & Project</button>
+      <button class="repo-action-btn bento-btn-primary-sm" onclick="omniAddAndProjectCloudSong(${idx})">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        <span>Add & Project</span>
+      </button>
     </div>
   `).join('');
 }
 window.renderCloudSongs = renderCloudSongs;
+
+let currentBibleFilter = '';
+let biblesViewMode = 'grid';
+let currentSongFilter = '';
+let songsViewMode = 'grid';
+
+function setCloudBiblesViewMode(mode) {
+  biblesViewMode = mode;
+  const container = document.getElementById('cloud-bibles-list');
+  const listBtn = document.getElementById('bible-view-list-btn');
+  const gridBtn = document.getElementById('bible-view-grid-btn');
+  if (container) {
+    container.classList.remove('view-grid', 'view-list');
+    container.classList.add(`view-${mode}`);
+  }
+  if (listBtn) listBtn.classList.toggle('active', mode === 'list');
+  if (gridBtn) gridBtn.classList.toggle('active', mode === 'grid');
+}
+window.setCloudBiblesViewMode = setCloudBiblesViewMode;
+
+function applyCloudBibleFilter(btn, filter) {
+  currentBibleFilter = filter;
+  const searchInput = document.getElementById('cloud-bible-search-input');
+  if (searchInput) searchInput.value = filter;
+  const pills = btn.parentElement?.querySelectorAll('.repo-filter-pill');
+  pills?.forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  renderCloudBibles(filter);
+}
+window.applyCloudBibleFilter = applyCloudBibleFilter;
+
+function setCloudSongsViewMode(mode) {
+  songsViewMode = mode;
+  const container = document.getElementById('cloud-songs-results');
+  const listBtn = document.getElementById('song-view-list-btn');
+  const gridBtn = document.getElementById('song-view-grid-btn');
+  if (container) {
+    container.classList.remove('view-grid', 'view-list');
+    container.classList.add(`view-${mode}`);
+  }
+  if (listBtn) listBtn.classList.toggle('active', mode === 'list');
+  if (gridBtn) gridBtn.classList.toggle('active', mode === 'grid');
+}
+window.setCloudSongsViewMode = setCloudSongsViewMode;
+
+function applyCloudSongFilter(btn, filter) {
+  currentSongFilter = filter;
+  const searchInput = document.getElementById('cloud-song-search-input');
+  if (searchInput) searchInput.value = filter;
+  const pills = btn.parentElement?.querySelectorAll('.repo-filter-pill');
+  pills?.forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  filterCloudSongs(filter);
+}
+window.applyCloudSongFilter = applyCloudSongFilter;
 
 function renderCloudBibles(filter = '') {
   const container = document.getElementById('cloud-bibles-list');
@@ -8912,7 +9287,7 @@ function renderCloudBibles(filter = '') {
   );
 
   if (matches.length === 0) {
-    container.innerHTML = `<div style="grid-column: 1 / -1; padding: 30px 20px; text-align: center; color: var(--text-muted); font-size: 12px; background: rgba(255,255,255,0.02); border-radius:12px; border:1px dashed rgba(255,255,255,0.08);">No matching Bible translations found for "${escapeHtml(filter)}"</div>`;
+    container.innerHTML = `<div class="repo-empty-state">No matching Bible translations found for "${escapeHtml(filter)}"</div>`;
     return;
   }
 
@@ -8921,32 +9296,44 @@ function renderCloudBibles(filter = '') {
     const isActive = isInstalled && state.bibleVersion === b.code;
 
     return `
-      <div class="repo-item-card" style="padding:12px 14px; border-radius:12px; display:flex; justify-content:space-between; align-items:center; gap:12px; background: rgba(18,24,38,0.7); border:1px solid ${isActive ? 'rgba(59,130,246,0.5)' : (isInstalled ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.06)')};">
-        <div style="min-width:0; flex:1;">
-          <div style="font-weight:600; font-size:13px; color:#F8FAFC; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:flex; align-items:center; gap:8px;">
-            <span class="eyebrow-tag repo-tag-pill" style="font-size:9.5px; padding:2px 6px; border-radius:5px; font-weight:700; background:${isActive ? 'rgba(59,130,246,0.3)' : (isInstalled ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.08)')}; color:${isActive ? '#93C5FD' : (isInstalled ? '#6EE7B7' : '#94A3B8')};">${b.code}</span>
-            <span class="repo-item-title" style="color:${isActive ? '#93C5FD' : '#FFFFFF'};">${escapeHtml(b.name)}</span>
+      <div class="repo-item-card ${isActive ? 'active-repo' : (isInstalled ? 'installed-repo' : '')}">
+        <div class="repo-item-main">
+          <div class="repo-item-title-row">
+            <span class="repo-tag-pill ${isActive ? 'active' : (isInstalled ? 'installed' : '')}">${b.code}</span>
+            <span class="repo-item-title" title="${escapeHtml(b.name)}">${escapeHtml(b.name)}</span>
           </div>
-          <div style="font-size:11px; font-weight:400; color:#94A3B8; margin-top:3px; display:flex; align-items:center; gap:6px;">
-            <span>${b.lang}</span> • <span>${b.size || '4 MB'}</span>
-            ${isActive ? '<span style="color:#60A5FA; font-weight:600; background:rgba(59,130,246,0.15); padding:1px 6px; border-radius:4px; font-size:9.5px;">Active in Deck</span>' : (isInstalled ? '<span style="color:#34D399; font-weight:600; background:rgba(16,185,129,0.12); padding:1px 6px; border-radius:4px; font-size:9.5px;">Offline Ready</span>' : '<span style="color:#94A3B8; font-size:9.5px; opacity:0.8;">Cloud Download</span>')}
+          <div class="repo-item-meta">
+            <span class="meta-lang">${b.lang}</span>
+            <span class="meta-dot">&bull;</span>
+            <span class="meta-size">${b.size || '4 MB'}</span>
+            ${isActive 
+              ? '<span class="repo-status-badge active"><span class="badge-dot">●</span> Active</span>' 
+              : (isInstalled 
+                ? '<span class="repo-status-badge ready"><span class="badge-dot">●</span> Ready</span>' 
+                : '<span class="repo-status-badge cloud"><span class="badge-dot">☁</span> Cloud</span>')}
           </div>
         </div>
-        <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
+        <div class="repo-item-actions">
           ${isActive ? `
-            <button class="mode-toggle-btn active" style="font-size:11px; padding:5px 12px; border-radius:7px; font-weight:600; background:rgba(59,130,246,0.25); border:1px solid #3B82F6; color:#93C5FD;" disabled>Active</button>
-            <button class="icon-btn-secondary" onclick="deleteCloudBible('${b.code}')" title="Delete ${b.code} from storage" style="padding:5px 8px; border-radius:7px; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.25); color:#FCA5A5; cursor:pointer;">
+            <button class="repo-action-btn bento-btn-active-indicator" disabled>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Active</span>
+            </button>
+            <button class="bento-btn-icon-danger" onclick="deleteCloudBible('${b.code}')" title="Delete ${b.code} from storage">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
             </button>
           ` : (isInstalled ? `
-            <button class="mode-toggle-btn active repo-action-btn" onclick="switchCloudBible('${b.code}')" style="font-size:11px; padding:5px 12px; border-radius:7px; font-weight:600; cursor:pointer;">Switch</button>
-            <button class="icon-btn-secondary" onclick="deleteCloudBible('${b.code}')" title="Delete ${b.code} from storage" style="padding:5px 8px; border-radius:7px; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.25); color:#FCA5A5; cursor:pointer;">
+            <button class="repo-action-btn bento-btn-primary-sm" onclick="switchCloudBible('${b.code}')">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+              <span>Switch</span>
+            </button>
+            <button class="bento-btn-icon-danger" onclick="deleteCloudBible('${b.code}')" title="Delete ${b.code} from storage">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
             </button>
           ` : `
-            <button id="btn-dl-${b.code}" class="mode-toggle-btn repo-action-btn" onclick="downloadCloudBible('${b.code}', '${escapeHtml(b.name)}')" style="font-size:11px; padding:5px 14px; border-radius:7px; font-weight:600; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); color:#FFFFFF; cursor:pointer;">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px; vertical-align:-1px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-              Download
+            <button id="btn-dl-${b.code}" class="repo-action-btn bento-btn-secondary-sm" onclick="downloadCloudBible('${b.code}', '${escapeHtml(b.name)}')">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <span>Download</span>
             </button>
           `)}
         </div>
@@ -9093,29 +9480,30 @@ function filterCloudSongs(query) {
 
       if (!results || results.length === 0) {
         container.innerHTML = `
-          <div style="padding: 36px 20px; text-align: center; color: var(--text-muted); font-size: 12px; background: rgba(255,255,255,0.02); border-radius:12px; border:1px dashed rgba(255,255,255,0.08);">
-            <div style="display:flex; justify-content:center; margin-bottom:8px; color:var(--text-muted);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
-            <div style="font-weight:600; color:#F8FAFC; margin-bottom:4px;">No online lyrics found for "${escapeHtml(cleanQ)}"</div>
-            <div style="font-size:11px; color:#94A3B8; margin-bottom:12px;">Try typing a different keyword or paste lyrics directly into the Song Creator tab.</div>
-            <button type="button" class="mode-toggle-btn active" onclick="switchImportSubTab('manual')" style="font-size:11px; padding:6px 14px;">Open Song Creator ↗</button>
+          <div class="repo-empty-state">
+            <div style="display:flex; justify-content:center; margin-bottom:8px; color:var(--mute, #696773);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
+            <div style="font-weight:600; color:var(--text, #f3f2f7); margin-bottom:4px;">No online lyrics found for "${escapeHtml(cleanQ)}"</div>
+            <div style="font-size:11px; color:var(--dim, #a3a1ae); margin-bottom:12px;">Try typing a different keyword or paste lyrics directly into the Song Creator tab.</div>
+            <button type="button" class="bento-btn bento-btn-primary-sm" onclick="switchImportSubTab('manual')">Open Song Creator ↗</button>
           </div>
         `;
         return;
       }
 
       container.innerHTML = results.map((s, idx) => `
-        <div class="repo-item-card" style="padding:14px 16px; border-radius:12px; display:flex; justify-content:space-between; align-items:center; gap:16px; background: rgba(18,24,38,0.7); border:1px solid rgba(255,255,255,0.08); transition:all 0.15s ease;">
-          <div style="min-width:0; flex:1;">
-            <div style="display:flex; align-items:center; gap:8px;">
-              <span class="repo-item-title" style="font-weight:700; font-size:13.5px; color:#FFFFFF; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(s.title)}</span>
-              <span style="font-size:9.5px; font-weight:700; background:rgba(236,72,153,0.15); color:#F472B6; padding:1px 6px; border-radius:4px; border:1px solid rgba(236,72,153,0.3); flex-shrink:0;">${s.stanzas ? s.stanzas.length : 0} Slides</span>
+        <div class="repo-item-card cloud-item-card">
+          <div class="repo-item-main">
+            <div class="repo-item-title-row">
+              <span class="repo-item-title">${escapeHtml(s.title)}</span>
+              <span class="repo-slide-count-badge">${s.stanzas ? s.stanzas.length : 0} Slides</span>
             </div>
-            <div style="font-size:11.5px; font-weight:500; color:var(--accent-pink-light); margin-top:2px;">${escapeHtml(s.author || 'Unknown Artist')} ${s.album ? `• <span style="color:#94A3B8; font-weight:400;">${escapeHtml(s.album)}</span>` : ''}</div>
-            <div style="font-size:11px; color:#94A3B8; margin-top:4px; line-height:1.4; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; opacity:0.85;">${escapeHtml(s.previewText || (s.stanzas && s.stanzas[0] ? s.stanzas[0].text : ''))}</div>
+            <div class="repo-item-author">${escapeHtml(s.author || 'Unknown Artist')} ${s.album ? `• <span style="color:var(--dim); font-weight:400;">${escapeHtml(s.album)}</span>` : ''}</div>
+            <div class="repo-item-preview-text">${escapeHtml(s.previewText || (s.stanzas && s.stanzas[0] ? s.stanzas[0].text : ''))}</div>
           </div>
-          <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
-            <button class="mode-toggle-btn active repo-action-btn" onclick="addCloudSongByIndex(${idx})" style="font-size:11.5px; padding:6px 14px; border-radius:8px; font-weight:700; background:var(--accent-pink-gradient); color:#FFFFFF; border:none; cursor:pointer; box-shadow:0 2px 8px rgba(236,72,153,0.25);">
-              + Add to Songbook
+          <div class="repo-item-actions">
+            <button class="repo-action-btn bento-btn-primary-sm" onclick="addCloudSongByIndex(${idx})">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <span>Add to Songbook</span>
             </button>
           </div>
         </div>
@@ -9707,7 +10095,7 @@ function updateDesktopProjectorUI(status) {
 
 async function toggleDesktopProjector() {
   if (!window.desktopApi) {
-    showToast('Desktop API only available in the Ginomai Pro desktop application.', 'info');
+    showToast('Desktop API only available in the Ginomia Pro desktop application.', 'info');
     return;
   }
 
@@ -10038,6 +10426,10 @@ function toggleAudioMicPopover(e) {
     popover.classList.add('open');
     if (btn) btn.classList.add('open');
     if (bentoBtn) bentoBtn.classList.add('open');
+    popover.style.zIndex = '100002';
+    if (typeof window.openDismissShield === 'function') {
+      window.openDismissShield(closeAudioMicPopover, 100001);
+    }
   }
 }
 
@@ -10048,6 +10440,9 @@ function closeAudioMicPopover() {
   if (popover) popover.classList.remove('open');
   if (btn) btn.classList.remove('open');
   if (bentoBtn) bentoBtn.classList.remove('open');
+  if (typeof window.closeDismissShield === 'function') {
+    window.closeDismissShield();
+  }
 }
 
 // Global Window Exports for UI Integration & Bento Studio Pro
@@ -10099,6 +10494,7 @@ window.openSongEditorModal = openSongEditorModal;
 window.toggleCompareMode = toggleCompareMode;
 window.toggleDesktopProjector = toggleDesktopProjector;
 window.toggleTranslationDropdown = toggleTranslationDropdown;
+window.closeTranslationDropdown = closeTranslationDropdown;
 window.pushRemoteLibraryToHost = pushRemoteLibraryToHost;
 window.openOperatorRenameModal = openOperatorRenameModal;
 window.toggleAudioMicPopover = toggleAudioMicPopover;
@@ -10143,6 +10539,7 @@ if (typeof window.setBentoSingleCols === 'function') {
 // Global Keyboard Shortcut Listener for Omni-Search (Ctrl+K / Cmd+K & Escape)
 document.addEventListener('keydown', (e) => {
   // Check for Ctrl+K or Cmd+K
+  if (window.sfActiveModal?.()) return;
   if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) {
     e.preventDefault();
     toggleOmniSearchPalette();
@@ -10787,7 +11184,7 @@ if (typeof window.projectBentoSlide !== 'function') {
 
 // ── Settings Help & Support Actions ─────────────────────────────
 function openHelpTutorial() {
-  showToast('Opening Ginomai Pro video guides...', 'info');
+  showToast('Opening Ginomia Pro video guides...', 'info');
   window.open('https://youtube.com', '_blank', 'noopener,noreferrer');
 }
 window.openHelpTutorial = openHelpTutorial;
@@ -10814,7 +11211,7 @@ function startInteractiveTour() {
   const settingsModal = document.getElementById('settings-modal-backdrop');
   if (settingsModal) settingsModal.classList.remove('open');
 
-  showToast('Starting Ginomai Pro interactive tour...', 'info');
+  showToast('Starting Ginomia Pro interactive tour...', 'info');
 
   const tourSteps = [
     {
@@ -10888,7 +11285,7 @@ function startInteractiveTour() {
         renderStep();
       } else {
         tourOverlay.style.display = 'none';
-        showToast('Tour completed! Enjoy using Ginomai Pro.', 'success');
+        showToast('Tour completed! Enjoy using Ginomia Pro.', 'success');
       }
     });
     document.getElementById('tour-skip-btn')?.addEventListener('click', () => {
@@ -10901,11 +11298,16 @@ function startInteractiveTour() {
 }
 window.startInteractiveTour = startInteractiveTour;
 
-function sendSupportLogs() {
+async function sendSupportLogs() {
+  let releaseInfo = { appName: 'Ginomia Pro', version: '2.4.0' };
+  try {
+    const response = await fetch('/api/version');
+    if (response.ok) releaseInfo = { ...releaseInfo, ...(await response.json()) };
+  } catch (e) {}
   const diagnostics = [
-    `=== GINOMAI PRO SUPPORT & DIAGNOSTIC LOG ===`,
+    `=== ${releaseInfo.appName.toUpperCase()} SUPPORT & DIAGNOSTIC LOG ===`,
     `Generated: ${new Date().toISOString()}`,
-    `App Version: 2.4.0-PRO (The Word in Motion)`,
+    `App Version: ${releaseInfo.version} (The Word in Motion)`,
     `Theme: ${document.body.getAttribute('data-theme-style') || 'bento'} (${document.body.getAttribute('data-theme-mode') || 'dark'})`,
     `Viewport: ${window.innerWidth}x${window.innerHeight}`,
     `User Agent: ${navigator.userAgent}`,
@@ -10951,7 +11353,7 @@ function copySupportWhatsApp() {
 window.copySupportWhatsApp = copySupportWhatsApp;
 
 function openSupportWhatsApp() {
-  const msg = encodeURIComponent('Hello Ginomai Pro Team, I need assistance with Ginomai Pro v2.4.0-PRO.');
+  const msg = encodeURIComponent('Hello Ginomia Pro Team, I need assistance with Ginomia Pro v2.4.0.');
   window.open(`https://wa.me/?text=${msg}`, '_blank', 'noopener,noreferrer');
 }
 window.openSupportWhatsApp = openSupportWhatsApp;
@@ -10986,16 +11388,16 @@ function checkForUpdates(event) {
         if (btn) btn.disabled = false;
         if (btnArch) btnArch.disabled = false;
 
-        const currentVer = data.version || '2.4.0-PRO';
+        const currentVer = data.version || '2.4.0';
         const isLatest = data.isLatest !== false;
 
         if (isLatest) {
-          showToast(`You're up to date! Ginomai Pro v${currentVer} is the latest version.`, 'success');
+          showToast(`You're up to date! Ginomia Pro v${currentVer} is the latest version.`, 'success');
           const statusMsg = `✓ Up to date (v${currentVer}) · Checked just now`;
           if (statusText) statusText.textContent = statusMsg;
           if (statusTextArch) statusTextArch.textContent = statusMsg;
         } else {
-          showToast(`Update available: Ginomai Pro v${data.latestVersion || 'latest'}!`, 'info');
+          showToast(`Update available: Ginomia Pro v${data.latestVersion || 'latest'}!`, 'info');
           if (typeof openChangelogModal === 'function') openChangelogModal();
         }
       }, 600);
@@ -11009,13 +11411,11 @@ function checkForUpdates(event) {
         if (btn) btn.disabled = false;
         if (btnArch) btnArch.disabled = false;
 
-        showToast("You're on the latest build (Ginomai Pro v2.4.0-PRO).", 'success');
-        const statusMsg = `✓ Up to date (v2.4.0-PRO) · Checked just now`;
+        showToast("You're on the latest build (Ginomia Pro v2.4.0).", 'success');
+        const statusMsg = `✓ Up to date (v2.4.0) · Checked just now`;
         if (statusText) statusText.textContent = statusMsg;
         if (statusTextArch) statusTextArch.textContent = statusMsg;
       }, 600);
     });
 }
 window.checkForUpdates = checkForUpdates;
-
-

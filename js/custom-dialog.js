@@ -1,4 +1,4 @@
-// Ginomai Pro - High-Performance Custom Dialog System (Prompt & Confirm)
+// Ginomia Pro - High-Performance Custom Dialog System (Prompt & Confirm)
 'use strict';
 
 (function() {
@@ -59,7 +59,6 @@
       els.cancelBtn.textContent = cancelText;
 
       els.backdrop.style.display = 'flex';
-      void els.backdrop.offsetWidth;
       els.backdrop.classList.add('open');
 
       setTimeout(() => {
@@ -102,11 +101,11 @@
       els.cancelBtn.textContent = cancelText;
 
       els.backdrop.style.display = 'flex';
-      void els.backdrop.offsetWidth;
       els.backdrop.classList.add('open');
 
       setTimeout(() => {
-        if (els.confirmBtn) els.confirmBtn.focus();
+        const initial = danger ? els.cancelBtn : els.confirmBtn;
+        if (initial && els.backdrop.classList.contains('open')) initial.focus();
       }, 15);
     });
   };
@@ -144,7 +143,7 @@
       e.preventDefault();
       e.stopPropagation();
       window.sfCloseCustomDialog(null);
-    } else if (e.key === 'Enter') {
+    } else if (e.key === 'Enter' && e.target.id === 'sf-dialog-input') {
       e.preventDefault();
       e.stopPropagation();
       window.sfSubmitCustomDialog();

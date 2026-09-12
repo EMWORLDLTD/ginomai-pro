@@ -5,6 +5,9 @@ contextBridge.exposeInMainWorld('desktopApi', {
   isDesktop: true,
   platform: process.platform,
 
+  // Canonical packaged application metadata
+  getAppInfo: () => ipcRenderer.invoke('desktop:get-app-info'),
+
   // Display & Projector Control
   getDisplays: () => ipcRenderer.invoke('desktop:get-displays'),
   launchProjector: (options) => ipcRenderer.invoke('desktop:launch-projector', options),

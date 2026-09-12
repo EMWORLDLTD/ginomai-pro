@@ -12,5 +12,6 @@
     "**/dist-*": true,
     "**/*.asar": true,
     "**/node_modules": true
-  }
+  },
+  "liveServer.settings.port": 5501
 }

@@ -1,4 +1,4 @@
-// Ginomai Pro - Native Broadcast & OBS Sync Server
+// Ginomia Pro - Native Broadcast & OBS Sync Server
 // The Word in Motion
 'use strict';
 
@@ -6,9 +6,22 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
+const packageMetadata = require('./package.json');
+const createAccessControl = require('./lib/access-control');
+const access = createAccessControl();
+const outputs = require('./lib/output-status')();
+let outputRevision = 0;
+let held = false;
+function displayState(full = false) {
+  if (full) return currentState;
+  const { dashboard, hostSpeechState, ...projected } = currentState;
+  return projected;
+}
 
 const PORT = process.env.PORT || 8500;
 const PUBLIC_DIR = __dirname;
+const liveReload = process.env.SF_DEV_RELOAD === '1'
+  ? require('./scripts/live-reload')(PUBLIC_DIR) : null;
 let currentBoundPort = PORT;
 
 // ─── Display State ────────────────────────────────────────────────────────────
@@ -25,6 +38,7 @@ let currentState = {
   bg: '#0F172A',
   clear: false,
   clearBg: false,
+  _outputRevision: 0,
   _timestamp: Date.now()
 };
 
@@ -117,9 +131,9 @@ const controlClients = new Set();   // Host studio — receives operator command
 const operatorClients = new Map();  // operatorId → res  — receive privilege updates
 
 function publishState() {
-  const sseData = `data: ${JSON.stringify(currentState)}\n\n`;
+  currentState._outputRevision = ++outputRevision;
   sseClients.forEach(client => {
-    try { client.write(sseData); } catch { sseClients.delete(client); }
+    try { client.write(`data: ${JSON.stringify(displayState(client.sfAuthenticated))}\n\n`); } catch { sseClients.delete(client); }
   });
 }
 
@@ -128,6 +142,22 @@ function broadcastToOperators(payload) {
   operatorClients.forEach((res, id) => {
     try { res.write(data); } catch { operatorClients.delete(id); }
   });
+}
+
+function revokeOperatorAccess() {
+  broadcastToOperators({ type: 'SESSION_ENDED' });
+  access.revoke();
+  for (const client of operatorClients.values()) client.end();
+  operatorClients.clear();
+  for (const clients of [controlClients, sseClients]) {
+    for (const client of clients) {
+      if (!client.sfOperator) continue;
+      client.end();
+      clients.delete(client);
+    }
+  }
+  remoteSession.connectedOperators = [];
+  remoteSession.pendingImports = [];
 }
 
 function broadcastPrivilegeUpdate() {
@@ -165,7 +195,7 @@ function isCommandAllowed(command, privileges) {
     case 'CLEAR':        return privileges.clearScreen;
     case 'BLACKOUT':     return privileges.clearScreen;
     case 'LOAD_SONG':    return privileges.loadSong;
-    case 'IMPORT_SONG':  return privileges.importSongsDirect || privileges.importSongsRequest;
+    case 'IMPORT_SONG':  return privileges.importSongsDirect;
     case 'IMPORT_BIBLE': return privileges.importBibles;
     case 'EDIT_LYRICS':  return privileges.editLyrics;
     case 'AGENDA_ADD':   return privileges.addAgendaItems;
@@ -176,13 +206,10 @@ function isCommandAllowed(command, privileges) {
     case 'SET_FONT_SIZE': return privileges.adjustFontSize;
     case 'TOGGLE_TRANSPARENT_BG': return privileges.toggleTransparentBg;
     case 'AUTO_PROJECT': return privileges.autoProject;
-    case 'PUSH_TO_HOST': return true;
-    case 'CATALOG_PUSHED': return true;
-    case 'PUSH_TO_OPERATOR': return true;
-    case 'SPEECH_AI_UPDATE': return true;
+    case 'PUSH_TO_HOST': return privileges.importSongsDirect && privileges.addAgendaItems;
     case 'STATE_PATCH':  return true; // filtered internally
     case 'SHADOW_DECK':  return true; // always allowed — continuity
-    case 'CATALOG_UPDATE': return true;
+    case 'CATALOG_UPDATE': return privileges.importSongsDirect && privileges.importBibles && privileges.editLyrics;
     default: return false;
   }
 }
@@ -218,27 +245,86 @@ const MIME_TYPES = {
 
 // ─── HTTP Server ──────────────────────────────────────────────────────────────
 const server = http.createServer((req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') { res.writeHead(204); res.end(); return; }
 
   const reqUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
   const pathname = reqUrl.pathname;
+  access.bootstrap(req, res, reqUrl);
+  const identity = access.identify(req);
+  const isHost = identity?.role === 'host';
+  if (pathname.startsWith('/api/') && !access.sameOrigin(req)) {
+    res.writeHead(403, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: 'Cross-origin requests are not permitted' }));
+    return;
+  }
+  if (liveReload && liveReload.handle(req, res, pathname)) return;
 
   // ── JSON body helper ────────────────────────────────────────────────────────
   function readBody(cb) {
     let body = '';
-    req.on('data', chunk => { body += chunk.toString(); });
+    let tooLarge = false;
+    req.on('data', chunk => {
+      if (tooLarge) return;
+      body += chunk.toString();
+      if (Buffer.byteLength(body) > 32 * 1024 * 1024) {
+        tooLarge = true;
+        json(413, { error: 'Request is too large' });
+      }
+    });
     req.on('end', () => {
+      if (tooLarge) return;
       if (!body || !body.trim()) return cb(null, {});
-      try { cb(null, JSON.parse(body)); } catch { cb(new Error('Bad JSON')); }
+      let parsed;
+      try { parsed = JSON.parse(body); } catch { return cb(new Error('Bad JSON')); }
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return cb(new Error('Expected a JSON object'));
+      cb(null, parsed);
     });
   }
 
   function json(statusCode, data) {
     res.writeHead(statusCode, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify(data));
+  }
+
+  // Default-deny API access; displays can only read projected content.
+  const publicReads = new Set(['/api/state', '/api/events', '/api/session', '/api/version', '/api/remote-server/status', '/api/output-status']);
+  const operatorPosts = new Set(['/api/control', '/api/session/leave', '/api/session/shadow-deck', '/api/session/push-to-host', '/api/import-request']);
+  const operatorReads = new Set(['/api/catalog', '/api/session/catalog', '/api/control-events', '/api/network', '/api/lyrics/search', '/api/bibles/catalog']);
+  const publicRead = req.method === 'GET' && (publicReads.has(pathname) || pathname.startsWith('/api/lexicon/'));
+  const operatorAccess = identity?.role === 'operator' && remoteSession.enabled && (
+    (req.method === 'POST' && operatorPosts.has(pathname)) ||
+    (req.method === 'GET' && (operatorReads.has(pathname) || pathname === `/api/operator-events/${identity.operatorId}` || (remoteSession.privileges.importBibles && pathname.startsWith('/api/bibles/download/'))))
+  );
+  if (pathname.startsWith('/api/') && !isHost && !publicRead && !operatorAccess && !['/api/session/join', '/api/output-ack'].includes(pathname)) {
+    return json(403, { error: 'Pair this device with the host to continue', pairingRequired: true });
+  }
+  if (!isHost && pathname === '/api/session' && req.method === 'GET') {
+    return json(200, { enabled: remoteSession.enabled, privileges: identity ? remoteSession.privileges : {}, importMode: remoteSession.importMode });
+  }
+  if (!isHost && pathname === '/api/session/push-to-host' && (!remoteSession.privileges.importSongsDirect || !remoteSession.privileges.addAgendaItems)) {
+    return json(403, { error: 'The host has not allowed library and agenda uploads' });
+  }
+  if (!isHost && pathname === '/api/import-request' && !remoteSession.privileges.importSongsRequest) {
+    return json(403, { error: 'The host has not allowed import requests' });
+  }
+  if (pathname === '/api/output-status' && req.method === 'GET') return json(200, { outputs: outputs.snapshot(currentState._outputRevision) });
+  if (pathname === '/api/hold' && req.method === 'POST') {
+    readBody((err, payload) => {
+      if (err) return json(400, { error: 'Invalid hold state' });
+      held = payload.held === true;
+      json(200, { held });
+    });
+    return;
+  }
+  if (pathname === '/api/output-ack' && req.method === 'POST') {
+    readBody((err, payload) => {
+      if (err || !outputs.acknowledge(payload.id, payload.revision)) return json(403, { error: 'Unknown display connection' });
+      json(200, { success: true });
+    });
+    return;
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -267,6 +353,7 @@ const server = http.createServer((req, res) => {
     }
     json(200, {
       enabled: remoteSession.enabled,
+      pairingCode: access.code(),
       importMode: remoteSession.importMode,
       privileges: remoteSession.privileges,
       connectedOperators: remoteSession.connectedOperators,
@@ -284,6 +371,8 @@ const server = http.createServer((req, res) => {
     readBody((err, payload) => {
       if (err) return json(400, { error: 'Bad JSON' });
       remoteSession.enabled = true;
+      revokeOperatorAccess();
+      access.rotate();
       remoteSession.privileges = { ...FULL_CONTROL_PRIVILEGES };
       remoteSession.importMode = 'direct';
       // Broadcast to any already-connected operator clients
@@ -299,9 +388,7 @@ const server = http.createServer((req, res) => {
   // POST /api/session/stop — host stops the session
   if (pathname === '/api/session/stop' && req.method === 'POST') {
     remoteSession.enabled = false;
-    remoteSession.connectedOperators = [];
-    remoteSession.pendingImports = [];
-    broadcastToOperators({ type: 'SESSION_ENDED' });
+    revokeOperatorAccess();
     const ev = `data: ${JSON.stringify({ type: 'REMOTE_SERVER_STATUS', enabled: false })}\n\n`;
     controlClients.forEach(c => { try { c.write(ev); } catch {} });
     json(200, { success: true, enabled: false });
@@ -352,13 +439,13 @@ const server = http.createServer((req, res) => {
   // GET /api/version — returns current software release and update metadata
   if (pathname === '/api/version' && req.method === 'GET') {
     json(200, {
-      appName: 'Ginomai Pro',
+      appName: packageMetadata.build.productName,
       tagline: 'The Word in Motion',
-      version: '2.4.0-PRO',
-      build: '2.4.0-PRO',
+      version: packageMetadata.version,
+      build: packageMetadata.version,
       releaseDate: '2026-09-10',
       isLatest: true,
-      latestVersion: '2.4.0-PRO',
+      latestVersion: packageMetadata.version,
       changelogUrl: 'https://github.com/EMWORLDLTD/ginomai-pro/releases',
       features: [
         'Bento Studio Pro modular 3-zone architecture',
@@ -402,7 +489,7 @@ const server = http.createServer((req, res) => {
         method: 'GET',
         headers: {
           'Authorization': `Token ${apiKey}`,
-          'User-Agent': 'Ginomai-Pro/1.0'
+          'User-Agent': `Ginomia-Pro/${packageMetadata.version}`
         },
         timeout: 8000
       }, (resDg) => {
@@ -505,7 +592,7 @@ const server = http.createServer((req, res) => {
       });
       // 3. Broadcast to display & stage preview stream
       sseClients.forEach(res => {
-        try { res.write(speechEvent); } catch { sseClients.delete(res); }
+        if (res.sfAuthenticated) try { res.write(speechEvent); } catch { sseClients.delete(res); }
       });
 
       json(200, { success: true });
@@ -544,20 +631,25 @@ const server = http.createServer((req, res) => {
     readBody((err, payload) => {
       if (err) return json(400, { error: 'Bad JSON' });
       if (!remoteSession.enabled) return json(403, { error: 'Session not active', sessionOffline: true });
+      const pairedId = identity?.role === 'operator' ? identity.operatorId : null;
+      const newId = require('crypto').randomUUID();
+      if (!pairedId && !access.pair(req, res, payload.pairingCode, newId)) {
+        return json(403, { error: 'Enter the six-digit pairing code from the host Broadcast Hub. After repeated attempts, wait one minute.', pairingRequired: true });
+      }
       const deviceId = (payload.deviceId && typeof payload.deviceId === 'string') 
         ? payload.deviceId.trim() 
         : `dev_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
-      const name = (payload.name || 'Remote Operator').trim().slice(0, 40);
+      const name = String(payload.name || 'Remote Operator').trim().slice(0, 40);
       
       // Check if device already exists in list (same browser refreshing)
-      let opEntry = remoteSession.connectedOperators.find(o => o.deviceId === deviceId);
+      let opEntry = remoteSession.connectedOperators.find(o => o.id === pairedId);
       let operatorId;
       if (opEntry) {
         operatorId = opEntry.id;
         opEntry.name = name;
         opEntry.joinedAt = Date.now();
       } else {
-        operatorId = `op_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+        operatorId = pairedId || newId;
         opEntry = { id: operatorId, deviceId, name, joinedAt: Date.now() };
         remoteSession.connectedOperators.push(opEntry);
       }
@@ -583,8 +675,8 @@ const server = http.createServer((req, res) => {
   if (pathname === '/api/session/leave' && req.method === 'POST') {
     readBody((err, payload) => {
       if (err) return json(400, {});
-      const operatorId = payload.operatorId;
-      const deviceId = payload.deviceId;
+      const operatorId = isHost ? payload.operatorId : identity.operatorId;
+      const deviceId = isHost ? payload.deviceId : null;
       remoteSession.connectedOperators = remoteSession.connectedOperators.filter(o => 
         o.id !== operatorId && (!deviceId || o.deviceId !== deviceId)
       );
@@ -603,8 +695,7 @@ const server = http.createServer((req, res) => {
     res.writeHead(200, {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive',
-      'Access-Control-Allow-Origin': '*'
+      'Connection': 'keep-alive'
     });
     // Send current privileges, catalog & host speech state immediately
     res.write(`data: ${JSON.stringify({ type: 'PRIVILEGE_UPDATE', privileges: remoteSession.privileges, importMode: remoteSession.importMode, sessionEnabled: remoteSession.enabled })}\n\n`);
@@ -621,6 +712,7 @@ const server = http.createServer((req, res) => {
     operatorClients.set(operatorId, res);
 
     req.on('close', () => {
+      if (operatorClients.get(operatorId) !== res) return;
       operatorClients.delete(operatorId);
       remoteSession.connectedOperators = remoteSession.connectedOperators.filter(o => o.id !== operatorId);
       const ev = `data: ${JSON.stringify({ type: 'OPERATORS_UPDATED', operators: remoteSession.connectedOperators, count: remoteSession.connectedOperators.length, operatorId })}\n\n`;
@@ -637,10 +729,11 @@ const server = http.createServer((req, res) => {
       if (err) return json(400, { error: 'Bad JSON' });
       if (!remoteSession.enabled) return json(403, { error: 'Session not active' });
       const importId = `imp_${Date.now()}`;
-      const operator = remoteSession.connectedOperators.find(o => o.id === payload.operatorId) || { name: 'Operator' };
+      const operatorId = isHost ? payload.operatorId : identity.operatorId;
+      const operator = remoteSession.connectedOperators.find(o => o.id === operatorId) || { name: 'Operator' };
       const entry = {
         id: importId,
-        operatorId: payload.operatorId,
+        operatorId,
         operatorName: operator.name,
         song: payload.song,
         timestamp: Date.now(),
@@ -692,6 +785,8 @@ const server = http.createServer((req, res) => {
   // Toggle remote server endpoint
   if (pathname === '/api/remote-server/toggle' && req.method === 'POST') {
     remoteSession.enabled = !remoteSession.enabled;
+    revokeOperatorAccess();
+    if (remoteSession.enabled) access.rotate();
     if (remoteSession.enabled) {
       remoteSession.privileges = { ...FULL_CONTROL_PRIVILEGES };
       remoteSession.importMode = 'direct';
@@ -710,7 +805,7 @@ const server = http.createServer((req, res) => {
   }
 
   if (pathname === '/api/state' && req.method === 'GET') {
-    json(200, currentState);
+    json(200, displayState(Boolean(identity)));
     return;
   }
 
@@ -734,12 +829,14 @@ const server = http.createServer((req, res) => {
     res.writeHead(200, {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive',
-      'Access-Control-Allow-Origin': '*'
+      'Connection': 'keep-alive'
     });
-    res.write(`data: ${JSON.stringify(currentState)}\n\n`);
+    res.sfAuthenticated = Boolean(identity);
+    res.sfOperator = identity?.role === 'operator';
+    const displayId = outputs.connect(reqUrl.searchParams.get('target'), res);
+    res.write(`data: ${JSON.stringify(displayState(Boolean(identity)))}\n\n`);
     sseClients.add(res);
-    req.on('close', () => sseClients.delete(res));
+    req.on('close', () => { sseClients.delete(res); outputs.disconnect(displayId); });
     return;
   }
 
@@ -747,7 +844,10 @@ const server = http.createServer((req, res) => {
     readBody((err, command) => {
       if (err || !command || typeof command.type !== 'string') return json(400, { error: 'Invalid command' });
 
-      if (command._fromRemote) {
+      if (!isHost) {
+        command._fromRemote = true;
+        command.operatorId = identity.operatorId;
+        if (held && ['PROJECT', 'NAVIGATE'].includes(command.type)) return json(409, { error: 'The host is holding the live output' });
         // Block if session is not active
         if (!remoteSession.enabled) {
           return json(403, { error: 'Remote session is offline', sessionOffline: true });
@@ -756,6 +856,7 @@ const server = http.createServer((req, res) => {
         if (!isCommandAllowed(command, remoteSession.privileges)) {
           return json(403, { error: 'Action not permitted by host', privilegeDenied: true, type: command.type });
         }
+        if (command.type === 'STATE_PATCH') command.patch = createAccessControl.filterPatch(command.patch || {}, remoteSession.privileges);
       }
 
       // Zero-latency direct broadcast to OBS / Displays / Projector
@@ -808,11 +909,11 @@ const server = http.createServer((req, res) => {
   }
 
   if (pathname === '/api/control-events' && req.method === 'GET') {
+    res.sfOperator = identity?.role === 'operator';
     res.writeHead(200, {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive',
-      'Access-Control-Allow-Origin': '*'
+      'Connection': 'keep-alive'
     });
     if (hostSpeechState) {
       res.write(`data: ${JSON.stringify({ type: 'SPEECH_AI_UPDATE', hostSpeechState, fullSync: true })}\n\n`);
@@ -923,7 +1024,7 @@ const server = http.createServer((req, res) => {
       try {
         const searchUrl = `https://lrclib.net/api/search?q=${encodeURIComponent(queryTerm)}`;
         let response = await fetch(searchUrl, {
-          headers: { 'User-Agent': 'GinomaiPro/1.0' },
+          headers: { 'User-Agent': `GinomiaPro/${packageMetadata.version}` },
           signal: AbortSignal.timeout(5000)
         });
 
@@ -931,7 +1032,7 @@ const server = http.createServer((req, res) => {
         if (response.status === 503 || response.status === 429 || response.status === 502) {
           await new Promise(r => setTimeout(r, 400));
           response = await fetch(searchUrl, {
-            headers: { 'User-Agent': 'GinomaiPro/1.0' },
+            headers: { 'User-Agent': `GinomiaPro/${packageMetadata.version}` },
             signal: AbortSignal.timeout(5000)
           });
         }
@@ -1024,7 +1125,7 @@ const server = http.createServer((req, res) => {
         json(200, { results: uniqueResults, count: uniqueResults.length, query: queryTerm });
       } else {
         if (lastErr) {
-          console.info(`[Ginomai Pro] Cloud lyrics provider info: ${lastErr.message}. Fallback attempted.`);
+          console.info(`[Ginomia Pro] Cloud lyrics provider info: ${lastErr.message}. Fallback attempted.`);
         }
         json(200, {
           results: [],
@@ -1129,12 +1230,22 @@ const server = http.createServer((req, res) => {
   }
 
   // ─── Static File Server ───────────────────────────────────────────────────
-  let filePath = path.join(PUBLIC_DIR, pathname === '/' ? 'index.html' : pathname);
-  if (!filePath.startsWith(PUBLIC_DIR)) { res.writeHead(403); res.end('Forbidden'); return; }
+  if (pathname === '/remote.html') { res.writeHead(302, { Location: '/operator.html' }); res.end(); return; }
+  let decodedPath;
+  try { decodedPath = decodeURIComponent(pathname); } catch { res.writeHead(400); res.end('Bad path'); return; }
+  const parts = decodedPath.replace(/\\/g, '/').split('/').filter(Boolean);
+  const publicFolders = new Set(['css', 'js', 'Themes', 'themes', 'assets', 'bibles', 'lexicon', 'fonts', 'images', 'media', 'backgrounds']);
+  const publicPages = new Set(['index.html', 'display.html', 'operator.html', 'remote.html', 'favicon.ico']);
+  if (parts.some(part => part.startsWith('.')) || (parts.length && !publicFolders.has(parts[0]) && !(parts.length === 1 && publicPages.has(parts[0])))) {
+    res.writeHead(403); res.end('Forbidden'); return;
+  }
+  let filePath = path.resolve(PUBLIC_DIR, '.' + (pathname === '/' ? '/index.html' : decodedPath));
+  if (!filePath.startsWith(PUBLIC_DIR + path.sep)) { res.writeHead(403); res.end('Forbidden'); return; }
 
   fs.stat(filePath, (err, stats) => {
     if (err || !stats.isFile()) { res.writeHead(404); res.end('Not Found'); return; }
     const ext = path.extname(filePath).toLowerCase();
+    if (liveReload && ext === '.html') { liveReload.serveHtml(filePath, res); return; }
     const headers = { 'Content-Type': MIME_TYPES[ext] || 'application/octet-stream' };
     if (ext === '.css' || ext === '.js' || ext === '.html') {
       headers['Cache-Control'] = 'no-cache, no-store, must-revalidate';
@@ -1165,15 +1276,15 @@ function startServer(port = PORT, callback) {
       if (err.code === 'EADDRINUSE') {
         attempts++;
         if (attempts < maxAttempts) {
-          console.warn(`[Ginomai Pro] Port ${attemptPort} in use, trying next port ${attemptPort + 1}...`);
+          console.warn(`[Ginomia Pro] Port ${attemptPort} in use, trying next port ${attemptPort + 1}...`);
           attemptPort++;
           setTimeout(tryListen, 50);
         } else {
-          console.error(`[Ginomai Pro] Could not bind after ${maxAttempts} attempts:`, err);
+          console.error(`[Ginomia Pro] Could not bind after ${maxAttempts} attempts:`, err);
           if (callback) callback(err, null, attemptPort);
         }
       } else {
-        console.error('[Ginomai Pro] Server error:', err);
+        console.error('[Ginomia Pro] Server error:', err);
         if (callback) callback(err, null, attemptPort);
       }
     });
@@ -1183,7 +1294,7 @@ function startServer(port = PORT, callback) {
       currentBoundPort = attemptPort;
       const lanIp = getLanAddresses()[0];
       console.log(`=======================================================`);
-      console.log(` Ginomai Pro — The Word in Motion (Studio Server)`);
+      console.log(` Ginomia Pro — The Word in Motion (Studio Server)`);
       console.log(` Host Console:       http://localhost:${attemptPort}`);
       if (lanIp) {
         console.log(` Remote Operator:   http://${lanIp}:${attemptPort}/operator.html`);

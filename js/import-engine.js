@@ -1,4 +1,4 @@
-// Import Engine & Online Repository Service for Ginomai Pro
+// Import Engine & Online Repository Service for Ginomia Pro
 
 // Canonical Bible Books & Aliases Map
 const CANONICAL_BIBLE_BOOKS = [
@@ -490,7 +490,7 @@ class LibraryImportEngine {
     return Boolean(json.title && (json.stanzas || json.lyrics || json.author));
   }
 
-  // Universal Bible Parser: parses JSON, XML, USFM, CSV, or Text into normalized Ginomai Pro Bible object
+  // Universal Bible Parser: parses JSON, XML, USFM, CSV, or Text into normalized Ginomia Pro Bible object
   parseBibleContent(content, fileName = 'Imported Bible') {
     const rawTrimmed = typeof content === 'string' ? content.trim() : '';
     const defaultCode = (fileName || 'BIBLE').replace(/\.[^/.]+$/, "").toUpperCase().replace(/[^A-Z0-9_]/g, '_').slice(0, 10) || 'CUSTOM';
@@ -1552,4 +1552,3 @@ const CLOUD_REPOSITORIES = {
 };
 
 window.libraryImporter = new LibraryImportEngine();
-

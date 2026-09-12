@@ -1,4 +1,4 @@
-// Ginomai Pro - Theme & Display Customizer Engine
+// Ginomia Pro - Theme & Display Customizer Engine
 'use strict';
 
 // Early Theme Hydration (Prevents Layout Stacking and Flash of Unstyled Theme on Refresh)
@@ -80,6 +80,175 @@ const THEME_PRESETS = {
     mode: 'full',
     font: 'Inter',
     primaryColor: '#60A5FA'
+  }
+};
+
+const SANCTUARY_THEMES = {
+  // Motion Video Themes (WebM)
+  celestial_motion: {
+    id: 'celestial_motion',
+    name: 'Celestial Worship',
+    type: 'video',
+    badge: 'WEBM',
+    category: 'motion',
+    description: 'Seamless looping motion: deep celestial rays & atmospheric starlight',
+    videoUrl: 'Themes/celestial_worship_loop.webm',
+    imageUrl: 'Themes/celestial_worship.webp',
+    previewGradient: 'radial-gradient(circle at 50% 25%, #2563eb 0%, #0a1128 85%)',
+    textColor: '#FFFFFF',
+    textShadow: '0 4px 16px rgba(0, 0, 0, 0.95), 0 1px 3px rgba(0, 0, 0, 0.98)',
+    headerColor: '#60A5FA',
+    font: 'Outfit'
+  },
+  golden_motion: {
+    id: 'golden_motion',
+    name: 'Golden Sunrise',
+    type: 'video',
+    badge: 'WEBM',
+    category: 'motion',
+    description: 'Seamless looping motion: cathedral golden god-rays and warm light dust',
+    videoUrl: 'Themes/golden_sunrise_loop.webm',
+    imageUrl: 'Themes/golden_sunrise.webp',
+    previewGradient: 'radial-gradient(circle at 50% 20%, #d97706 0%, #1c0e04 80%)',
+    textColor: '#FFFBEB',
+    textShadow: '0 4px 18px rgba(0, 0, 0, 0.95), 0 1px 4px rgba(0, 0, 0, 0.98)',
+    headerColor: '#FBBF24',
+    font: 'Cormorant Garamond'
+  },
+  ember_motion: {
+    id: 'ember_motion',
+    name: 'Atmospheric Ember',
+    type: 'video',
+    badge: 'WEBM',
+    category: 'motion',
+    description: 'Seamless looping motion: modern plum worship stage & drifting golden bokeh',
+    videoUrl: 'Themes/atmospheric_ember_loop.webm',
+    imageUrl: 'Themes/atmospheric_ember.webp',
+    previewGradient: 'radial-gradient(circle at 50% 30%, #7e22ce 0%, #180224 80%)',
+    textColor: '#FAF5FF',
+    textShadow: '0 4px 16px rgba(0, 0, 0, 0.95), 0 1px 3px rgba(0, 0, 0, 0.98)',
+    headerColor: '#C084FC',
+    font: 'Outfit'
+  },
+  emerald_motion: {
+    id: 'emerald_motion',
+    name: 'Emerald Ambient',
+    type: 'video',
+    badge: 'WEBM',
+    category: 'motion',
+    description: 'Seamless looping motion: velvet dark emerald waves with charcoal vignette',
+    videoUrl: 'Themes/emerald_ambient_loop.webm',
+    imageUrl: 'Themes/emerald_ambient.webp',
+    previewGradient: 'radial-gradient(circle at 50% 25%, #059669 0%, #02221b 80%)',
+    textColor: '#ECFDF5',
+    textShadow: '0 4px 16px rgba(0, 0, 0, 0.95), 0 1px 3px rgba(0, 0, 0, 0.98)',
+    headerColor: '#34D399',
+    font: 'Outfit'
+  },
+
+  // Still Image Themes (WebP)
+  celestial_still: {
+    id: 'celestial_still',
+    name: 'Celestial (Still)',
+    type: 'image',
+    badge: 'WEBP',
+    category: 'still',
+    description: 'Crisp 1080p high-res still image: deep celestial rays & atmospheric mist',
+    imageUrl: 'Themes/celestial_worship.webp',
+    previewGradient: 'radial-gradient(circle at 50% 25%, #2563eb 0%, #0a1128 85%)',
+    textColor: '#FFFFFF',
+    textShadow: '0 4px 16px rgba(0, 0, 0, 0.95), 0 1px 3px rgba(0, 0, 0, 0.98)',
+    headerColor: '#60A5FA',
+    font: 'Outfit'
+  },
+  golden_still: {
+    id: 'golden_still',
+    name: 'Golden Sunrise (Still)',
+    type: 'image',
+    badge: 'WEBP',
+    category: 'still',
+    description: 'Crisp 1080p high-res still image: sacred cathedral amber rays',
+    imageUrl: 'Themes/golden_sunrise.webp',
+    previewGradient: 'radial-gradient(circle at 50% 20%, #d97706 0%, #1c0e04 80%)',
+    textColor: '#FFFBEB',
+    textShadow: '0 4px 18px rgba(0, 0, 0, 0.95), 0 1px 4px rgba(0, 0, 0, 0.98)',
+    headerColor: '#FBBF24',
+    font: 'Cormorant Garamond'
+  },
+  ember_still: {
+    id: 'ember_still',
+    name: 'Atmospheric Ember (Still)',
+    type: 'image',
+    badge: 'WEBP',
+    category: 'still',
+    description: 'Crisp 1080p high-res still image: worship stage with golden bokeh',
+    imageUrl: 'Themes/atmospheric_ember.webp',
+    previewGradient: 'radial-gradient(circle at 50% 30%, #7e22ce 0%, #180224 80%)',
+    textColor: '#FAF5FF',
+    textShadow: '0 4px 16px rgba(0, 0, 0, 0.95), 0 1px 3px rgba(0, 0, 0, 0.98)',
+    headerColor: '#C084FC',
+    font: 'Outfit'
+  },
+  emerald_still: {
+    id: 'emerald_still',
+    name: 'Emerald Ambient (Still)',
+    type: 'image',
+    badge: 'WEBP',
+    category: 'still',
+    description: 'Crisp 1080p high-res still image: minimalist jade silk ribbons',
+    imageUrl: 'Themes/emerald_ambient.webp',
+    previewGradient: 'radial-gradient(circle at 50% 25%, #059669 0%, #02221b 80%)',
+    textColor: '#ECFDF5',
+    textShadow: '0 4px 16px rgba(0, 0, 0, 0.95), 0 1px 3px rgba(0, 0, 0, 0.98)',
+    headerColor: '#34D399',
+    font: 'Outfit'
+  },
+
+  // Minimal / LED Themes
+  obsidian_dark: {
+    id: 'obsidian_dark',
+    name: 'Obsidian Dark (LED)',
+    type: 'gradient',
+    badge: 'LED',
+    category: 'minimal',
+    description: 'Pure 100% black AMOLED & stage LED wall high-contrast mode',
+    bgCss: '#000000',
+    previewGradient: 'linear-gradient(180deg, #18181b 0%, #000000 100%)',
+    textColor: '#FFFFFF',
+    textShadow: 'none',
+    headerColor: '#E4E4E7',
+    font: 'Outfit'
+  },
+  cathedral_slate: {
+    id: 'cathedral_slate',
+    name: 'Cathedral Slate',
+    type: 'gradient',
+    badge: 'GRADIENT',
+    category: 'minimal',
+    description: 'Architectural charcoal stone & deep graphite for sermon clarity',
+    bgCss: 'linear-gradient(180deg, #1e293b 0%, #0f172a 60%, #070b14 100%)',
+    previewGradient: 'linear-gradient(180deg, #334155 0%, #0f172a 100%)',
+    textColor: '#F8FAFC',
+    textShadow: '0 4px 16px rgba(0, 0, 0, 0.88), 0 1px 3px rgba(0, 0, 0, 0.95)',
+    headerColor: '#94A3B8',
+    font: 'Cinzel'
+  },
+
+  // Backward compatibility aliases
+  deep_celestial: {
+    id: 'deep_celestial',
+    name: 'Celestial Worship',
+    type: 'video',
+    badge: 'WEBM',
+    category: 'motion',
+    description: 'Seamless looping motion: deep celestial rays & atmospheric starlight',
+    videoUrl: 'Themes/celestial_worship_loop.webm',
+    imageUrl: 'Themes/celestial_worship.webp',
+    previewGradient: 'radial-gradient(circle at 50% 25%, #2563eb 0%, #0a1128 85%)',
+    textColor: '#FFFFFF',
+    textShadow: '0 4px 16px rgba(0, 0, 0, 0.95), 0 1px 3px rgba(0, 0, 0, 0.98)',
+    headerColor: '#60A5FA',
+    font: 'Outfit'
   }
 };
 
@@ -453,8 +622,122 @@ class ThemeManager {
     this.currentStyle = storedStyle;
     this.currentMode = localStorage.getItem('sf_ui_mode') || 'dark';
 
+    // Restore Sanctuary Theme Settings
+    this.activeSanctuaryTheme = localStorage.getItem('sf_sanctuary_theme') || 'celestial_motion';
+    if (!SANCTUARY_THEMES[this.activeSanctuaryTheme]) {
+      this.activeSanctuaryTheme = 'celestial_motion';
+    }
+    this.sanctuaryDimmer = parseInt(localStorage.getItem('sf_sanctuary_dimmer') || '30', 10);
+    this.sanctuaryFont = localStorage.getItem('sf_sanctuary_font') || 'Outfit';
+    this.obsModeRule = localStorage.getItem('sf_obs_mode_rule') || 'follow';
+
     this.applyUiTheme();
     ThemeResizerEngine.applySavedThemeDimensions(this.currentStyle);
+  }
+
+  setSanctuaryTheme(themeId) {
+    if (!SANCTUARY_THEMES[themeId]) return;
+    this.activeSanctuaryTheme = themeId;
+    try { localStorage.setItem('sf_sanctuary_theme', themeId); } catch(e) {}
+    this.broadcastSanctuaryTheme();
+    this.updateSanctuaryUi();
+  }
+
+  setSanctuaryDimmer(dimmerVal) {
+    const val = Math.max(0, Math.min(80, parseInt(dimmerVal, 10) || 0));
+    this.sanctuaryDimmer = val;
+    try { localStorage.setItem('sf_sanctuary_dimmer', val); } catch(e) {}
+    this.broadcastSanctuaryTheme();
+    this.updateSanctuaryUi();
+  }
+
+  setSanctuaryFont(fontFamily) {
+    this.sanctuaryFont = fontFamily;
+    try { localStorage.setItem('sf_sanctuary_font', fontFamily); } catch(e) {}
+    this.broadcastSanctuaryTheme();
+    this.updateSanctuaryUi();
+  }
+
+  setObsModeRule(rule) {
+    const valid = ['follow', 'always_full', 'always_lt'];
+    this.obsModeRule = valid.includes(rule) ? rule : 'follow';
+    try { localStorage.setItem('sf_obs_mode_rule', this.obsModeRule); } catch(e) {}
+    this.broadcastSanctuaryTheme();
+    if (typeof window.broadcastState === 'function') {
+      window.broadcastState();
+    }
+  }
+
+  getSanctuaryPayload() {
+    const theme = SANCTUARY_THEMES[this.activeSanctuaryTheme] || SANCTUARY_THEMES.celestial_motion || SANCTUARY_THEMES.deep_celestial;
+    return {
+      id: this.activeSanctuaryTheme,
+      name: theme.name,
+      type: theme.type || 'gradient',
+      badge: theme.badge || '',
+      category: theme.category,
+      videoUrl: theme.videoUrl || '',
+      imageUrl: theme.imageUrl || '',
+      bgCss: theme.bgCss || '',
+      textColor: theme.textColor,
+      textShadow: theme.textShadow,
+      headerColor: theme.headerColor,
+      font: this.sanctuaryFont || theme.font,
+      dimmer: this.sanctuaryDimmer,
+      obsModeRule: this.obsModeRule || 'follow'
+    };
+  }
+
+  broadcastSanctuaryTheme() {
+    const payload = this.getSanctuaryPayload();
+    if (window.state) {
+      window.state.sanctuaryTheme = payload;
+    }
+    if (typeof window.broadcastState === 'function') {
+      window.broadcastState();
+    }
+    try {
+      const ch = new BroadcastChannel('scriptureflow_sync');
+      ch.postMessage({ type: 'sanctuary_theme_sync', sanctuaryTheme: payload });
+    } catch(e) {}
+
+    if (typeof window.syncBentoStagePreview === 'function') {
+      window.syncBentoStagePreview();
+    }
+  }
+
+  updateSanctuaryUi() {
+    const curTheme = SANCTUARY_THEMES[this.activeSanctuaryTheme] || SANCTUARY_THEMES.deep_celestial;
+    const btnLabel = document.getElementById('bento-sanctuary-theme-name');
+    if (btnLabel) {
+      btnLabel.textContent = curTheme.name;
+    }
+    const dimmerLabel = document.getElementById('sanctuary-dimmer-val');
+    if (dimmerLabel) {
+      dimmerLabel.textContent = `${this.sanctuaryDimmer}%`;
+    }
+    const dimmerSlider = document.getElementById('sanctuary-dimmer-slider');
+    if (dimmerSlider) {
+      dimmerSlider.value = this.sanctuaryDimmer;
+    }
+
+    // Update active highlight in theme popover cards
+    document.querySelectorAll('.sanctuary-theme-card').forEach(card => {
+      const tid = card.getAttribute('data-theme-id');
+      card.classList.toggle('active', tid === this.activeSanctuaryTheme);
+    });
+
+    // Update font buttons in popover
+    document.querySelectorAll('.sanctuary-font-btn').forEach(btn => {
+      const font = btn.getAttribute('data-font');
+      btn.classList.toggle('active', font === this.sanctuaryFont);
+    });
+
+    // Update OBS mode rule select
+    const obsRuleSelect = document.getElementById('obs-mode-rule-select');
+    if (obsRuleSelect) {
+      obsRuleSelect.value = this.obsModeRule || 'follow';
+    }
   }
 
   setStyle(styleKey) {
@@ -501,12 +784,25 @@ class ThemeManager {
     // In dark mode, show sun icon to switch to light mode; in light mode, show moon icon to switch to dark mode
     const iconSvg = isDark ? THEME_ICONS.sun : THEME_ICONS.moon;
     const tooltipText = isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode';
+    const labelText = isDark ? 'Light Mode' : 'Dark Mode';
 
     const bentoBtn = document.getElementById('bento-theme-mode-toggle');
     if (bentoBtn) {
-      bentoBtn.innerHTML = iconSvg;
       bentoBtn.title = tooltipText;
       bentoBtn.setAttribute('aria-label', tooltipText);
+      const iconWrap = bentoBtn.querySelector('.sf-menu-icon');
+      const labelSpan = bentoBtn.querySelector('.sf-menu-label') || bentoBtn.querySelector('span');
+      if (iconWrap && labelSpan) {
+        iconWrap.innerHTML = iconSvg;
+        labelSpan.textContent = labelText;
+      } else if (labelSpan) {
+        labelSpan.textContent = labelText;
+        const svg = bentoBtn.querySelector('svg');
+        if (svg) svg.outerHTML = iconSvg;
+        else bentoBtn.insertAdjacentHTML('afterbegin', iconSvg);
+      } else {
+        bentoBtn.innerHTML = iconSvg;
+      }
     }
 
     const classicBtn = document.getElementById('classic-theme-mode-toggle');
@@ -565,6 +861,7 @@ class ThemeManager {
 window.UI_STYLES = UI_STYLES;
 window.UI_MODES = UI_MODES;
 window.THEME_PRESETS = THEME_PRESETS;
+window.SANCTUARY_THEMES = SANCTUARY_THEMES;
 window.THEME_LAYOUT_SPECS = THEME_LAYOUT_SPECS;
 window.ThemeResizerEngine = ThemeResizerEngine;
 window.ThemeManager = ThemeManager;
@@ -577,4 +874,3 @@ if (typeof document !== 'undefined') {
     ThemeResizerEngine.init();
   }
 }
-

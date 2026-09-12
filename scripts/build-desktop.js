@@ -1,4 +1,4 @@
-// Ginomai Pro - Desktop Build Script
+// Ginomia Pro - Desktop Build Script
 // Builds Windows NSIS installer and portable executable cleanly without workspace file-locking conflicts.
 
 'use strict';
@@ -15,7 +15,7 @@ const installersDir = path.join(projectRoot, 'installers');
 const shouldPublish = process.argv.includes('--publish');
 
 console.log('====================================================');
-console.log(' Ginomai Pro — Windows Desktop App Builder');
+console.log(' Ginomia Pro — Windows Desktop App Builder');
 console.log('====================================================');
 console.log(`Project root:      ${projectRoot}`);
 console.log(`Build staging dir: ${tempBuildDir}`);
@@ -87,4 +87,3 @@ builder.on('close', (code) => {
     process.exit(1);
   }
 });
-
